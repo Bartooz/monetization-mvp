@@ -1,4 +1,6 @@
 // pages/calendar.js
+// TEMP: triggering redeploy after fixing CSS import
+
 import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
