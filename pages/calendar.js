@@ -1,5 +1,5 @@
 // pages/calendar.js
-// TEMP: triggering redeploy after fixing CSS import
+// TEMP: trigger rebuild again (for real this time)
 
 import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
