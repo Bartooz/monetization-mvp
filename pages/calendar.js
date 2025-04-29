@@ -9,8 +9,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import Modal from "react-modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import '@fullcalendar/daygrid/index.css';
-import '@fullcalendar/timegrid/index.css';
+import '@fullcalendar/daygrid/main.css';
+import '@fullcalendar/timegrid/main.css';
 
 Modal.setAppElement("#__next"); // Needed for accessibility
 
