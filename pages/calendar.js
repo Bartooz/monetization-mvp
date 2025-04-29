@@ -47,7 +47,7 @@ export default function CalendarPage() {
 
   return (
     <div style={{ padding: 30, fontFamily: "sans-serif" }}>
-      <h1>LiveOps Calendar</h1>
+      <h1>🔥 LiveOps Calendar 🔥</h1>
 
       <button
         onClick={openModal}
