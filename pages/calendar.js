@@ -1,6 +1,3 @@
-// pages/calendar.js
-// FINAL fix to remove broken @fullcalendar/common/main.css
-
 import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -10,7 +7,7 @@ import Modal from "react-modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-Modal.setAppElement("#__next"); // Needed for accessibility
+Modal.setAppElement("#__next");
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -20,9 +17,9 @@ export default function CalendarPage() {
   const [endDate, setEndDate] = useState(new Date());
 
   const openModal = () => {
+    setEventType("Offers");
     setStartDate(new Date());
     setEndDate(new Date());
-    setEventType("Offers");
     setModalIsOpen(true);
   };
 
@@ -45,7 +42,7 @@ export default function CalendarPage() {
 
   return (
     <div style={{ padding: 30, fontFamily: "sans-serif" }}>
-      <h1>🔥 LiveOps Calendar 🔥</h1>
+      <h1>LiveOps Calendar</h1>
 
       <button
         onClick={openModal}
@@ -53,7 +50,7 @@ export default function CalendarPage() {
           marginBottom: 20,
           padding: "10px 20px",
           fontSize: 16,
-          background: "black",
+          background: "#111",
           color: "white",
           border: "none",
           borderRadius: 8,
@@ -91,10 +88,10 @@ export default function CalendarPage() {
           },
         }}
       >
-        <h2>Create New Event</h2>
+        <h2 style={{ marginBottom: 20 }}>Create New Event</h2>
 
         <label style={{ display: "block", marginBottom: 10 }}>
-          Type:
+          Event Type:
           <select
             value={eventType}
             onChange={(e) => setEventType(e.target.value)}
@@ -129,36 +126,40 @@ export default function CalendarPage() {
           />
         </label>
 
-        <button
-          onClick={handleAddEvent}
-          style={{
-            padding: "8px 16px",
-            background: "black",
-            color: "white",
-            border: "none",
-            borderRadius: 5,
-            marginRight: 10,
-            cursor: "pointer",
-          }}
-        >
-          Add Event
-        </button>
-        <button
-          onClick={closeModal}
-          style={{
-            padding: "8px 16px",
-            background: "#ccc",
-            color: "black",
-            border: "none",
-            borderRadius: 5,
-            cursor: "pointer",
-          }}
-        >
-          Cancel
-        </button>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button
+            onClick={closeModal}
+            style={{
+              padding: "8px 12px",
+              background: "#ccc",
+              color: "black",
+              border: "none",
+              borderRadius: 4,
+              marginRight: 10,
+              cursor: "pointer",
+            }}
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={handleAddEvent}
+            style={{
+              padding: "8px 16px",
+              background: "black",
+              color: "white",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            Add Event
+          </button>
+        </div>
       </Modal>
     </div>
   );
 }
+
 
 
