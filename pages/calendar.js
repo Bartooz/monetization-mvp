@@ -1,5 +1,5 @@
 // pages/calendar.js
-// TEMP: trigger rebuild again (for real this time)
+// FINAL fix to remove broken @fullcalendar/common/main.css
 
 import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
