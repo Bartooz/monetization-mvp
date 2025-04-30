@@ -1,11 +1,18 @@
-// pages/templates.js
 import { useEffect, useState } from "react";
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([]);
-  const [newTemplate, setNewTemplate] = useState("");
+  const [templateName, setTemplateName] = useState("");
+  const [title, setTitle] = useState("");
+  const [cta, setCta] = useState("");
+  const [layoutSize, setLayoutSize] = useState(3); // 2, 3, or 4
+  const [slots, setSlots] = useState([
+    { label: "", bonus: "" },
+    { label: "", bonus: "" },
+    { label: "", bonus: "" },
+  ]);
 
-  // Load from localStorage
+  // Load saved templates
   useEffect(() => {
     const saved = localStorage.getItem("liveops-templates");
     if (saved) {
@@ -13,48 +20,170 @@ export default function TemplatesPage() {
     }
   }, []);
 
-  // Save to localStorage
+  // Save to localStorage when templates change
   useEffect(() => {
     localStorage.setItem("liveops-templates", JSON.stringify(templates));
   }, [templates]);
 
-  const handleAddTemplate = () => {
-    if (!newTemplate.trim()) return;
+  // Update slots array when layout changes
+  useEffect(() => {
+    setSlots(Array(layoutSize).fill().map((_, i) => slots[i] || { label: "", bonus: "" }));
+  }, [layoutSize]);
 
-    const exists = templates.some(t => t.toLowerCase() === newTemplate.trim().toLowerCase());
-    if (exists) return alert("Template already exists");
+  const handleSlotChange = (index, field, value) => {
+    const updated = [...slots];
+    updated[index][field] = value;
+    setSlots(updated);
+  };
 
-    setTemplates([...templates, newTemplate.trim()]);
-    setNewTemplate("");
+  const handleSaveTemplate = () => {
+    if (!templateName.trim()) {
+      alert("Template name is required");
+      return;
+    }
+
+    const newTemplate = {
+      name: templateName.trim(),
+      type: "MultiSale",
+      title: title.trim(),
+      cta: cta.trim(),
+      slots: slots.map((s) => ({
+        label: s.label.trim(),
+        bonus: s.bonus.trim(),
+      })),
+    };
+
+    setTemplates([...templates, newTemplate]);
+    setTemplateName("");
+    setTitle("");
+    setCta("");
+    setSlots(Array(layoutSize).fill({ label: "", bonus: "" }));
   };
 
   return (
     <div>
-      <h2 style={{ marginBottom: 10 }}>🗂️ Templates Library</h2>
+      <h2>🧱 MultiSale Template Builder</h2>
 
       <div style={{ marginBottom: 20 }}>
-        <input
-          type="text"
-          placeholder="Enter new template name"
-          value={newTemplate}
-          onChange={(e) => setNewTemplate(e.target.value)}
-          style={{ padding: 8, marginRight: 10 }}
-        />
-        <button
-          onClick={handleAddTemplate}
-          style={{ padding: "8px 12px", background: "#111", color: "white", border: "none", borderRadius: 4 }}
-        >
-          ➕ Add Template
-        </button>
+        <label>
+          Template Name:
+          <input
+            type="text"
+            value={templateName}
+            onChange={(e) => setTemplateName(e.target.value)}
+            style={{ marginLeft: 10, padding: 5, width: 250 }}
+          />
+        </label>
       </div>
 
-      <ul style={{ paddingLeft: 20 }}>
-        {templates.map((t, idx) => (
-          <li key={idx} style={{ marginBottom: 6 }}>{t}</li>
+      <div style={{ marginBottom: 20 }}>
+        <label>
+          Title Text:
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={{ marginLeft: 10, padding: 5, width: 250 }}
+          />
+        </label>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <label>
+          CTA Text:
+          <input
+            type="text"
+            value={cta}
+            onChange={(e) => setCta(e.target.value)}
+            style={{ marginLeft: 10, padding: 5, width: 250 }}
+          />
+        </label>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <label>
+          Layout:
+          <select
+            value={layoutSize}
+            onChange={(e) => setLayoutSize(parseInt(e.target.value))}
+            style={{ marginLeft: 10, padding: 5 }}
+          >
+            <option value={2}>2 Offers</option>
+            <option value={3}>3 Offers</option>
+            <option value={4}>4 Offers</option>
+          </select>
+        </label>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <h4>Offer Slots:</h4>
+        {slots.map((slot, idx) => (
+          <div key={idx} style={{ marginBottom: 10 }}>
+            <label>
+              Label:
+              <input
+                type="text"
+                value={slot.label}
+                onChange={(e) => handleSlotChange(idx, "label", e.target.value)}
+                style={{ marginLeft: 10, padding: 5, width: 100 }}
+              />
+            </label>
+
+            <label style={{ marginLeft: 20 }}>
+              Bonus:
+              <input
+                type="text"
+                value={slot.bonus}
+                onChange={(e) => handleSlotChange(idx, "bonus", e.target.value)}
+                style={{ marginLeft: 10, padding: 5, width: 120 }}
+              />
+            </label>
+          </div>
         ))}
-      </ul>
+      </div>
+
+      <button
+        onClick={handleSaveTemplate}
+        style={{
+          padding: "10px 20px",
+          background: "#111",
+          color: "white",
+          border: "none",
+          borderRadius: 6,
+        }}
+      >
+        Save Template
+      </button>
+
+      <hr style={{ margin: "30px 0" }} />
+
+      <h3>📦 Saved Templates:</h3>
+      {templates.map((tpl, idx) => (
+        <div
+          key={idx}
+          style={{
+            marginBottom: 15,
+            padding: 10,
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <strong>{tpl.name}</strong> ({tpl.slots.length} offers)
+          <div>Title: {tpl.title}</div>
+          <div>CTA: {tpl.cta}</div>
+          <ul>
+            {tpl.slots.map((s, i) => (
+              <li key={i}>
+                {s.label} {s.bonus && ` - Bonus: ${s.bonus}`}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }
+
 
   
