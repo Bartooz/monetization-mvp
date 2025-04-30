@@ -16,18 +16,29 @@ export default function CalendarPage() {
   const [previewEvent, setPreviewEvent] = useState(null);
   const [previewIndex, setPreviewIndex] = useState(null);
 
-  // Load saved events
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [selectedConfig, setSelectedConfig] = useState("");
+
+  const [templateOptions, setTemplateOptions] = useState([]);
+  const [configOptions, setConfigOptions] = useState([]);
+
+  // Load data from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("liveops-events");
-    if (saved) {
-      setEvents(JSON.parse(saved, (key, value) => {
+    const savedEvents = localStorage.getItem("liveops-events");
+    if (savedEvents) {
+      setEvents(JSON.parse(savedEvents, (key, value) => {
         if (["start", "end"].includes(key)) return new Date(value);
         return value;
       }));
     }
+
+    const savedTemplates = localStorage.getItem("liveops-templates");
+    if (savedTemplates) setTemplateOptions(JSON.parse(savedTemplates));
+
+    const savedConfigs = localStorage.getItem("liveops-configurations");
+    if (savedConfigs) setConfigOptions(JSON.parse(savedConfigs));
   }, []);
 
-  // Save to localStorage
   useEffect(() => {
     localStorage.setItem("liveops-events", JSON.stringify(events));
   }, [events]);
@@ -35,6 +46,8 @@ export default function CalendarPage() {
   const openNewModal = () => {
     setEventType("Offers");
     setOfferType("Regular Offer");
+    setSelectedTemplate("");
+    setSelectedConfig("");
     setStartDate(new Date());
     setEndDate(new Date());
     setEditingIndex(null);
@@ -46,11 +59,13 @@ export default function CalendarPage() {
       (e) => e.start.toString() === eventInfo.event.start.toString()
     );
     if (index !== -1) {
-      const selected = events[index];
-      setEventType(selected.type || "Offers");
-      setOfferType(selected.offerType || "Regular Offer");
-      setStartDate(new Date(selected.start));
-      setEndDate(new Date(selected.end));
+      const e = events[index];
+      setEventType(e.type || "Offers");
+      setOfferType(e.offerType || "Regular Offer");
+      setSelectedTemplate(e.template || "");
+      setSelectedConfig(e.configuration || "");
+      setStartDate(new Date(e.start));
+      setEndDate(new Date(e.end));
       setEditingIndex(index);
       setShowModal(true);
     }
@@ -61,6 +76,8 @@ export default function CalendarPage() {
       title: eventType === "Offers" ? offerType : eventType,
       type: eventType,
       offerType: eventType === "Offers" ? offerType : null,
+      template: eventType === "Offers" ? selectedTemplate : null,
+      configuration: eventType === "Offers" ? selectedConfig : null,
       start: startDate,
       end: endDate,
       allDay: false,
@@ -154,7 +171,6 @@ export default function CalendarPage() {
         }}
       />
 
-      {/* Preview Popup */}
       {previewEvent && (
         <div
           style={{
@@ -172,6 +188,8 @@ export default function CalendarPage() {
           <strong>{previewEvent.title}</strong>
           <div>Start: {previewEvent.start.toLocaleString()}</div>
           <div>End: {previewEvent.end.toLocaleString()}</div>
+          {previewEvent.template && <div>Template: {previewEvent.template}</div>}
+          {previewEvent.configuration && <div>Configuration: {previewEvent.configuration}</div>}
           <button
             onClick={handleDelete}
             style={{
@@ -189,7 +207,6 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {/* Event Modal */}
       <EventModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -202,6 +219,12 @@ export default function CalendarPage() {
         setStartDate={setStartDate}
         endDate={endDate}
         setEndDate={setEndDate}
+        selectedTemplate={selectedTemplate}
+        setSelectedTemplate={setSelectedTemplate}
+        selectedConfig={selectedConfig}
+        setSelectedConfig={setSelectedConfig}
+        templateOptions={templateOptions}
+        configOptions={configOptions}
         editing={editingIndex !== null}
       />
     </div>

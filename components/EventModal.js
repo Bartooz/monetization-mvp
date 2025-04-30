@@ -1,4 +1,3 @@
-// components/EventModal.js
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -14,6 +13,12 @@ export default function EventModal({
   setStartDate,
   endDate,
   setEndDate,
+  selectedTemplate,
+  setSelectedTemplate,
+  selectedConfig,
+  setSelectedConfig,
+  templateOptions,
+  configOptions,
   editing,
 }) {
   const offerTypes = [
@@ -70,20 +75,54 @@ export default function EventModal({
         </label>
 
         {eventType === "Offers" && (
-          <label style={{ display: "block", marginBottom: 10 }}>
-            Offer Type:
-            <select
-              value={offerType}
-              onChange={(e) => setOfferType(e.target.value)}
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
-            >
-              {offerTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </label>
+          <>
+            <label style={{ display: "block", marginBottom: 10 }}>
+              Offer Type:
+              <select
+                value={offerType}
+                onChange={(e) => setOfferType(e.target.value)}
+                style={{ width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {offerTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label style={{ display: "block", marginBottom: 10 }}>
+              Template:
+              <select
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+                style={{ width: "100%", padding: 8, marginTop: 4 }}
+              >
+                <option value="">-- Select a Template --</option>
+                {templateOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label style={{ display: "block", marginBottom: 10 }}>
+              Configuration:
+              <select
+                value={selectedConfig}
+                onChange={(e) => setSelectedConfig(e.target.value)}
+                style={{ width: "100%", padding: 8, marginTop: 4 }}
+              >
+                <option value="">-- Select a Configuration --</option>
+                {configOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
         )}
 
         <label style={{ display: "block", marginBottom: 10 }}>
