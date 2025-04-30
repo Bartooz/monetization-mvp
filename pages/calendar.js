@@ -12,18 +12,58 @@ export default function CalendarPage() {
   const [eventType, setEventType] = useState("Offers");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [previewEvent, setPreviewEvent] = useState(null);
 
-  const handleAddEvent = () => {
-    setEvents([
-      ...events,
-      {
-        title: eventType,
-        start: startDate,
-        end: endDate,
-        allDay: false,
-      },
-    ]);
+  const openNewModal = () => {
+    setEventType("Offers");
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setEditingIndex(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (eventInfo) => {
+    const index = events.findIndex(
+      (e) => e.start.toString() === eventInfo.event.start.toString()
+    );
+    if (index !== -1) {
+      setEventType(events[index].title);
+      setStartDate(new Date(events[index].start));
+      setEndDate(new Date(events[index].end));
+      setEditingIndex(index);
+      setShowModal(true);
+    }
+  };
+
+  const handleAddOrUpdateEvent = () => {
+    const newEvent = {
+      title: eventType,
+      start: startDate,
+      end: endDate,
+      allDay: false,
+    };
+
+    if (editingIndex !== null) {
+      const updatedEvents = [...events];
+      updatedEvents[editingIndex] = newEvent;
+      setEvents(updatedEvents);
+    } else {
+      setEvents([...events, newEvent]);
+    }
+
     setShowModal(false);
+    setEditingIndex(null);
+  };
+
+  const handleEventClick = (eventInfo) => {
+    setPreviewEvent({
+      title: eventInfo.event.title,
+      start: eventInfo.event.start,
+      end: eventInfo.event.end,
+    });
+
+    setTimeout(() => setPreviewEvent(null), 2500); // Auto-hide after 2.5s
   };
 
   return (
@@ -31,7 +71,7 @@ export default function CalendarPage() {
       <h1>LiveOps Calendar</h1>
 
       <button
-        onClick={() => setShowModal(true)}
+        onClick={openNewModal}
         style={{
           marginBottom: 20,
           padding: "10px 20px",
@@ -55,9 +95,34 @@ export default function CalendarPage() {
           right: "dayGridMonth,timeGridDay",
         }}
         events={events}
+        eventClick={handleEventClick}
+        eventDidMount={(info) => {
+          info.el.addEventListener("dblclick", () => openEditModal(info));
+        }}
       />
 
-      {/* Custom Modal */}
+      {/* 🔍 Preview Popup */}
+      {previewEvent && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: 20,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+            zIndex: 2000,
+          }}
+        >
+          <strong>{previewEvent.title}</strong>
+          <div>Start: {previewEvent.start.toLocaleString()}</div>
+          <div>End: {previewEvent.end.toLocaleString()}</div>
+        </div>
+      )}
+
+      {/* 🧾 Modal */}
       {showModal && (
         <div
           style={{
@@ -82,7 +147,9 @@ export default function CalendarPage() {
               width: "90%",
             }}
           >
-            <h2 style={{ marginBottom: 20 }}>Create New Event</h2>
+            <h2 style={{ marginBottom: 20 }}>
+              {editingIndex !== null ? "Edit Event" : "Create New Event"}
+            </h2>
 
             <label style={{ display: "block", marginBottom: 10 }}>
               Event Type:
@@ -103,7 +170,6 @@ export default function CalendarPage() {
                 onChange={(date) => setStartDate(date)}
                 showTimeSelect
                 dateFormat="Pp"
-                style={{ width: "100%" }}
               />
             </label>
 
@@ -114,7 +180,6 @@ export default function CalendarPage() {
                 onChange={(date) => setEndDate(date)}
                 showTimeSelect
                 dateFormat="Pp"
-                style={{ width: "100%" }}
               />
             </label>
 
@@ -134,7 +199,7 @@ export default function CalendarPage() {
                 Cancel
               </button>
               <button
-                onClick={handleAddEvent}
+                onClick={handleAddOrUpdateEvent}
                 style={{
                   padding: "8px 16px",
                   background: "black",
@@ -144,7 +209,7 @@ export default function CalendarPage() {
                   cursor: "pointer",
                 }}
               >
-                Add Event
+                {editingIndex !== null ? "Update" : "Add"}
               </button>
             </div>
           </div>
@@ -153,6 +218,7 @@ export default function CalendarPage() {
     </div>
   );
 }
+
 
 
 
