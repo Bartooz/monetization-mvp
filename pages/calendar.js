@@ -103,6 +103,23 @@ export default function CalendarPage() {
     }
   };
 
+  // 🆕 Drag-and-drop support
+  const handleEventDrop = (info) => {
+    const index = events.findIndex(
+      (e) => e.start.toString() === info.oldEvent.start.toString()
+    );
+
+    if (index !== -1) {
+      const updated = [...events];
+      updated[index] = {
+        ...updated[index],
+        start: info.event.start,
+        end: info.event.end,
+      };
+      setEvents(updated);
+    }
+  };
+
   return (
     <div style={{ padding: 30, fontFamily: "sans-serif" }}>
       <h1>LiveOps Calendar</h1>
@@ -132,6 +149,8 @@ export default function CalendarPage() {
           right: "dayGridMonth,timeGridDay",
         }}
         events={events}
+        editable={true} // 🆕 Enable drag-and-drop
+        eventDrop={handleEventDrop} // 🆕 Called on drop
         eventClick={handleEventClick}
         eventDidMount={(info) => {
           info.el.addEventListener("dblclick", () => openEditModal(info));
@@ -269,6 +288,7 @@ export default function CalendarPage() {
     </div>
   );
 }
+
 
 
 
