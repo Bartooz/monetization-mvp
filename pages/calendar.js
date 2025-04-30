@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -14,6 +14,25 @@ export default function CalendarPage() {
   const [endDate, setEndDate] = useState(new Date());
   const [editingIndex, setEditingIndex] = useState(null);
   const [previewEvent, setPreviewEvent] = useState(null);
+  const [previewIndex, setPreviewIndex] = useState(null);
+
+  // 🧠 Load from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("liveops-events");
+    if (saved) {
+      setEvents(JSON.parse(saved, (key, value) => {
+        if (["start", "end"].includes(key)) {
+          return new Date(value);
+        }
+        return value;
+      }));
+    }
+  }, []);
+
+  // 💾 Save to localStorage
+  useEffect(() => {
+    localStorage.setItem("liveops-events", JSON.stringify(events));
+  }, [events]);
 
   const openNewModal = () => {
     setEventType("Offers");
@@ -45,9 +64,9 @@ export default function CalendarPage() {
     };
 
     if (editingIndex !== null) {
-      const updatedEvents = [...events];
-      updatedEvents[editingIndex] = newEvent;
-      setEvents(updatedEvents);
+      const updated = [...events];
+      updated[editingIndex] = newEvent;
+      setEvents(updated);
     } else {
       setEvents([...events, newEvent]);
     }
@@ -57,13 +76,31 @@ export default function CalendarPage() {
   };
 
   const handleEventClick = (eventInfo) => {
-    setPreviewEvent({
-      title: eventInfo.event.title,
-      start: eventInfo.event.start,
-      end: eventInfo.event.end,
-    });
+    const index = events.findIndex(
+      (e) => e.start.toString() === eventInfo.event.start.toString()
+    );
+    if (index !== -1) {
+      setPreviewEvent({
+        title: eventInfo.event.title,
+        start: eventInfo.event.start,
+        end: eventInfo.event.end,
+      });
+      setPreviewIndex(index);
+      setTimeout(() => {
+        setPreviewEvent(null);
+        setPreviewIndex(null);
+      }, 3000);
+    }
+  };
 
-    setTimeout(() => setPreviewEvent(null), 2500); // Auto-hide after 2.5s
+  const handleDelete = () => {
+    if (previewIndex !== null) {
+      const updated = [...events];
+      updated.splice(previewIndex, 1);
+      setEvents(updated);
+      setPreviewEvent(null);
+      setPreviewIndex(null);
+    }
   };
 
   return (
@@ -101,7 +138,7 @@ export default function CalendarPage() {
         }}
       />
 
-      {/* 🔍 Preview Popup */}
+      {/* 🔍 Preview Popup with Delete */}
       {previewEvent && (
         <div
           style={{
@@ -119,6 +156,20 @@ export default function CalendarPage() {
           <strong>{previewEvent.title}</strong>
           <div>Start: {previewEvent.start.toLocaleString()}</div>
           <div>End: {previewEvent.end.toLocaleString()}</div>
+          <button
+            onClick={handleDelete}
+            style={{
+              marginTop: 10,
+              background: "crimson",
+              color: "white",
+              border: "none",
+              padding: "8px 12px",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            🗑️ Delete
+          </button>
         </div>
       )}
 
@@ -218,6 +269,7 @@ export default function CalendarPage() {
     </div>
   );
 }
+
 
 
 
