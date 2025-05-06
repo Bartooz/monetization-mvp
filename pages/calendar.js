@@ -4,8 +4,8 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
-import '@fullcalendar/daygrid/main.min.css';
-import '@fullcalendar/timegrid/main.min.css';
+import '@fullcalendar/daygrid/main.css';
+import '@fullcalendar/timegrid/main.css';
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
