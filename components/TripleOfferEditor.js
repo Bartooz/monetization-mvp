@@ -11,7 +11,12 @@ export default function TripleOfferEditor({ onSave, template }) {
   const [configurations, setConfigurations] = useState([]);
   const [selectedConfig, setSelectedConfig] = useState("");
 
-  // Load saved configurations from localStorage
+  const currencies = {
+    Cash: "💵",
+    "Gold Bars": "🪙",
+    Diamond: "💎",
+  };
+
   useEffect(() => {
     const saved = localStorage.getItem("liveops-configurations");
     if (saved) {
@@ -21,7 +26,6 @@ export default function TripleOfferEditor({ onSave, template }) {
     }
   }, []);
 
-  // If editing an existing template, load its values
   useEffect(() => {
     if (template) {
       setTemplateName(template.name || "");
@@ -34,15 +38,16 @@ export default function TripleOfferEditor({ onSave, template }) {
     }
   }, [template]);
 
-  // When a config is selected, apply it to slots
   useEffect(() => {
     if (selectedConfig) {
       const config = configurations.find((c) => c.name === selectedConfig);
       if (config) {
-        const updatedSlots = config.slots.map((slot, index) => ({
-          label: `${slot.value}${slot.bonus ? ` + ${slot.bonus}` : ""} ${slot.currency} ${slot.paid ? "" : "(Free)"}`,
-          cta: "", // User must fill manually
-        }));
+        const updatedSlots = config.slots.map((slot) => {
+          const currencyEmoji = currencies[slot.currency] || "";
+          const label = `${slot.value}${slot.bonus ? ` + ${slot.bonus}` : ""} ${currencyEmoji}`;
+          const cta = slot.paid ? `${slot.value} Only!` : "Free!";
+          return { label: label.trim(), cta };
+        });
         setSlots(updatedSlots);
       }
     }
@@ -75,7 +80,7 @@ export default function TripleOfferEditor({ onSave, template }) {
 
   return (
     <div style={{ display: "flex", gap: 60 }}>
-      {/* Left Side: Form */}
+      {/* Left: Form */}
       <div style={{ flex: 1 }}>
         <h3>Triple Offer Editor</h3>
 
@@ -150,7 +155,7 @@ export default function TripleOfferEditor({ onSave, template }) {
         </button>
       </div>
 
-      {/* Right Side: Preview */}
+      {/* Right: Preview */}
       <div style={{ flex: 1, background: "#f7f7f7", padding: 20, borderRadius: 12 }}>
         <h3 style={{ textAlign: "center", fontSize: 20, marginBottom: 20 }}>{title}</h3>
         {slots.map((slot, idx) => (
@@ -184,4 +189,5 @@ export default function TripleOfferEditor({ onSave, template }) {
     </div>
   );
 }
+
 
