@@ -5,11 +5,21 @@ export default function ConfigurationsPage() {
   const [category, setCategory] = useState("Offer");
   const [offerType, setOfferType] = useState("Triple Offer");
   const [configName, setConfigName] = useState("");
-  const [slots, setSlots] = useState([
-    { value: "" },
-    { value: "" },
-    { value: "" },
-  ]);
+
+  const defaultSlot = () => ({
+    value: "",
+    bonus: "",
+    paid: true,
+    currency: "Cash",
+  });
+
+  const [slots, setSlots] = useState([defaultSlot(), defaultSlot(), defaultSlot()]);
+
+  const currencies = {
+    Cash: "💵",
+    "Gold Bars": "🪙",
+    Diamond: "💎",
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem("liveops-configurations");
@@ -21,14 +31,13 @@ export default function ConfigurationsPage() {
   }, [configurations]);
 
   useEffect(() => {
-    // Reset slot count when offerType changes
-    const slotCount = offerType === "Triple Offer" ? 3 : 1;
-    setSlots(Array(slotCount).fill({ value: "" }));
+    const count = offerType === "Triple Offer" ? 3 : 1;
+    setSlots(Array(count).fill(0).map(() => defaultSlot()));
   }, [offerType]);
 
-  const updateSlot = (index, value) => {
+  const updateSlot = (index, field, value) => {
     const updated = [...slots];
-    updated[index] = { value };
+    updated[index][field] = field === "paid" ? value === "true" : value;
     setSlots(updated);
   };
 
@@ -41,7 +50,7 @@ export default function ConfigurationsPage() {
     };
     setConfigurations([...configurations, newConfig]);
     setConfigName("");
-    setSlots(Array(offerType === "Triple Offer" ? 3 : 1).fill({ value: "" }));
+    setSlots(Array(offerType === "Triple Offer" ? 3 : 1).fill(0).map(() => defaultSlot()));
   };
 
   const handleDelete = (index) => {
@@ -76,19 +85,66 @@ export default function ConfigurationsPage() {
         <label style={{ marginRight: 10 }}>Offer Type:</label>
         <select value={offerType} onChange={(e) => setOfferType(e.target.value)} style={{ padding: 6 }}>
           <option value="Triple Offer">Triple Offer</option>
-          {/* Future: Timer, Mystery, Buy-All etc. */}
+          {/* Future types can be added here */}
         </select>
       </div>
 
       <h4>Slot Configuration</h4>
       {slots.map((slot, idx) => (
-        <input
+        <div
           key={idx}
-          value={slot.value}
-          onChange={(e) => updateSlot(idx, e.target.value)}
-          placeholder={`Slot ${idx + 1} value`}
-          style={{ display: "block", marginBottom: 10, padding: 6, width: 300 }}
-        />
+          style={{
+            marginBottom: 20,
+            padding: 12,
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            background: "#f9f9f9",
+          }}
+        >
+          <h5>Slot {idx + 1}</h5>
+          <input
+            type="text"
+            value={slot.value}
+            placeholder="Value"
+            onChange={(e) => updateSlot(idx, "value", e.target.value)}
+            style={{ marginBottom: 6, padding: 6, width: 200 }}
+          />
+          <br />
+          <input
+            type="text"
+            value={slot.bonus}
+            placeholder="Bonus (optional)"
+            onChange={(e) => updateSlot(idx, "bonus", e.target.value)}
+            style={{ marginBottom: 6, padding: 6, width: 200 }}
+          />
+          <br />
+          <label>
+            Paid:
+            <select
+              value={slot.paid.toString()}
+              onChange={(e) => updateSlot(idx, "paid", e.target.value)}
+              style={{ marginLeft: 6, marginBottom: 6, padding: 6 }}
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </label>
+          <br />
+          <label>
+            Currency:
+            <select
+              value={slot.currency}
+              onChange={(e) => updateSlot(idx, "currency", e.target.value)}
+              style={{ marginLeft: 6, padding: 6 }}
+            >
+              {Object.entries(currencies).map(([name, emoji]) => (
+                <option key={name} value={name}>
+                  {emoji} {name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       ))}
 
       <button
@@ -112,7 +168,7 @@ export default function ConfigurationsPage() {
         <div
           key={idx}
           style={{
-            background: "#f9f9f9",
+            background: "#f1f1f1",
             border: "1px solid #ccc",
             borderRadius: 8,
             padding: 12,
@@ -142,3 +198,4 @@ export default function ConfigurationsPage() {
     </div>
   );
 }
+
