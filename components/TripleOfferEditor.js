@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function TripleOfferEditor({ onSave, template }) {
   const [templateName, setTemplateName] = useState("");
@@ -8,7 +8,20 @@ export default function TripleOfferEditor({ onSave, template }) {
     { label: "", cta: "" },
     { label: "", cta: "" },
   ]);
+  const [configurations, setConfigurations] = useState([]);
+  const [selectedConfig, setSelectedConfig] = useState("");
 
+  // Load saved configurations from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("liveops-configurations");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const filtered = parsed.filter((cfg) => cfg.offerType === "Triple Offer");
+      setConfigurations(filtered);
+    }
+  }, []);
+
+  // If editing an existing template, load its values
   useEffect(() => {
     if (template) {
       setTemplateName(template.name || "");
@@ -20,6 +33,20 @@ export default function TripleOfferEditor({ onSave, template }) {
       ]);
     }
   }, [template]);
+
+  // When a config is selected, apply it to slots
+  useEffect(() => {
+    if (selectedConfig) {
+      const config = configurations.find((c) => c.name === selectedConfig);
+      if (config) {
+        const updatedSlots = config.slots.map((slot, index) => ({
+          label: `${slot.value}${slot.bonus ? ` + ${slot.bonus}` : ""} ${slot.currency} ${slot.paid ? "" : "(Free)"}`,
+          cta: "", // User must fill manually
+        }));
+        setSlots(updatedSlots);
+      }
+    }
+  }, [selectedConfig]);
 
   const handleChange = (index, field, value) => {
     const updated = [...slots];
@@ -36,7 +63,6 @@ export default function TripleOfferEditor({ onSave, template }) {
       slots,
     });
 
-    // Reset after save (optional)
     setTemplateName("");
     setTitle("");
     setSlots([
@@ -44,11 +70,12 @@ export default function TripleOfferEditor({ onSave, template }) {
       { label: "", cta: "" },
       { label: "", cta: "" },
     ]);
+    setSelectedConfig("");
   };
 
   return (
     <div style={{ display: "flex", gap: 60 }}>
-      {/* Left: Inputs */}
+      {/* Left Side: Form */}
       <div style={{ flex: 1 }}>
         <h3>Triple Offer Editor</h3>
 
@@ -70,6 +97,22 @@ export default function TripleOfferEditor({ onSave, template }) {
             onChange={(e) => setTitle(e.target.value)}
             style={{ display: "block", marginBottom: 20, padding: 8, width: "80%" }}
           />
+        </label>
+
+        <label>
+          Select Configuration:
+          <select
+            value={selectedConfig}
+            onChange={(e) => setSelectedConfig(e.target.value)}
+            style={{ display: "block", marginBottom: 20, padding: 8, width: "80%" }}
+          >
+            <option value="">-- None --</option>
+            {configurations.map((cfg) => (
+              <option key={cfg.name} value={cfg.name}>
+                {cfg.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         {slots.map((slot, idx) => (
@@ -107,7 +150,7 @@ export default function TripleOfferEditor({ onSave, template }) {
         </button>
       </div>
 
-      {/* Right: Preview */}
+      {/* Right Side: Preview */}
       <div style={{ flex: 1, background: "#f7f7f7", padding: 20, borderRadius: 12 }}>
         <h3 style={{ textAlign: "center", fontSize: 20, marginBottom: 20 }}>{title}</h3>
         {slots.map((slot, idx) => (
