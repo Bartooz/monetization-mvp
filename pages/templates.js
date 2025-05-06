@@ -4,6 +4,7 @@ import TripleOfferEditor from "../components/TripleOfferEditor";
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([]);
   const [selectedType, setSelectedType] = useState("Triple Offer");
+  const [editingIndex, setEditingIndex] = useState(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("liveops-templates");
@@ -15,7 +16,25 @@ export default function TemplatesPage() {
   }, [templates]);
 
   const handleSaveTemplate = (newTemplate) => {
-    setTemplates([...templates, newTemplate]);
+    if (editingIndex !== null) {
+      const updated = [...templates];
+      updated[editingIndex] = newTemplate;
+      setTemplates(updated);
+      setEditingIndex(null);
+    } else {
+      setTemplates([...templates, newTemplate]);
+    }
+  };
+
+  const handleDelete = (index) => {
+    const updated = [...templates];
+    updated.splice(index, 1);
+    setTemplates(updated);
+    if (editingIndex === index) setEditingIndex(null);
+  };
+
+  const handleEdit = (index) => {
+    setEditingIndex(index);
   };
 
   return (
@@ -26,16 +45,21 @@ export default function TemplatesPage() {
         Choose Offer Type:
         <select
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
+          onChange={(e) => {
+            setSelectedType(e.target.value);
+            setEditingIndex(null);
+          }}
           style={{ marginLeft: 10, padding: 6 }}
         >
           <option>Triple Offer</option>
-          {/* Future options: Timer, Multi-Sale, Buy-All, etc. */}
         </select>
       </label>
 
       {selectedType === "Triple Offer" && (
-        <TripleOfferEditor onSave={handleSaveTemplate} />
+        <TripleOfferEditor
+          onSave={handleSaveTemplate}
+          template={editingIndex !== null ? templates[editingIndex] : null}
+        />
       )}
 
       <hr style={{ margin: "40px 0" }} />
@@ -51,14 +75,46 @@ export default function TemplatesPage() {
             borderRadius: 8,
             padding: 12,
             marginBottom: 12,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <strong>{tpl.name}</strong> — {tpl.layout}
+          <div>
+            <strong>{tpl.name}</strong> — <em>{tpl.layout}</em>
+          </div>
+          <div>
+            <button
+              onClick={() => handleEdit(idx)}
+              style={{
+                marginRight: 10,
+                padding: "4px 10px",
+                border: "1px solid #666",
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              ✏ Edit
+            </button>
+            <button
+              onClick={() => handleDelete(idx)}
+              style={{
+                padding: "4px 10px",
+                background: "#dc3545",
+                color: "#fff",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              🗑 Delete
+            </button>
+          </div>
         </div>
       ))}
     </div>
   );
 }
+
 
 
 

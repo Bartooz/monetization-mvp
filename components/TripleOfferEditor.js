@@ -1,13 +1,25 @@
-// components/TripleOfferEditor.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function TripleOfferEditor({ onSave }) {
-  const [title, setTitle] = useState("Red, White & Blue");
+export default function TripleOfferEditor({ onSave, template }) {
+  const [templateName, setTemplateName] = useState("");
+  const [title, setTitle] = useState("");
   const [slots, setSlots] = useState([
-    { label: "$1", cta: "Just for $1" },
-    { label: "$1", cta: "Just for $1" },
-    { label: "Free", cta: "20 Diamonds" },
+    { label: "", cta: "" },
+    { label: "", cta: "" },
+    { label: "", cta: "" },
   ]);
+
+  useEffect(() => {
+    if (template) {
+      setTemplateName(template.name || "");
+      setTitle(template.title || "");
+      setSlots(template.slots || [
+        { label: "", cta: "" },
+        { label: "", cta: "" },
+        { label: "", cta: "" },
+      ]);
+    }
+  }, [template]);
 
   const handleChange = (index, field, value) => {
     const updated = [...slots];
@@ -16,14 +28,22 @@ export default function TripleOfferEditor({ onSave }) {
   };
 
   const handleSave = () => {
-    const newTemplate = {
-      name: title,
+    onSave({
+      name: templateName.trim() || "Untitled",
       type: "Triple Offer",
       layout: "Triple",
-      title,
+      title: title.trim(),
       slots,
-    };
-    onSave(newTemplate);
+    });
+
+    // Reset after save (optional)
+    setTemplateName("");
+    setTitle("");
+    setSlots([
+      { label: "", cta: "" },
+      { label: "", cta: "" },
+      { label: "", cta: "" },
+    ]);
   };
 
   return (
@@ -31,13 +51,24 @@ export default function TripleOfferEditor({ onSave }) {
       {/* Left: Inputs */}
       <div style={{ flex: 1 }}>
         <h3>Triple Offer Editor</h3>
+
         <label>
-          Title:
+          Template Name:
+          <input
+            type="text"
+            value={templateName}
+            onChange={(e) => setTemplateName(e.target.value)}
+            style={{ display: "block", margin: "10px 0", padding: 8, width: "80%" }}
+          />
+        </label>
+
+        <label>
+          Offer Title:
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            style={{ display: "block", margin: "10px 0", padding: 8, width: "80%" }}
+            style={{ display: "block", marginBottom: 20, padding: 8, width: "80%" }}
           />
         </label>
 
@@ -110,3 +141,4 @@ export default function TripleOfferEditor({ onSave }) {
     </div>
   );
 }
+
