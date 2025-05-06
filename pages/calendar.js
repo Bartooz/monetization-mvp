@@ -22,14 +22,16 @@ export default function CalendarPage() {
   const [templateOptions, setTemplateOptions] = useState([]);
   const [configOptions, setConfigOptions] = useState([]);
 
-  // Load data from localStorage
+  // Load from localStorage
   useEffect(() => {
     const savedEvents = localStorage.getItem("liveops-events");
     if (savedEvents) {
-      setEvents(JSON.parse(savedEvents, (key, value) => {
-        if (["start", "end"].includes(key)) return new Date(value);
-        return value;
-      }));
+      setEvents(
+        JSON.parse(savedEvents, (key, value) => {
+          if (["start", "end"].includes(key)) return new Date(value);
+          return value;
+        })
+      );
     }
 
     const savedTemplates = localStorage.getItem("liveops-templates");
@@ -73,7 +75,10 @@ export default function CalendarPage() {
 
   const handleAddOrUpdateEvent = () => {
     const newEvent = {
-      title: eventType === "Offers" ? offerType : eventType,
+      title:
+        eventType === "Offers"
+          ? `${offerType} (${selectedTemplate?.name || selectedTemplate || "No Template"})`
+          : eventType,
       type: eventType,
       offerType: eventType === "Offers" ? offerType : null,
       template: eventType === "Offers" ? selectedTemplate : null,
@@ -188,8 +193,17 @@ export default function CalendarPage() {
           <strong>{previewEvent.title}</strong>
           <div>Start: {previewEvent.start.toLocaleString()}</div>
           <div>End: {previewEvent.end.toLocaleString()}</div>
-          {previewEvent.template && <div>Template: {previewEvent.template}</div>}
-          {previewEvent.configuration && <div>Configuration: {previewEvent.configuration}</div>}
+          {previewEvent.template && (
+            <div>
+              Template:{" "}
+              {typeof previewEvent.template === "object"
+                ? previewEvent.template.name
+                : previewEvent.template}
+            </div>
+          )}
+          {previewEvent.configuration && (
+            <div>Configuration: {previewEvent.configuration}</div>
+          )}
           <button
             onClick={handleDelete}
             style={{
@@ -230,7 +244,6 @@ export default function CalendarPage() {
     </div>
   );
 }
-
 
 
 
