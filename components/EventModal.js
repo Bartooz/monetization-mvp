@@ -94,17 +94,20 @@ export default function EventModal({
             <label style={{ display: "block", marginBottom: 10 }}>
               Template:
               <select
-                value={selectedTemplate}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                style={{ width: "100%", padding: 8, marginTop: 4 }}
-              >
-                <option value="">-- Select a Template --</option>
-                {templateOptions.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
+  value={selectedTemplate?.name || selectedTemplate || ""}
+  onChange={(e) => {
+    const found = templateOptions.find(t => t.name === e.target.value);
+    setSelectedTemplate(found ? found.name : ""); // ✅ store only the name
+  }}
+>
+  <option value="">Select a Template</option>
+  {templateOptions.map((tpl) => (
+    <option key={tpl.name} value={tpl.name}>
+      {tpl.name}
+    </option>
+  ))}
+</select>
+
             </label>
 
             <label style={{ display: "block", marginBottom: 10 }}>

@@ -76,12 +76,12 @@ export default function CalendarPage() {
   const handleAddOrUpdateEvent = () => {
     const newEvent = {
       title:
-        eventType === "Offers"
-          ? `${offerType} (${selectedTemplate?.name || selectedTemplate || "No Template"})`
-          : eventType,
+  eventType === "Offers"
+    ? `${offerType} (${selectedTemplate || "No Template"})`
+    : eventType,
       type: eventType,
       offerType: eventType === "Offers" ? offerType : null,
-      template: eventType === "Offers" ? selectedTemplate : null,
+      template: selectedTemplate,
       configuration: eventType === "Offers" ? selectedConfig : null,
       start: startDate,
       end: endDate,
