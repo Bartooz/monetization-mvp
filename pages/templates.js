@@ -1,213 +1,113 @@
-import { useEffect, useState } from "react";
-import TemplateCanvas from "../components/TemplateCanvas";
+// pages/templates.js
+import { useState } from "react";
 
 export default function TemplatesPage() {
-  const [templates, setTemplates] = useState([]);
-  const [templateName, setTemplateName] = useState("");
-  const [title, setTitle] = useState("");
-  const [cta, setCta] = useState("");
+  const [title, setTitle] = useState("Red, White & Blue");
+  const [cta, setCta] = useState("Just For $1");
   const [slots, setSlots] = useState([
-    { label: "", bonus: "" },
-    { label: "", bonus: "" },
-    { label: "", bonus: "" },
+    { label: "$1", sublabel: "$0.4 BONUS" },
+    { label: "20", sublabel: "Gems" },
+    { label: "?", sublabel: "Mystery" },
   ]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("liveops-templates");
-    if (saved) {
-      setTemplates(JSON.parse(saved));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("liveops-templates", JSON.stringify(templates));
-  }, [templates]);
-
-  const handleSlotChange = (index, field, value) => {
+  const updateSlot = (index, field, value) => {
     const updated = [...slots];
     updated[index][field] = value;
     setSlots(updated);
   };
 
-  const handleSaveTemplate = () => {
-    if (!templateName.trim()) {
-      alert("Please enter a template name.");
-      return;
-    }
+  const addSlot = () => {
+    setSlots([...slots, { label: "", sublabel: "" }]);
+  };
 
-    const newTemplate = {
-      name: templateName.trim(),
-      type: "MultiSale",
-      layout: "Triple",
-      title: title.trim(),
-      cta: cta.trim(),
-      slots: slots.map((s) => ({
-        label: s.label.trim(),
-        bonus: s.bonus.trim(),
-      })),
-    };
-
-    setTemplates([...templates, newTemplate]);
-    setTemplateName("");
-    setTitle("");
-    setCta("");
-    setSlots([
-      { label: "", bonus: "" },
-      { label: "", bonus: "" },
-      { label: "", bonus: "" },
-    ]);
+  const removeSlot = (index) => {
+    const updated = [...slots];
+    updated.splice(index, 1);
+    setSlots(updated);
   };
 
   return (
-    <div style={{ padding: 30, fontFamily: "sans-serif" }}>
-      <h2 style={{ marginBottom: 20 }}>🎨 Triple Offer Template Editor</h2>
+    <div className="flex h-screen p-6 bg-gray-100">
+      {/* Left Panel: Form */}
+      <div className="w-1/2 pr-6 space-y-6">
+        <h2 className="text-xl font-bold">Template Editor</h2>
 
-      <div style={{ display: "flex", gap: 60 }}>
-        {/* Left: Form */}
-        <div style={{ flex: 1 }}>
-          <div style={{ marginBottom: 20 }}>
-            <label>
-              Template Name:
-              <input
-                type="text"
-                value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                placeholder="e.g. Red, White & Blue"
-                style={{
-                  marginLeft: 10,
-                  padding: 8,
-                  width: "70%",
-                }}
-              />
-            </label>
-          </div>
-
-          <div style={{ marginBottom: 20 }}>
-            <label>
-              Title Text:
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                style={{
-                  marginLeft: 10,
-                  padding: 8,
-                  width: "70%",
-                }}
-              />
-            </label>
-          </div>
-
-          <div style={{ marginBottom: 20 }}>
-            <label>
-              CTA Text:
-              <input
-                type="text"
-                value={cta}
-                onChange={(e) => setCta(e.target.value)}
-                style={{
-                  marginLeft: 10,
-                  padding: 8,
-                  width: "70%",
-                }}
-              />
-            </label>
-          </div>
-
-          <div>
-            <h4>Offer Slots:</h4>
-            {slots.map((slot, idx) => (
-              <div key={idx} style={{ marginBottom: 12 }}>
-                <label>
-                  Label:
-                  <input
-                    type="text"
-                    value={slot.label}
-                    onChange={(e) =>
-                      handleSlotChange(idx, "label", e.target.value)
-                    }
-                    style={{ marginLeft: 10, padding: 6, width: 120 }}
-                  />
-                </label>
-
-                <label style={{ marginLeft: 20 }}>
-                  Bonus:
-                  <input
-                    type="text"
-                    value={slot.bonus}
-                    onChange={(e) =>
-                      handleSlotChange(idx, "bonus", e.target.value)
-                    }
-                    style={{ marginLeft: 10, padding: 6, width: 160 }}
-                  />
-                </label>
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={handleSaveTemplate}
-            style={{
-              marginTop: 30,
-              padding: "10px 20px",
-              background: "#111",
-              color: "white",
-              border: "none",
-              borderRadius: 6,
-              fontWeight: "bold",
-            }}
-          >
-            Save Template
-          </button>
+        <div>
+          <label className="block text-sm font-semibold">Title</label>
+          <input
+            className="w-full mt-1 p-2 border rounded"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
 
-        {/* Right: Live Preview */}
-        <div style={{ flex: 1 }}>
-          <h3>🔍 Live Preview</h3>
-          <TemplateCanvas
-            title={title}
-            setTitle={() => {}}
-            cta={cta}
-            setCta={() => {}}
-            slots={slots}
-            setSlots={() => {}}
+        <div>
+          <label className="block text-sm font-semibold">CTA Text</label>
+          <input
+            className="w-full mt-1 p-2 border rounded"
+            value={cta}
+            onChange={(e) => setCta(e.target.value)}
           />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <label className="text-sm font-semibold">Offer Slots</label>
+            <button
+              onClick={addSlot}
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              + Add Slot
+            </button>
+          </div>
+          {slots.map((slot, index) => (
+            <div key={index} className="border p-3 rounded bg-white shadow-sm">
+              <div className="flex justify-between">
+                <span className="font-semibold">Slot {index + 1}</span>
+                <button
+                  onClick={() => removeSlot(index)}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+              <input
+                className="w-full mt-2 p-1 border rounded"
+                placeholder="Label"
+                value={slot.label}
+                onChange={(e) => updateSlot(index, "label", e.target.value)}
+              />
+              <input
+                className="w-full mt-1 p-1 border rounded"
+                placeholder="Sub-label"
+                value={slot.sublabel}
+                onChange={(e) => updateSlot(index, "sublabel", e.target.value)}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
-      <hr style={{ margin: "50px 0" }} />
+      {/* Right Panel: Preview */}
+      <div className="w-1/2 p-6 bg-white shadow-md rounded">
+        <h2 className="text-center text-2xl font-bold mb-4">{title}</h2>
 
-      {/* Saved Templates List */}
-      <h3>📦 Saved Templates</h3>
-      {templates.map((tpl, idx) => (
-        <div
-          key={idx}
-          style={{
-            background: "#f9f9f9",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: 12,
-            marginBottom: 12,
-          }}
-        >
-          <strong>{tpl.name}</strong> ({tpl.slots.length} offers)
-          <div style={{ fontSize: 14, marginTop: 6 }}>
-            <div>🎯 Title: {tpl.title}</div>
-            <div>🔘 CTA: {tpl.cta}</div>
-            <div>
-              🧩 Slots:
-              <ul>
-                {tpl.slots.map((s, i) => (
-                  <li key={i}>
-                    {s.label || "(empty)"}{" "}
-                    {s.bonus && <span>- {s.bonus}</span>}
-                  </li>
-                ))}
-              </ul>
+        <div className="space-y-4">
+          {slots.map((slot, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-200 rounded shadow text-center"
+            >
+              <div className="text-xl font-bold">{slot.label}</div>
+              <div className="text-sm text-gray-700">{slot.sublabel}</div>
             </div>
-          </div>
+          ))}
         </div>
-      ))}
+
+        <button className="mt-6 w-full py-3 bg-green-500 text-white rounded font-semibold hover:bg-green-600">
+          {cta}
+        </button>
+      </div>
     </div>
   );
 }
