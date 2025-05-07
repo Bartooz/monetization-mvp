@@ -5,7 +5,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Modal from "react-modal";
 
-Modal.setAppElement("#__next");
+if (typeof window !== "undefined") {
+  Modal.setAppElement("#__next");
+}
+
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
