@@ -1,26 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 
-const EventModal = ({ isOpen, onClose, onAdd }) => {
-  const [title, setTitle] = useState("");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
-
+const EventModal = ({ isOpen, onClose, onSave, newEvent, setNewEvent }) => {
   useEffect(() => {
     if (isOpen) {
-      // Clear inputs every time modal opens
-      setTitle("");
-      setStart("");
-      setEnd("");
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
     }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [isOpen]);
 
-  const handleAdd = () => {
-    if (!title || !start || !end) return;
-    onAdd({ title, start, end });
-    onClose();
+  if (!isOpen) return null;
+
+  const handleChange = (field, value) => {
+    setNewEvent({ ...newEvent, [field]: value });
   };
 
-  if (!isOpen) return null;
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (newEvent.title && newEvent.start && newEvent.end) {
+      onSave();
+    }
+  };
 
   return (
     <div
@@ -28,53 +31,65 @@ const EventModal = ({ isOpen, onClose, onAdd }) => {
         position: "fixed",
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
+        width: "100vw",
+        height: "100vh",
         backgroundColor: "rgba(0,0,0,0.5)",
+        zIndex: 9999,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 9999,
       }}
     >
-      <div
+      <form
+        onSubmit={handleSubmit}
         style={{
-          background: "#fff",
+          backgroundColor: "#fff",
           padding: "2rem",
           borderRadius: "8px",
-          width: "320px",
+          minWidth: "300px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          zIndex: 10000,
         }}
       >
         <h2>Create Event</h2>
-        <label>Title:</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        />
 
-        <label>Start:</label>
-        <input
-          type="datetime-local"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        />
-
-        <label>End:</label>
-        <input
-          type="datetime-local"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}
-          style={{ width: "100%", marginBottom: "1.5rem" }}
-        />
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          <button onClick={onClose}>Cancel</button>
-          <button onClick={handleAdd}>Add</button>
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Title:</label>
+          <input
+            type="text"
+            value={newEvent.title || ""}
+            onChange={(e) => handleChange("title", e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+          />
         </div>
-      </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Start:</label>
+          <input
+            type="datetime-local"
+            value={newEvent.start || ""}
+            onChange={(e) => handleChange("start", e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label>End:</label>
+          <input
+            type="datetime-local"
+            value={newEvent.end || ""}
+            onChange={(e) => handleChange("end", e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+          />
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit">Add</button>
+        </div>
+      </form>
     </div>
   );
 };
