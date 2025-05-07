@@ -21,8 +21,10 @@ const EventModal = ({
 
   if (!isOpen) return null;
 
+  const safeEventData = eventData || {};
+
   const handleChange = (field, value) => {
-    setEventData({ ...eventData, [field]: value });
+    setEventData({ ...safeEventData, [field]: value });
   };
 
   return (
@@ -56,7 +58,7 @@ const EventModal = ({
 
         <label>Category:</label>
         <select
-          value={eventData.category}
+          value={safeEventData.category || ""}
           onChange={(e) => handleChange("category", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
@@ -66,7 +68,7 @@ const EventModal = ({
 
         <label>Offer Type:</label>
         <select
-          value={eventData.offerType || ""}
+          value={safeEventData.offerType || ""}
           onChange={(e) => handleChange("offerType", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
@@ -79,7 +81,7 @@ const EventModal = ({
         <label>Title:</label>
         <input
           type="text"
-          value={eventData.title || ""}
+          value={safeEventData.title || ""}
           onChange={(e) => handleChange("title", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         />
@@ -87,7 +89,7 @@ const EventModal = ({
         <label>Start:</label>
         <input
           type="datetime-local"
-          value={eventData.start}
+          value={safeEventData.start || ""}
           onChange={(e) => handleChange("start", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         />
@@ -95,7 +97,7 @@ const EventModal = ({
         <label>End:</label>
         <input
           type="datetime-local"
-          value={eventData.end}
+          value={safeEventData.end || ""}
           onChange={(e) => handleChange("end", e.target.value)}
           style={{ width: "100%", marginBottom: "1.5rem" }}
         />
