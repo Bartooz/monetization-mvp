@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 
 const EventModal = ({
   isOpen,
-  isEditing,
-  eventData,
-  setEventData,
   onClose,
   onSave,
   onDelete,
+  viewMode,
+  eventData,
+  setEventData,
 }) => {
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
@@ -15,12 +15,10 @@ const EventModal = ({
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("modal-open");
-
-      // Load from localStorage
-      const storedTemplates = JSON.parse(localStorage.getItem("liveops-templates")) || [];
-      const storedConfigs = JSON.parse(localStorage.getItem("liveops-configurations")) || [];
-      setTemplates(storedTemplates);
-      setConfigurations(storedConfigs);
+      const savedTemplates = JSON.parse(localStorage.getItem("templates")) || [];
+      const savedConfigs = JSON.parse(localStorage.getItem("configurations")) || [];
+      setTemplates(savedTemplates);
+      setConfigurations(savedConfigs);
     } else {
       document.body.classList.remove("modal-open");
     }
@@ -30,18 +28,24 @@ const EventModal = ({
     };
   }, [isOpen]);
 
-  if (!isOpen || !eventData) return null;
-
   const handleChange = (field, value) => {
-    setEventData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (setEventData) {
+      setEventData({ ...eventData, [field]: value });
+    }
   };
 
-  const filteredConfigurations = configurations.filter(
-    (c) => c.category === eventData.category && c.offerType === eventData.offerType
-  );
+  if (!isOpen || !eventData) return null;
+
+  const {
+    id,
+    title,
+    category,
+    offerType,
+    start,
+    end,
+    templateId,
+    configurationId,
+  } = eventData;
 
   return (
     <div
@@ -69,103 +73,124 @@ const EventModal = ({
           maxWidth: "600px",
         }}
       >
-        <h2>{isEditing ? "Edit Event" : "New Event"}</h2>
-
-        <label>Title:</label>
-        <input
-          type="text"
-          value={eventData.title || ""}
-          onChange={(e) => handleChange("title", e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        />
-
-        <label>Category:</label>
-        <select
-          value={eventData.category}
-          onChange={(e) => handleChange("category", e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        >
-          <option value="Offer">Offer</option>
-          <option value="Mission">Mission</option>
-        </select>
-
-        <label>Offer Type:</label>
-        <select
-          value={eventData.offerType || ""}
-          onChange={(e) => handleChange("offerType", e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        >
-          <option value="Triple Offer">Triple Offer</option>
-          <option value="Timer">Timer</option>
-          <option value="Endless">Endless</option>
-          <option value="Surprise Offer">Surprise Offer</option>
-        </select>
-
-        <label>Template:</label>
-        <select
-          value={eventData.templateName || ""}
-          onChange={(e) => handleChange("templateName", e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        >
-          <option value="">Select Template</option>
-          {templates
-            .filter((t) => t.type === eventData.offerType)
-            .map((template) => (
-              <option key={template.name} value={template.name}>
-                {template.name}
-              </option>
-            ))}
-        </select>
-
-        <label>Configuration:</label>
-        <select
-          value={eventData.configurationName || ""}
-          onChange={(e) => handleChange("configurationName", e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        >
-          <option value="">Select Configuration</option>
-          {filteredConfigurations.map((config) => (
-            <option key={config.name} value={config.name}>
-              {config.name}
-            </option>
-          ))}
-        </select>
-
-        <label>Start:</label>
-        <input
-          type="datetime-local"
-          value={eventData.start}
-          onChange={(e) => handleChange("start", e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        />
-
-        <label>End:</label>
-        <input
-          type="datetime-local"
-          value={eventData.end}
-          onChange={(e) => handleChange("end", e.target.value)}
-          style={{ width: "100%", marginBottom: "1.5rem" }}
-        />
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          {isEditing && (
-            <button
-              onClick={() => onDelete(eventData.id)}
-              style={{ backgroundColor: "red", color: "white", padding: "0.5rem 1rem" }}
+        {viewMode === "preview" ? (
+          <>
+            <h2>Event Preview</h2>
+            <p><strong>Title:</strong> {title}</p>
+            <p><strong>Category:</strong> {category}</p>
+            <p><strong>Offer Type:</strong> {offerType}</p>
+            <p><strong>Start:</strong> {start}</p>
+            <p><strong>End:</strong> {end}</p>
+            <p><strong>Template:</strong> {templateId}</p>
+            <p><strong>Configuration:</strong> {configurationId}</p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+              <button onClick={() => onDelete(id)}>Delete</button>
+              <button
+                onClick={() => {
+                  setEventData(eventData);
+                  onClose(); // close preview
+                  setTimeout(() => {
+                    // open modal in edit mode
+                    const editBtn = document.querySelector("#edit-trigger");
+                    if (editBtn) editBtn.click();
+                  }, 100);
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2>{id ? "Edit Event" : "New Event"}</h2>
+            <label>Category:</label>
+            <select
+              value={category}
+              onChange={(e) => handleChange("category", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
             >
-              Delete
-            </button>
-          )}
-          <button onClick={onClose} style={{ padding: "0.5rem 1rem" }}>
-            Cancel
-          </button>
-          <button
-            onClick={() => onSave(eventData)}
-            style={{ backgroundColor: "#0070f3", color: "white", padding: "0.5rem 1rem" }}
-          >
-            Save
-          </button>
-        </div>
+              <option value="Offer">Offer</option>
+              <option value="Mission">Mission</option>
+            </select>
+
+            <label>Offer Type:</label>
+            <select
+              value={offerType || ""}
+              onChange={(e) => handleChange("offerType", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            >
+              <option value="Triple Offer">Triple Offer</option>
+              <option value="Timer">Timer</option>
+              <option value="Endless">Endless</option>
+              <option value="Surprise Offer">Surprise Offer</option>
+            </select>
+
+            <label>Title:</label>
+            <input
+              type="text"
+              value={title || ""}
+              onChange={(e) => handleChange("title", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            />
+
+            <label>Start:</label>
+            <input
+              type="datetime-local"
+              value={start}
+              onChange={(e) => handleChange("start", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            />
+
+            <label>End:</label>
+            <input
+              type="datetime-local"
+              value={end}
+              onChange={(e) => handleChange("end", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            />
+
+            <label>Template:</label>
+            <select
+              value={templateId || ""}
+              onChange={(e) => handleChange("templateId", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            >
+              <option value="">-- Select Template --</option>
+              {templates.map((tpl) => (
+                <option key={tpl.name} value={tpl.name}>
+                  {tpl.name}
+                </option>
+              ))}
+            </select>
+
+            <label>Configuration:</label>
+            <select
+              value={configurationId || ""}
+              onChange={(e) => handleChange("configurationId", e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            >
+              <option value="">-- Select Configuration --</option>
+              {configurations
+                .filter((cfg) => cfg.type === offerType)
+                .map((cfg) => (
+                  <option key={cfg.name} value={cfg.name}>
+                    {cfg.name}
+                  </option>
+                ))}
+            </select>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+              <button onClick={onClose}>Cancel</button>
+              <button onClick={onSave}>Save</button>
+            </div>
+          </>
+        )}
+        <button id="edit-trigger" style={{ display: "none" }} onClick={() => {
+          setTimeout(() => {
+            setEventData(eventData);
+            setIsModalOpen(true);
+          }, 0);
+        }}>Edit</button>
       </div>
     </div>
   );

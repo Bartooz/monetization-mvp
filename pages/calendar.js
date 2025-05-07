@@ -1,4 +1,3 @@
-// pages/calendar.js
 import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -6,122 +5,135 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
 
-export default function CalendarPage() {
+const CalendarPage = () => {
   const [events, setEvents] = useState([]);
-  const [eventData, setEventData] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [viewMode, setViewMode] = useState("preview"); // 'preview' or 'edit'
+  const [eventData, setEventData] = useState(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("calendarEvents");
-    if (stored) {
-      setEvents(JSON.parse(stored));
-    }
+    if (stored) setEvents(JSON.parse(stored));
   }, []);
 
-  const saveEvents = (updatedEvents) => {
-    setEvents(updatedEvents);
-    localStorage.setItem("calendarEvents", JSON.stringify(updatedEvents));
-  };
+  useEffect(() => {
+    localStorage.setItem("calendarEvents", JSON.stringify(events));
+  }, [events]);
 
-  const handleNewEvent = () => {
+  const handleDateClick = (info) => {
     setEventData({
-      id: null,
+      start: info.dateStr,
+      end: info.dateStr,
       title: "",
-      start: "",
-      end: "",
       category: "Offer",
       offerType: "Triple Offer",
-      templateName: "",
-      configurationName: "",
     });
-    setIsEditing(false);
+    setViewMode("edit");
     setIsModalOpen(true);
   };
 
   const handleEventClick = (clickInfo) => {
-    const clickedEvent = events.find(e => e.id === clickInfo.event.id);
-    if (!clickedEvent) return;
+    const event = events.find((e) => e.id === clickInfo.event.id);
+    setSelectedEvent(event);
+    setViewMode("preview");
+    setIsModalOpen(true);
+  };
 
-    if (clickInfo.jsEvent.detail === 1) {
-      // Single click = preview (can implement preview modal)
-      // For now, fallback to open in read-only mode
-      setEventData(clickedEvent);
-      setIsEditing(false);
-      setIsModalOpen(true);
-    } else if (clickInfo.jsEvent.detail >= 2) {
-      // Double click = edit
-      setEventData(clickedEvent);
-      setIsEditing(true);
-      setIsModalOpen(true);
+  const handleEventDoubleClick = (clickInfo) => {
+    const event = events.find((e) => e.id === clickInfo.event.id);
+    setEventData(event);
+    setViewMode("edit");
+    setIsModalOpen(true);
+  };
+
+  const handleSaveEvent = () => {
+    if (!eventData.title) return;
+    if (eventData.id) {
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventData.id ? { ...eventData } : e))
+      );
+    } else {
+      setEvents((prev) => [
+        ...prev,
+        { ...eventData, id: Date.now().toString() },
+      ]);
     }
+    setIsModalOpen(false);
+    setEventData(null);
+  };
+
+  const handleDeleteEvent = (id) => {
+    setEvents((prev) => prev.filter((e) => e.id !== id));
+    setIsModalOpen(false);
+    setSelectedEvent(null);
   };
 
   const handleEventDrop = (info) => {
-    const updated = events.map(e =>
+    const updated = events.map((e) =>
       e.id === info.event.id
-        ? { ...e, start: info.event.startStr, end: info.event.endStr || info.event.startStr }
+        ? {
+            ...e,
+            start: info.event.startStr,
+            end: info.event.endStr || info.event.startStr,
+          }
         : e
     );
-    saveEvents(updated);
-  };
-
-  const handleSave = (newData) => {
-    if (!newData.title || !newData.start || !newData.end) {
-      alert("Missing required fields.");
-      return;
-    }
-
-    if (newData.id) {
-      const updated = events.map(e => (e.id === newData.id ? newData : e));
-      saveEvents(updated);
-    } else {
-      const newEvent = { ...newData, id: String(Date.now()) };
-      saveEvents([...events, newEvent]);
-    }
-
-    setIsModalOpen(false);
-  };
-
-  const handleDelete = (idToDelete) => {
-    const updated = events.filter(e => e.id !== idToDelete);
-    saveEvents(updated);
-    setIsModalOpen(false);
+    setEvents(updated);
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>📅 Monetization Calendar</h2>
-      <button onClick={handleNewEvent} style={{ marginBottom: 20 }}>
-        ➕ New Event
+    <div>
+      <h1>Calendar</h1>
+      <button
+        onClick={() => {
+          setViewMode("edit");
+          setEventData({
+            start: new Date().toISOString().slice(0, 16),
+            end: new Date().toISOString().slice(0, 16),
+            title: "",
+            category: "Offer",
+            offerType: "Triple Offer",
+          });
+          setIsModalOpen(true);
+        }}
+      >
+        New Event
       </button>
-
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
+        editable
+        selectable
         events={events}
-        editable={true}
-        droppable={true}
-        selectable={true}
+        dateClick={handleDateClick}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
-        height="auto"
+        eventDidMount={(info) => {
+          info.el.addEventListener("dblclick", () =>
+            handleEventDoubleClick(info)
+          );
+        }}
       />
-
-      {isModalOpen && (
-        <EventModal
-          isOpen={isModalOpen}
-          isEditing={isEditing}
-          eventData={eventData}
-          setEventData={setEventData}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSave}
-          onDelete={handleDelete}
-        />
-      )}
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedEvent(null);
+          setEventData(null);
+        }}
+        onSave={handleSaveEvent}
+        onDelete={handleDeleteEvent}
+        viewMode={viewMode}
+        eventData={viewMode === "edit" ? eventData : selectedEvent}
+        setEventData={setEventData}
+      />
     </div>
   );
-}
+};
+
+export default CalendarPage;
+
 
 
 
