@@ -31,7 +31,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ zIndex: 1, position: "relative" }}>
       <button
         onClick={() => setIsModalOpen(true)}
         style={{ marginBottom: "10px", padding: "10px 20px", fontWeight: "bold" }}

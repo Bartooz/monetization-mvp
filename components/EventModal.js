@@ -33,11 +33,12 @@ const EventModal = ({ isOpen, onClose, onSave, newEvent, setNewEvent }) => {
         left: 0,
         width: "100vw",
         height: "100vh",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        zIndex: 9999,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        zIndex: 1000,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        pointerEvents: "auto",
       }}
     >
       <form
@@ -47,9 +48,10 @@ const EventModal = ({ isOpen, onClose, onSave, newEvent, setNewEvent }) => {
           padding: "2rem",
           borderRadius: "8px",
           minWidth: "300px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          zIndex: 10000,
+          zIndex: 1001,
+          position: "relative",
         }}
+        onClick={(e) => e.stopPropagation()} // prevent click-through
       >
         <h2>Create Event</h2>
 
@@ -95,4 +97,5 @@ const EventModal = ({ isOpen, onClose, onSave, newEvent, setNewEvent }) => {
 };
 
 export default EventModal;
+
 
