@@ -1,73 +1,76 @@
-import Modal from "react-modal";
 import React from "react";
+import Modal from "react-modal";
 
-const EventModal = ({ isOpen, onClose, onSave, newEvent, setNewEvent }) => {
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    padding: "2rem",
+    borderRadius: "8px",
+    background: "#fff",
+    zIndex: 1000,
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 999,
+  },
+};
+
+Modal.setAppElement("#__next");
+
+const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) => {
   const handleChange = (field, value) => {
-    setNewEvent({ ...newEvent, [field]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (newEvent.title && newEvent.start && newEvent.end) {
-      onSave();
-    }
+    setNewEvent((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
+      style={customStyles}
       contentLabel="Event Modal"
-      style={{
-        overlay: { zIndex: 1000, backgroundColor: "rgba(0,0,0,0.6)" },
-        content: {
-          inset: "auto",
-          margin: "auto",
-          padding: "2rem",
-          width: "400px",
-          height: "fit-content",
-          borderRadius: "8px",
-        },
-      }}
     >
-      <form onSubmit={handleSubmit}>
-        <h2>Create Event</h2>
+      <h2>Create Event</h2>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Title:</label>
-          <input
-            type="text"
-            value={newEvent.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            style={{ width: "100%", padding: "0.5rem" }}
-          />
-        </div>
+      <label>Title:</label>
+      <input
+        type="text"
+        value={newEvent.title}
+        onChange={(e) => handleChange("title", e.target.value)}
+        style={{ width: "100%", marginBottom: "1rem" }}
+      />
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Start:</label>
-          <input
-            type="datetime-local"
-            value={newEvent.start}
-            onChange={(e) => handleChange("start", e.target.value)}
-            style={{ width: "100%", padding: "0.5rem" }}
-          />
-        </div>
+      <label>Start:</label>
+      <input
+        type="datetime-local"
+        value={newEvent.start}
+        onChange={(e) => handleChange("start", e.target.value)}
+        style={{ width: "100%", marginBottom: "1rem" }}
+      />
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label>End:</label>
-          <input
-            type="datetime-local"
-            value={newEvent.end}
-            onChange={(e) => handleChange("end", e.target.value)}
-            style={{ width: "100%", padding: "0.5rem" }}
-          />
-        </div>
+      <label>End:</label>
+      <input
+        type="datetime-local"
+        value={newEvent.end}
+        onChange={(e) => handleChange("end", e.target.value)}
+        style={{ width: "100%", marginBottom: "1.5rem" }}
+      />
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
-          <button type="button" onClick={onClose}>Cancel</button>
-          <button type="submit">Add</button>
-        </div>
-      </form>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+        <button onClick={onClose} style={{ padding: "0.5rem 1rem" }}>
+          Cancel
+        </button>
+        <button onClick={handleAddEvent} style={{ padding: "0.5rem 1rem" }}>
+          Add
+        </button>
+      </div>
     </Modal>
   );
 };
