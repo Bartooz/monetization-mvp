@@ -1,13 +1,12 @@
 // pages/calendar.js
-
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
 
-const CalendarPage = () => {
+export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,20 +17,20 @@ const CalendarPage = () => {
     end: "",
     category: "Offer",
     offerType: "Triple Offer",
-    template: "",
-    configuration: "",
+    templateName: "",
+    configurationName: "",
   });
 
   useEffect(() => {
-    const storedEvents = localStorage.getItem("calendarEvents");
-    if (storedEvents) {
-      setEvents(JSON.parse(storedEvents));
+    const stored = localStorage.getItem("calendarEvents");
+    if (stored) {
+      setEvents(JSON.parse(stored));
     }
   }, []);
 
-  const saveEvents = (updatedEvents) => {
-    localStorage.setItem("calendarEvents", JSON.stringify(updatedEvents));
-    setEvents(updatedEvents);
+  const saveEvents = (updated) => {
+    setEvents(updated);
+    localStorage.setItem("calendarEvents", JSON.stringify(updated));
   };
 
   const handleNewEvent = () => {
@@ -41,12 +40,12 @@ const CalendarPage = () => {
       end: "",
       category: "Offer",
       offerType: "Triple Offer",
-      template: "",
-      configuration: "",
+      templateName: "",
+      configurationName: "",
     });
     setSelectedEvent(null);
-    setIsModalOpen(true);
     setIsPreview(false);
+    setIsModalOpen(true);
   };
 
   const handleEventClick = (clickInfo) => {
@@ -58,68 +57,65 @@ const CalendarPage = () => {
       setIsPreview(true);
       setIsModalOpen(true);
     } else if (clickInfo.jsEvent.detail >= 2) {
-      setEventData(event);
       setSelectedEvent(event);
+      setEventData(event);
       setIsPreview(false);
       setIsModalOpen(true);
     }
   };
 
-  const handleEventDrop = (changeInfo) => {
-    const updatedEvents = events.map((e) =>
-      e.id === changeInfo.event.id
+  const handleEventDrop = (info) => {
+    const updated = events.map((e) =>
+      e.id === info.event.id
         ? {
             ...e,
-            start: changeInfo.event.startStr,
-            end: changeInfo.event.endStr || changeInfo.event.startStr,
+            start: info.event.startStr,
+            end: info.event.endStr || info.event.startStr,
           }
         : e
     );
-    saveEvents(updatedEvents);
+    saveEvents(updated);
   };
 
   const handleSave = () => {
     if (!eventData.title || !eventData.start || !eventData.end) {
-      alert("Title, start, and end time are required.");
+      alert("Missing required fields.");
       return;
     }
 
     if (selectedEvent) {
-      const updatedEvents = events.map((e) =>
-        e.id === selectedEvent.id ? { ...selectedEvent, ...eventData } : e
+      const updated = events.map((e) =>
+        e.id === selectedEvent.id ? { ...eventData, id: e.id } : e
       );
-      saveEvents(updatedEvents);
+      saveEvents(updated);
     } else {
-      const newEvent = {
-        ...eventData,
-        id: String(Date.now()),
-      };
+      const newEvent = { ...eventData, id: Date.now().toString() };
       saveEvents([...events, newEvent]);
     }
 
     setIsModalOpen(false);
   };
 
-  const handleDelete = () => {
-    if (!selectedEvent) return;
-    const updatedEvents = events.filter((e) => e.id !== selectedEvent.id);
-    saveEvents(updatedEvents);
+  const handleDelete = (eventId) => {
+    const updated = events.filter((e) => e.id !== eventId);
+    saveEvents(updated);
     setIsModalOpen(false);
   };
 
   return (
-    <div>
-      <h1>Monetization Calendar</h1>
-      <button onClick={handleNewEvent} style={{ marginBottom: "1rem" }}>
-        New Event
+    <div style={{ padding: "1rem" }}>
+      <h2>📅 Monetization Calendar</h2>
+      <button onClick={handleNewEvent} style={{ marginBottom: 10 }}>
+        ➕ New Event
       </button>
+
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
+        initialView="dayGridMonth"
         events={events}
-        eventClick={handleEventClick}
         editable={true}
-        droppable={true}
+        selectable={true}
+        eventClick={handleEventClick}
         eventDrop={handleEventDrop}
         height="auto"
       />
@@ -132,12 +128,12 @@ const CalendarPage = () => {
         eventData={eventData}
         setEventData={setEventData}
         isPreview={isPreview}
+        isEditing={!!selectedEvent}
       />
     </div>
   );
-};
+}
 
-export default CalendarPage;
 
 
 
