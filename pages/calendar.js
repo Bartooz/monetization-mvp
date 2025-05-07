@@ -1,3 +1,4 @@
+// pages/calendar.js
 import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -5,115 +6,113 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
 
+import "@fullcalendar/core/index.js"; // Needed for Vercel compatibility
+import "@fullcalendar/daygrid/index.js";
+import "@fullcalendar/timegrid/index.js";
+import "@fullcalendar/common/main.css";
+import "@fullcalendar/daygrid/main.css";
+import "@fullcalendar/timegrid/main.css";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isEdit, setIsEdit] = useState(false);
+  const [selectedDate, setSelectedDate] = useState({ start: null, end: null });
 
-  // Load saved events from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("liveops-events");
-    if (stored) {
-      setEvents(JSON.parse(stored));
-    }
+    const savedEvents = JSON.parse(localStorage.getItem("events")) || [];
+    setEvents(savedEvents);
   }, []);
 
-  // Save events to localStorage on change
-  useEffect(() => {
-    localStorage.setItem("liveops-events", JSON.stringify(events));
-  }, [events]);
-
-  const handleDateSelect = (selectInfo) => {
-    setSelectedEvent({
-      start: selectInfo.startStr,
-      end: selectInfo.endStr,
-    });
-    setIsEdit(false);
-    setModalOpen(true);
+  const handleDateSelect = (arg) => {
+    setSelectedDate({ start: arg.startStr, end: arg.endStr });
+    setSelectedEvent(null);
+    setShowModal(true);
   };
 
   const handleEventClick = (clickInfo) => {
-    const event = events.find((evt) => evt.id === clickInfo.event.id);
-    setSelectedEvent(event);
-    setIsEdit(true);
-    setModalOpen(true);
-  };
-
-  const handleEventSave = (data) => {
-    const newEvent = {
-      ...data,
-      id: data.id || Date.now().toString(),
-    };
-
-    setEvents((prev) => {
-      const existingIndex = prev.findIndex((e) => e.id === newEvent.id);
-      if (existingIndex !== -1) {
-        const updated = [...prev];
-        updated[existingIndex] = newEvent;
-        return updated;
-      }
-      return [...prev, newEvent];
+    const event = clickInfo.event;
+    setSelectedEvent({
+      id: event.id,
+      title: event.title,
+      start: event.startStr,
+      end: event.endStr,
+      extendedProps: event.extendedProps
     });
+    setShowModal(true);
   };
 
-  const handleEventDrop = (info) => {
+  const handleEventDrop = (changeInfo) => {
     const updatedEvents = events.map((evt) =>
-      evt.id === info.event.id
+      evt.id === changeInfo.event.id
         ? {
             ...evt,
-            start: info.event.startStr,
-            end: info.event.endStr,
+            start: changeInfo.event.startStr,
+            end: changeInfo.event.endStr,
           }
         : evt
     );
     setEvents(updatedEvents);
+    localStorage.setItem("events", JSON.stringify(updatedEvents));
   };
 
-  const handleEventRender = (info) => {
-    const { event } = info;
-    const config = event.extendedProps.configuration;
-    const tooltip = document.createElement("div");
-    tooltip.innerHTML = `
-      <strong>${event.title}</strong><br/>
-      Type: ${event.extendedProps.type}<br/>
-      Offer Type: ${event.extendedProps.offerType || "N/A"}<br/>
-      Config: ${config?.name || "None"}
-    `;
-    tooltip.style.padding = "6px";
-    tooltip.style.fontSize = "13px";
-    info.el.setAttribute("title", tooltip.innerText);
+  const handleSave = (eventData) => {
+    let updatedEvents;
+    if (eventData.id) {
+      updatedEvents = events.map((evt) =>
+        evt.id === eventData.id ? eventData : evt
+      );
+    } else {
+      const newEvent = {
+        ...eventData,
+        id: String(Date.now()),
+      };
+      updatedEvents = [...events, newEvent];
+    }
+    setEvents(updatedEvents);
+    localStorage.setItem("events", JSON.stringify(updatedEvents));
+    setShowModal(false);
+  };
+
+  const handleDelete = (eventId) => {
+    const updatedEvents = events.filter((evt) => evt.id !== eventId);
+    setEvents(updatedEvents);
+    localStorage.setItem("events", JSON.stringify(updatedEvents));
+    setShowModal(false);
+  };
+
+  const handleNewEventClick = () => {
+    setSelectedDate({ start: new Date().toISOString(), end: new Date().toISOString() });
+    setSelectedEvent(null);
+    setShowModal(true);
   };
 
   return (
-    <div style={{ padding: 30 }}>
-      <h2>📅 LiveOps Calendar</h2>
-
+    <div style={{ padding: 20 }}>
+      <button onClick={handleNewEventClick} style={{ marginBottom: 10 }}>
+        ➕ New Event
+      </button>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        }}
         initialView="dayGridMonth"
+        events={events}
         editable={true}
         selectable={true}
-        events={events}
-        eventClick={handleEventClick}
         select={handleDateSelect}
+        eventClick={handleEventClick}
         eventDrop={handleEventDrop}
-        eventContent={handleEventRender}
+        height="auto"
       />
-
-      <EventModal
-        isOpen={modalOpen}
-        onRequestClose={() => setModalOpen(false)}
-        onSave={handleEventSave}
-        eventData={selectedEvent}
-        isEdit={isEdit}
-      />
+      {showModal && (
+        <EventModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          initialData={selectedEvent}
+          defaultDate={selectedDate}
+        />
+      )}
     </div>
   );
 }
