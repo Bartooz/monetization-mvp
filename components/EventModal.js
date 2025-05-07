@@ -1,119 +1,116 @@
-import { useState, useEffect } from "react";
-import Modal from "react-modal";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import React, { useEffect } from "react";
 
-export default function EventModal({
+const EventModal = ({
   isOpen,
-  onRequestClose,
+  onClose,
   onSave,
   eventData,
-  isEdit,
-}) {
-  const [type, setType] = useState("Offer");
-  const [title, setTitle] = useState("");
-  const [start, setStart] = useState(new Date());
-  const [end, setEnd] = useState(new Date());
-  const [offerType, setOfferType] = useState("Triple Offer");
-
+  setEventData,
+}) => {
   useEffect(() => {
-    if (eventData) {
-      setType(eventData.type || "Offer");
-      setTitle(eventData.title || "");
-      setStart(eventData.start ? new Date(eventData.start) : new Date());
-      setEnd(eventData.end ? new Date(eventData.end) : new Date());
-      setOfferType(eventData.offerType || "Triple Offer");
+    if (isOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
     }
-  }, [eventData]);
 
-  const handleSubmit = () => {
-    onSave({
-      ...eventData,
-      title,
-      start,
-      end,
-      type,
-      offerType,
-    });
-    onRequestClose();
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleChange = (field, value) => {
+    setEventData({ ...eventData, [field]: value });
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      contentLabel="Event Modal"
-      ariaHideApp={false}
+    <div
+      className="modal-overlay"
       style={{
-        content: {
-          maxWidth: 500,
-          margin: "auto",
-          padding: 20,
-          borderRadius: 10,
-        },
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        zIndex: 1000,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      <h2>{isEdit ? "Edit Event" : "New Event"}</h2>
-
-      <label>Category:</label>
-      <select
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 8 }}
-      >
-        <option value="Offer">Offer</option>
-        <option value="Mission">Mission</option>
-      </select>
-
-      <label>Offer Type:</label>
-      <select
-        value={offerType}
-        onChange={(e) => setOfferType(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 8 }}
-      >
-        <option>Triple Offer</option>
-        {/* Add other types later */}
-      </select>
-
-      <label>Title:</label>
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        style={{ width: "100%", marginBottom: 10, padding: 8 }}
-      />
-
-      <label>Start:</label>
-      <DatePicker
-        selected={start}
-        onChange={(date) => setStart(date)}
-        showTimeSelect
-        dateFormat="Pp"
-        className="input"
-      />
-
-      <label>End:</label>
-      <DatePicker
-        selected={end}
-        onChange={(date) => setEnd(date)}
-        showTimeSelect
-        dateFormat="Pp"
-        className="input"
-      />
-
-      <button
-        onClick={handleSubmit}
+      <div
+        className="modal-content"
         style={{
-          marginTop: 20,
-          padding: "10px 20px",
-          background: "#111",
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
+          backgroundColor: "#fff",
+          padding: "2rem",
+          borderRadius: "8px",
+          width: "90%",
+          maxWidth: "600px",
+          zIndex: 1001,
         }}
       >
-        {isEdit ? "Update" : "Save"}
-      </button>
-    </Modal>
-  );
-}
+        <h2>New Event</h2>
 
+        <label>Category:</label>
+        <select
+          value={eventData.category}
+          onChange={(e) => handleChange("category", e.target.value)}
+          style={{ width: "100%", marginBottom: "1rem" }}
+        >
+          <option value="Offer">Offer</option>
+          <option value="Mission">Mission</option>
+        </select>
+
+        <label>Offer Type:</label>
+        <select
+          value={eventData.offerType || ""}
+          onChange={(e) => handleChange("offerType", e.target.value)}
+          style={{ width: "100%", marginBottom: "1rem" }}
+        >
+          <option value="Triple Offer">Triple Offer</option>
+          <option value="Timer">Timer</option>
+          <option value="Endless">Endless</option>
+          <option value="Surprise Offer">Surprise Offer</option>
+        </select>
+
+        <label>Title:</label>
+        <input
+          type="text"
+          value={eventData.title || ""}
+          onChange={(e) => handleChange("title", e.target.value)}
+          style={{ width: "100%", marginBottom: "1rem" }}
+        />
+
+        <label>Start:</label>
+        <input
+          type="datetime-local"
+          value={eventData.start}
+          onChange={(e) => handleChange("start", e.target.value)}
+          style={{ width: "100%", marginBottom: "1rem" }}
+        />
+
+        <label>End:</label>
+        <input
+          type="datetime-local"
+          value={eventData.end}
+          onChange={(e) => handleChange("end", e.target.value)}
+          style={{ width: "100%", marginBottom: "1.5rem" }}
+        />
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+          <button onClick={onClose} style={{ padding: "0.5rem 1rem" }}>
+            Cancel
+          </button>
+          <button onClick={onSave} style={{ padding: "0.5rem 1rem" }}>
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EventModal;

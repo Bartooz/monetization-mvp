@@ -1,14 +1,15 @@
-// pages/_app.js
-import Layout from "../components/Layout";
-import "react-datepicker/dist/react-datepicker.css";
+import "../styles/globals.css";
+import { useEffect } from "react";
 
+function MyApp({ Component, pageProps }) {
+  // This is optional: helps ensure body class is removed on unmount
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, []);
 
-
-export default function MyApp({ Component, pageProps }) {
-  return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
-  );
+  return <Component {...pageProps} />;
 }
 
+export default MyApp;
