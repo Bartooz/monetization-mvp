@@ -1,117 +1,106 @@
-// pages/calendar.js
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
 
-
-
-
-export default function CalendarPage() {
+const CalendarPage = () => {
   const [events, setEvents] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectedDate, setSelectedDate] = useState({ start: null, end: null });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [eventData, setEventData] = useState({
+    title: "",
+    start: "",
+    end: "",
+    category: "Offer",
+    offerType: "Triple Offer",
+  });
+  const calendarRef = useRef(null);
 
   useEffect(() => {
-    const savedEvents = JSON.parse(localStorage.getItem("events")) || [];
-    setEvents(savedEvents);
+    const saved = localStorage.getItem("calendarEvents");
+    if (saved) setEvents(JSON.parse(saved));
   }, []);
 
-  const handleDateSelect = (arg) => {
-    setSelectedDate({ start: arg.startStr, end: arg.endStr });
-    setSelectedEvent(null);
-    setShowModal(true);
+  const handleDateClick = (arg) => {
+    setEventData({
+      title: "",
+      start: arg.dateStr,
+      end: arg.dateStr,
+      category: "Offer",
+      offerType: "Triple Offer",
+    });
+    setModalOpen(true);
   };
 
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
-    setSelectedEvent({
-      id: event.id,
+    setEventData({
       title: event.title,
       start: event.startStr,
       end: event.endStr,
-      extendedProps: event.extendedProps
+      category: event.extendedProps.category || "Offer",
+      offerType: event.extendedProps.offerType || "Triple Offer",
     });
-    setShowModal(true);
+    setModalOpen(true);
   };
 
-  const handleEventDrop = (changeInfo) => {
-    const updatedEvents = events.map((evt) =>
-      evt.id === changeInfo.event.id
-        ? {
-            ...evt,
-            start: changeInfo.event.startStr,
-            end: changeInfo.event.endStr,
-          }
-        : evt
-    );
+  const handleSaveEvent = () => {
+    const newEvent = {
+      title: eventData.title,
+      start: eventData.start,
+      end: eventData.end,
+      category: eventData.category,
+      offerType: eventData.offerType,
+    };
+    const updatedEvents = [...events, newEvent];
     setEvents(updatedEvents);
-    localStorage.setItem("events", JSON.stringify(updatedEvents));
-  };
-
-  const handleSave = (eventData) => {
-    let updatedEvents;
-    if (eventData.id) {
-      updatedEvents = events.map((evt) =>
-        evt.id === eventData.id ? eventData : evt
-      );
-    } else {
-      const newEvent = {
-        ...eventData,
-        id: String(Date.now()),
-      };
-      updatedEvents = [...events, newEvent];
-    }
-    setEvents(updatedEvents);
-    localStorage.setItem("events", JSON.stringify(updatedEvents));
-    setShowModal(false);
-  };
-
-  const handleDelete = (eventId) => {
-    const updatedEvents = events.filter((evt) => evt.id !== eventId);
-    setEvents(updatedEvents);
-    localStorage.setItem("events", JSON.stringify(updatedEvents));
-    setShowModal(false);
-  };
-
-  const handleNewEventClick = () => {
-    setSelectedDate({ start: new Date().toISOString(), end: new Date().toISOString() });
-    setSelectedEvent(null);
-    setShowModal(true);
+    localStorage.setItem("calendarEvents", JSON.stringify(updatedEvents));
+    setModalOpen(false);
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <button onClick={handleNewEventClick} style={{ marginBottom: 10 }}>
-        ➕ New Event
+    <div style={{ padding: "2rem" }}>
+      <h1>Calendar</h1>
+      <button
+        onClick={() => {
+          setEventData({
+            title: "",
+            start: new Date().toISOString().slice(0, 16),
+            end: new Date().toISOString().slice(0, 16),
+            category: "Offer",
+            offerType: "Triple Offer",
+          });
+          setModalOpen(true);
+        }}
+        style={{ marginBottom: "1rem", padding: "0.5rem 1rem" }}
+      >
+        New Event
       </button>
+
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         events={events}
-        editable={true}
-        selectable={true}
-        select={handleDateSelect}
+        ref={calendarRef}
+        dateClick={handleDateClick}
         eventClick={handleEventClick}
-        eventDrop={handleEventDrop}
         height="auto"
       />
-      {showModal && (
-        <EventModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          initialData={selectedEvent}
-          defaultDate={selectedDate}
-        />
-      )}
+
+      <EventModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSaveEvent}
+        eventData={eventData}
+        setEventData={setEventData}
+      />
     </div>
   );
-}
+};
+
+export default CalendarPage;
+
 
 
 
