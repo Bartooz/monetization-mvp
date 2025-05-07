@@ -22,8 +22,10 @@ const EventModal = ({
 
   if (!isOpen) return null;
 
+  const safeData = eventData || {};
+
   const handleChange = (field, value) => {
-    setEventData({ ...eventData, [field]: value });
+    setEventData({ ...safeData, [field]: value });
   };
 
   const handleTemplateSelect = (id) => {
@@ -34,7 +36,7 @@ const EventModal = ({
         templateId: id,
         templateTitle: template.name,
         offerType: template.type || prev.offerType,
-        category: "Offer", // Assume all templates are for Offers
+        category: "Offer",
       }));
     }
   };
@@ -77,11 +79,11 @@ const EventModal = ({
           zIndex: 1001,
         }}
       >
-        <h2>{eventData?.id ? "Edit Event" : "New Event"}</h2>
+        <h2>{safeData?.id ? "Edit Event" : "New Event"}</h2>
 
         <label>Category:</label>
         <select
-          value={eventData.category || ""}
+          value={safeData.category || ""}
           onChange={(e) => handleChange("category", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
@@ -91,7 +93,7 @@ const EventModal = ({
 
         <label>Offer Type:</label>
         <select
-          value={eventData.offerType || ""}
+          value={safeData.offerType || ""}
           onChange={(e) => handleChange("offerType", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
@@ -104,7 +106,7 @@ const EventModal = ({
 
         <label>Template:</label>
         <select
-          value={eventData.templateId || ""}
+          value={safeData.templateId || ""}
           onChange={(e) => handleTemplateSelect(e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
@@ -118,13 +120,13 @@ const EventModal = ({
 
         <label>Configuration:</label>
         <select
-          value={eventData.configurationId || ""}
+          value={safeData.configurationId || ""}
           onChange={(e) => handleConfigurationSelect(e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
           <option value="">Select Configuration</option>
           {configurations
-            .filter((c) => c.offerType === eventData.offerType)
+            .filter((c) => c.offerType === safeData.offerType)
             .map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -135,7 +137,7 @@ const EventModal = ({
         <label>Title:</label>
         <input
           type="text"
-          value={eventData.title || ""}
+          value={safeData.title || ""}
           onChange={(e) => handleChange("title", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         />
@@ -143,7 +145,7 @@ const EventModal = ({
         <label>Start:</label>
         <input
           type="datetime-local"
-          value={eventData.start || ""}
+          value={safeData.start || ""}
           onChange={(e) => handleChange("start", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         />
@@ -151,7 +153,7 @@ const EventModal = ({
         <label>End:</label>
         <input
           type="datetime-local"
-          value={eventData.end || ""}
+          value={safeData.end || ""}
           onChange={(e) => handleChange("end", e.target.value)}
           style={{ width: "100%", marginBottom: "1.5rem" }}
         />
@@ -160,7 +162,7 @@ const EventModal = ({
           <button onClick={onClose} style={{ padding: "0.5rem 1rem" }}>
             Cancel
           </button>
-          <button onClick={() => onSave(eventData)} style={{ padding: "0.5rem 1rem" }}>
+          <button onClick={() => onSave(safeData)} style={{ padding: "0.5rem 1rem" }}>
             Save
           </button>
         </div>
@@ -170,6 +172,7 @@ const EventModal = ({
 };
 
 export default EventModal;
+
 
 
 

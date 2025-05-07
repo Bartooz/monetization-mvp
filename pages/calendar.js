@@ -1,126 +1,110 @@
+// pages/calendar.js
 import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
-import { loadTemplatesFromStorage } from "../utils/templateStorage";
-import { loadConfigurationsFromStorage } from "../utils/configurationStorage";
 
 const CalendarPage = () => {
   const [events, setEvents] = useState([]);
-  const [eventData, setEventData] = useState({
-    title: "",
-    category: "Offer",
-    offerType: "",
-    template: "",
-    configuration: "",
-    start: "",
-    end: "",
-  });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEventId, setSelectedEventId] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [clickTimer, setClickTimer] = useState(null);
+
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
 
   useEffect(() => {
-    const savedEvents = JSON.parse(localStorage.getItem("calendarEvents")) || [];
+    const savedEvents = JSON.parse(localStorage.getItem("calendar-events")) || [];
+    const savedTemplates = JSON.parse(localStorage.getItem("liveops-templates")) || [];
+    const savedConfigs = JSON.parse(localStorage.getItem("liveops-configurations")) || [];
     setEvents(savedEvents);
-    setTemplates(loadTemplatesFromStorage());
-    setConfigurations(loadConfigurationsFromStorage());
+    setTemplates(savedTemplates);
+    setConfigurations(savedConfigs);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("calendarEvents", JSON.stringify(events));
-  }, [events]);
+  const saveEvents = (updatedEvents) => {
+    localStorage.setItem("calendar-events", JSON.stringify(updatedEvents));
+    setEvents(updatedEvents);
+  };
 
-  const handleDateClick = (arg) => {
-    setEventData({
+  const handleDateSelect = (selectInfo) => {
+    setSelectedEvent({
+      start: selectInfo.startStr,
+      end: selectInfo.endStr,
       title: "",
       category: "Offer",
-      offerType: "",
-      template: "",
-      configuration: "",
-      start: arg.dateStr,
-      end: arg.dateStr,
+      offerType: "Triple Offer",
     });
-    setSelectedEventId(null);
-    setIsModalOpen(true);
+    setShowModal(true);
   };
 
   const handleEventClick = (clickInfo) => {
-    const { jsEvent, event } = clickInfo;
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      setClickTimer(null);
+      handleEventDoubleClick(clickInfo.event);
+    } else {
+      const timer = setTimeout(() => {
+        setSelectedEvent(clickInfo.event.extendedProps);
+        setShowPreview(true);
+        setClickTimer(null);
+      }, 250);
+      setClickTimer(timer);
+    }
+  };
 
-    // Show preview popup
-    setPreview({
+  const handleEventDoubleClick = (event) => {
+    setSelectedEvent({
       id: event.id,
       title: event.title,
       start: event.startStr,
       end: event.endStr,
-      offerType: event.extendedProps.offerType,
-      template: event.extendedProps.template,
-      configuration: event.extendedProps.configuration,
-      x: jsEvent.pageX,
-      y: jsEvent.pageY,
+      ...event.extendedProps,
     });
-
-    // Automatically hide preview after 4 seconds
-    setTimeout(() => setPreview(null), 4000);
+    setShowModal(true);
+    setShowPreview(false);
   };
 
-  const handleEventDoubleClick = (clickInfo) => {
-    const { event } = clickInfo;
-
-    setEventData({
-      title: event.title,
-      category: event.extendedProps.category,
-      offerType: event.extendedProps.offerType,
-      template: event.extendedProps.template,
-      configuration: event.extendedProps.configuration,
-      start: event.startStr,
-      end: event.endStr,
-    });
-
-    setSelectedEventId(event.id);
-    setIsModalOpen(true);
+  const handleEventDrop = (changeInfo) => {
+    const updated = events.map((evt) =>
+      evt.id === changeInfo.event.id
+        ? {
+            ...evt,
+            start: changeInfo.event.startStr,
+            end: changeInfo.event.endStr,
+          }
+        : evt
+    );
+    saveEvents(updated);
   };
 
-  const handleEventSave = () => {
-    const updatedEvent = {
-      id: selectedEventId || Date.now().toString(),
-      title: eventData.title,
-      start: eventData.start,
-      end: eventData.end,
-      extendedProps: {
-        category: eventData.category,
-        offerType: eventData.offerType,
-        template: eventData.template,
-        configuration: eventData.configuration,
-      },
-    };
-
-    const updatedEvents = selectedEventId
-      ? events.map((evt) => (evt.id === selectedEventId ? updatedEvent : evt))
-      : [...events, updatedEvent];
-
-    setEvents(updatedEvents);
-    setIsModalOpen(false);
-    setSelectedEventId(null);
-    setEventData({});
+  const handleSave = (eventData) => {
+    let updatedEvents;
+    if (eventData.id) {
+      updatedEvents = events.map((evt) => (evt.id === eventData.id ? eventData : evt));
+    } else {
+      const newEvent = { ...eventData, id: String(Date.now()) };
+      updatedEvents = [...events, newEvent];
+    }
+    saveEvents(updatedEvents);
+    setShowModal(false);
+    setSelectedEvent(null);
   };
 
-  const handleEventDelete = (id) => {
-    const updated = events.filter((e) => e.id !== id);
-    setEvents(updated);
-    setPreview(null);
+  const handleDelete = (id) => {
+    const updated = events.filter((evt) => evt.id !== id);
+    saveEvents(updated);
+    setShowPreview(false);
+    setSelectedEvent(null);
   };
 
   return (
-    <div>
-      <button onClick={handleDateClick} style={{ margin: "1rem" }}>
-        New Event
-      </button>
+    <div style={{ padding: "1rem" }}>
+      <h1>LiveOps Calendar</h1>
+      <button onClick={() => { setSelectedEvent(null); setShowModal(true); }}>New Event</button>
 
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -128,70 +112,40 @@ const CalendarPage = () => {
         editable={true}
         selectable={true}
         events={events}
-        dateClick={handleDateClick}
+        select={handleDateSelect}
         eventClick={handleEventClick}
-        eventDidMount={(info) => {
-          info.el.addEventListener("dblclick", (e) => {
-            e.stopPropagation();
-            handleEventDoubleClick({ event: info.event });
-          });
-        }}
-        eventDrop={(info) => {
-          const updated = events.map((evt) =>
-            evt.id === info.event.id
-              ? {
-                  ...evt,
-                  start: info.event.startStr,
-                  end: info.event.endStr,
-                }
-              : evt
-          );
-          setEvents(updated);
-        }}
+        eventDrop={handleEventDrop}
       />
 
-      {preview && (
-        <div
-          style={{
-            position: "absolute",
-            top: preview.y,
-            left: preview.x,
-            background: "#fff",
-            padding: "1rem",
-            border: "1px solid #ccc",
-            borderRadius: "6px",
-            zIndex: 2000,
-            width: "250px",
-          }}
-        >
-          <h4>{preview.title}</h4>
-          <p>{preview.offerType}</p>
-          <p>
-            {preview.start} → {preview.end}
-          </p>
-          <p>Template: {preview.template}</p>
-          <p>Config: {preview.configuration}</p>
-          <button onClick={() => handleEventDoubleClick({ event: { ...preview } })}>
-            Edit
-          </button>
-          <button onClick={() => handleEventDelete(preview.id)}>Delete</button>
-        </div>
+      {showModal && (
+        <EventModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onSave={handleSave}
+          eventData={selectedEvent}
+          setEventData={setSelectedEvent}
+          templates={templates}
+          configurations={configurations}
+        />
       )}
 
-      <EventModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleEventSave}
-        eventData={eventData}
-        setEventData={setEventData}
-        templates={templates}
-        configurations={configurations}
-      />
+      {showPreview && selectedEvent && (
+        <div style={{ position: "fixed", bottom: 20, right: 20, background: "#fff", padding: "1rem", boxShadow: "0 0 10px rgba(0,0,0,0.2)", zIndex: 1000 }}>
+          <h3>{selectedEvent.title}</h3>
+          <p><strong>Category:</strong> {selectedEvent.category}</p>
+          <p><strong>Offer Type:</strong> {selectedEvent.offerType}</p>
+          <p><strong>Start:</strong> {selectedEvent.start}</p>
+          <p><strong>End:</strong> {selectedEvent.end}</p>
+          <button onClick={() => handleEventDoubleClick({ event: selectedEvent })}>Edit</button>
+          <button onClick={() => handleDelete(selectedEvent.id)} style={{ marginLeft: "10px" }}>Delete</button>
+        </div>
+      )}
     </div>
   );
 };
 
 export default CalendarPage;
+
 
 
 
