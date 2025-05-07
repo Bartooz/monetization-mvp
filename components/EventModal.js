@@ -1,56 +1,47 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const EventModal = ({
   isOpen,
-  onClose,
-  onSave,
+  isEditing,
   eventData,
   setEventData,
-  templates = [],
-  configurations = [],
+  onClose,
+  onSave,
+  onDelete,
 }) => {
+  const [templates, setTemplates] = useState([]);
+  const [configurations, setConfigurations] = useState([]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("modal-open");
+
+      // Load from localStorage
+      const storedTemplates = JSON.parse(localStorage.getItem("liveops-templates")) || [];
+      const storedConfigs = JSON.parse(localStorage.getItem("liveops-configurations")) || [];
+      setTemplates(storedTemplates);
+      setConfigurations(storedConfigs);
     } else {
       document.body.classList.remove("modal-open");
     }
+
     return () => {
       document.body.classList.remove("modal-open");
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  const safeData = eventData || {};
+  if (!isOpen || !eventData) return null;
 
   const handleChange = (field, value) => {
-    setEventData({ ...safeData, [field]: value });
+    setEventData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const handleTemplateSelect = (id) => {
-    const template = templates.find((t) => t.id === id);
-    if (template) {
-      setEventData((prev) => ({
-        ...prev,
-        templateId: id,
-        templateTitle: template.name,
-        offerType: template.type || prev.offerType,
-        category: "Offer",
-      }));
-    }
-  };
-
-  const handleConfigurationSelect = (id) => {
-    const config = configurations.find((c) => c.id === id);
-    if (config) {
-      setEventData((prev) => ({
-        ...prev,
-        configurationId: id,
-        configurationName: config.name,
-      }));
-    }
-  };
+  const filteredConfigurations = configurations.filter(
+    (c) => c.category === eventData.category && c.offerType === eventData.offerType
+  );
 
   return (
     <div
@@ -61,7 +52,7 @@ const EventModal = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor: "rgba(0,0,0,0.4)",
         zIndex: 1000,
         display: "flex",
         justifyContent: "center",
@@ -76,14 +67,21 @@ const EventModal = ({
           borderRadius: "8px",
           width: "90%",
           maxWidth: "600px",
-          zIndex: 1001,
         }}
       >
-        <h2>{safeData?.id ? "Edit Event" : "New Event"}</h2>
+        <h2>{isEditing ? "Edit Event" : "New Event"}</h2>
+
+        <label>Title:</label>
+        <input
+          type="text"
+          value={eventData.title || ""}
+          onChange={(e) => handleChange("title", e.target.value)}
+          style={{ width: "100%", marginBottom: "1rem" }}
+        />
 
         <label>Category:</label>
         <select
-          value={safeData.category || ""}
+          value={eventData.category}
           onChange={(e) => handleChange("category", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
@@ -93,11 +91,10 @@ const EventModal = ({
 
         <label>Offer Type:</label>
         <select
-          value={safeData.offerType || ""}
+          value={eventData.offerType || ""}
           onChange={(e) => handleChange("offerType", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
-          <option value="">Select type</option>
           <option value="Triple Offer">Triple Offer</option>
           <option value="Timer">Timer</option>
           <option value="Endless">Endless</option>
@@ -106,46 +103,38 @@ const EventModal = ({
 
         <label>Template:</label>
         <select
-          value={safeData.templateId || ""}
-          onChange={(e) => handleTemplateSelect(e.target.value)}
+          value={eventData.templateName || ""}
+          onChange={(e) => handleChange("templateName", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
           <option value="">Select Template</option>
-          {templates.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
-
-        <label>Configuration:</label>
-        <select
-          value={safeData.configurationId || ""}
-          onChange={(e) => handleConfigurationSelect(e.target.value)}
-          style={{ width: "100%", marginBottom: "1rem" }}
-        >
-          <option value="">Select Configuration</option>
-          {configurations
-            .filter((c) => c.offerType === safeData.offerType)
-            .map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
+          {templates
+            .filter((t) => t.type === eventData.offerType)
+            .map((template) => (
+              <option key={template.name} value={template.name}>
+                {template.name}
               </option>
             ))}
         </select>
 
-        <label>Title:</label>
-        <input
-          type="text"
-          value={safeData.title || ""}
-          onChange={(e) => handleChange("title", e.target.value)}
+        <label>Configuration:</label>
+        <select
+          value={eventData.configurationName || ""}
+          onChange={(e) => handleChange("configurationName", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
-        />
+        >
+          <option value="">Select Configuration</option>
+          {filteredConfigurations.map((config) => (
+            <option key={config.name} value={config.name}>
+              {config.name}
+            </option>
+          ))}
+        </select>
 
         <label>Start:</label>
         <input
           type="datetime-local"
-          value={safeData.start || ""}
+          value={eventData.start}
           onChange={(e) => handleChange("start", e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         />
@@ -153,16 +142,27 @@ const EventModal = ({
         <label>End:</label>
         <input
           type="datetime-local"
-          value={safeData.end || ""}
+          value={eventData.end}
           onChange={(e) => handleChange("end", e.target.value)}
           style={{ width: "100%", marginBottom: "1.5rem" }}
         />
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+          {isEditing && (
+            <button
+              onClick={() => onDelete(eventData.id)}
+              style={{ backgroundColor: "red", color: "white", padding: "0.5rem 1rem" }}
+            >
+              Delete
+            </button>
+          )}
           <button onClick={onClose} style={{ padding: "0.5rem 1rem" }}>
             Cancel
           </button>
-          <button onClick={() => onSave(safeData)} style={{ padding: "0.5rem 1rem" }}>
+          <button
+            onClick={() => onSave(eventData)}
+            style={{ backgroundColor: "#0070f3", color: "white", padding: "0.5rem 1rem" }}
+          >
             Save
           </button>
         </div>
@@ -172,7 +172,3 @@ const EventModal = ({
 };
 
 export default EventModal;
-
-
-
-
