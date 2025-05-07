@@ -1,30 +1,101 @@
-import React, { useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import Modal from "react-modal";
+
+Modal.setAppElement("#__next");
 
 export default function CalendarPage() {
-  const calendarRef = useRef();
+  const [events, setEvents] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    start: "",
+    end: "",
+  });
+
+  // Load events from localStorage
+  useEffect(() => {
+    const storedEvents = JSON.parse(localStorage.getItem("calendarEvents")) || [];
+    setEvents(storedEvents);
+  }, []);
+
+  // Save events to localStorage whenever updated
+  useEffect(() => {
+    localStorage.setItem("calendarEvents", JSON.stringify(events));
+  }, [events]);
+
+  const handleAddEvent = () => {
+    setEvents([...events, newEvent]);
+    setIsModalOpen(false);
+    setNewEvent({ title: "", start: "", end: "" });
+  };
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h2>📅 Calendar</h2>
+    <div style={{ padding: "20px" }}>
+      <button
+        onClick={() => setIsModalOpen(true)}
+        style={{ marginBottom: "10px", padding: "10px 20px", fontWeight: "bold" }}
+      >
+        New Event
+      </button>
 
       <FullCalendar
-        ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
-          left: "prev,next today",
+          start: "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
+          end: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-        height="auto"
-        editable={false}
-        selectable={false}
-        events={[]}
+        events={events}
       />
+
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Create Event"
+        style={{
+          content: {
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
+            width: "400px",
+          },
+        }}
+      >
+        <h2>Create Event</h2>
+        <label>Title:</label>
+        <input
+          type="text"
+          value={newEvent.title}
+          onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+        <label>Start:</label>
+        <input
+          type="datetime-local"
+          value={newEvent.start}
+          onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+        <label>End:</label>
+        <input
+          type="datetime-local"
+          value={newEvent.end}
+          onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
+          style={{ width: "100%", marginBottom: "20px" }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <button onClick={() => setIsModalOpen(false)}>Cancel</button>
+          <button onClick={handleAddEvent}>Add</button>
+        </div>
+      </Modal>
     </div>
   );
 }
