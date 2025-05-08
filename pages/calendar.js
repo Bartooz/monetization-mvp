@@ -53,6 +53,7 @@ export default function CalendarPage() {
         : evt
     );
     setEvents(updated);
+    localStorage.setItem("calendarEvents", JSON.stringify(updated)); // Persist immediately
   };
 
   // Double-click to edit

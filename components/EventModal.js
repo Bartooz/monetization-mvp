@@ -12,7 +12,8 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
       overlayClassName="ReactModal__Overlay"
       className="ReactModal__Content"
     >
-      <h2>Create Event</h2>
+      <h2>{newEvent?.id ? "Edit Event" : "Create Event"}</h2>
+
 
       <label>Title:</label>
       <input
