@@ -34,24 +34,31 @@ export default function CalendarPage() {
   }, [events]);
 
   const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end) return;
+    const updatedEvent = {
+      ...newEvent,
+      start: newEvent.start,
+      end: newEvent.end,
+      title: newEvent.title,
+      category: newEvent.category,
+      template: newEvent.template,
+    };
   
-    setEvents((prevEvents) => {
-      let updated;
-      if (newEvent.id) {
-        // Edit mode
-        updated = prevEvents.map((e) => (e.id === newEvent.id ? newEvent : e));
-      } else {
-        // New event
-        updated = [...prevEvents, { ...newEvent, id: Date.now() }];
-      }
-      localStorage.setItem("calendarEvents", JSON.stringify(updated));
-      return updated;
-    });
+    if (!updatedEvent.title || !updatedEvent.start || !updatedEvent.end) return;
   
-    setNewEvent({ title: "", start: "", end: "", category: "", templateId: "" });
+    let updated;
+    if (updatedEvent.id) {
+      updated = events.map((e) => (e.id === updatedEvent.id ? updatedEvent : e));
+    } else {
+      updated = [...events, { ...updatedEvent, id: Date.now().toString() }];
+    }
+  
+    setEvents(updated);
+    localStorage.setItem("calendarEvents", JSON.stringify(updated));
+  
+    setNewEvent({ title: "", start: "", end: "", category: "", template: "" });
     setIsModalOpen(false);
   };
+  
   
 
   const handleEventDrop = (info) => {
