@@ -13,6 +13,9 @@ export default function CalendarPage() {
   const [templates, setTemplates] = useState([]);
   const [calendarKey, setCalendarKey] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [previewEvent, setPreviewEvent] = useState(null);
+const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
+
   const [newEvent, setNewEvent] = useState({
     id: null,
     title: "",
@@ -81,6 +84,25 @@ setCalendarKey((prev) => prev + 1);
     setIsModalOpen(false);
   };
 
+  const handleEventClick = (clickInfo) => {
+    const event = clickInfo.event;
+    const { id, title, start, end, extendedProps } = event;
+  
+    const previewData = {
+      id,
+      title,
+      start: new Date(start).toLocaleString(),
+      end: new Date(end).toLocaleString(),
+      category: extendedProps.category,
+      template: extendedProps.template,
+    };
+  
+    const rect = clickInfo.el.getBoundingClientRect();
+    setPreviewPosition({ top: rect.bottom + window.scrollY + 5, left: rect.left + window.scrollX });
+    setPreviewEvent(previewData);
+  };
+  
+
   const handleEventDidMount = (info) => {
     info.el.addEventListener("dblclick", () => {
       const { id, title, start, end, extendedProps } = info.event;
@@ -144,7 +166,68 @@ setCalendarKey((prev) => prev + 1);
         droppable={true}
         eventDrop={handleEventDrop}
         eventDidMount={handleEventDidMount}
+        eventClick={handleEventClick}
       />
+
+{previewEvent && (
+  <div
+    style={{
+      position: "absolute",
+      top: previewPosition.top,
+      left: previewPosition.left,
+      background: "#fff",
+      padding: "12px",
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+      zIndex: 1000,
+      minWidth: "250px"
+    }}
+  >
+    <strong>{previewEvent.title}</strong>
+    <div>Start: {previewEvent.start}</div>
+    <div>End: {previewEvent.end}</div>
+    {previewEvent.category === "Offer" && (
+      <div>Template: {previewEvent.template || "None"}</div>
+    )}
+
+    <div style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+      <button
+        onClick={() => {
+          const found = events.find((e) => e.id === previewEvent.id);
+          if (found) {
+            const formatDateTimeLocal = (date) => {
+              const d = new Date(date);
+              const offset = d.getTimezoneOffset() * 60000;
+              return new Date(d - offset).toISOString().slice(0, 16);
+            };
+            setNewEvent({
+              ...found,
+              start: formatDateTimeLocal(found.start),
+              end: formatDateTimeLocal(found.end),
+            });
+            setIsModalOpen(true);
+            setPreviewEvent(null);
+          }
+        }}
+      >
+        Edit
+      </button>
+      <button
+        onClick={() => {
+          const updated = events.filter((e) => e.id !== previewEvent.id);
+          setEvents(updated);
+          localStorage.setItem("calendarEvents", JSON.stringify(updated));
+          setPreviewEvent(null);
+        }}
+        style={{ background: "#c0392b", color: "white" }}
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+)}
+
 
 <EventModal
   isOpen={isModalOpen}
