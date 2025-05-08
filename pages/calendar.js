@@ -11,6 +11,7 @@ Modal.setAppElement("#__next");
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [calendarKey, setCalendarKey] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
     id: null,
@@ -53,7 +54,8 @@ export default function CalendarPage() {
     }
   
     setEvents(updated);
-    localStorage.setItem("calendarEvents", JSON.stringify(updated));
+localStorage.setItem("calendarEvents", JSON.stringify(updated));
+setCalendarKey((prev) => prev + 1);
   
     setNewEvent({ title: "", start: "", end: "", category: "", template: "" });
     setIsModalOpen(false);
@@ -123,6 +125,7 @@ export default function CalendarPage() {
       </button>
 
       <FullCalendar
+      key={calendarKey}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
