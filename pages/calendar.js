@@ -4,6 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Modal from "react-modal";
+import EventModal from "../components/EventModal";
 
 Modal.setAppElement("#__next");
 
@@ -60,31 +61,13 @@ export default function CalendarPage() {
         eventDrop={handleEventDrop}
       />
 
-      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
-        <h2>Create Event</h2>
-        <label>Title:</label>
-        <input
-          type="text"
-          value={newEvent.title}
-          onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-        />
-        <label>Start:</label>
-        <input
-          type="datetime-local"
-          value={newEvent.start}
-          onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-        />
-        <label>End:</label>
-        <input
-          type="datetime-local"
-          value={newEvent.end}
-          onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-        />
-        <div style={{ marginTop: "1rem" }}>
-          <button onClick={() => setIsModalOpen(false)}>Cancel</button>
-          <button onClick={handleAddEvent}>Add</button>
-        </div>
-      </Modal>
+<EventModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  newEvent={newEvent}
+  setNewEvent={setNewEvent}
+  handleAddEvent={handleAddEvent}
+/>
     </>
   );
 }
