@@ -4,13 +4,14 @@ import Modal from "react-modal";
 Modal.setAppElement("#__next");
 
 const EventModal = ({
-  isOpen,
-  onClose,
-  newEvent,
-  setNewEvent,
-  handleAddEvent,
-  templates = [],
-}) => {
+    isOpen,
+    onClose,
+    newEvent,
+    setNewEvent,
+    handleAddEvent,
+    handleDeleteEvent,
+    templates = [],
+  }) => {
   const handleChange = (field, value) => {
     setNewEvent((prev) => ({ ...prev, [field]: value }));
   };
@@ -77,12 +78,22 @@ const EventModal = ({
         </>
       )}
 
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-        <button onClick={onClose}>Cancel</button>
-        <button onClick={handleAddEvent}>
-          {newEvent.id ? "Save" : "Add"}
-        </button>
-      </div>
+<div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+  <button onClick={onClose}>Cancel</button>
+
+  {newEvent.id && (
+    <button
+      onClick={handleDeleteEvent}
+      style={{ background: "#c0392b", color: "white", padding: "0.5rem 1rem" }}
+    >
+      Delete
+    </button>
+  )}
+
+  <button onClick={handleAddEvent}>
+    {newEvent.id ? "Save" : "Add"}
+  </button>
+</div>
     </Modal>
   );
 };

@@ -64,6 +64,14 @@ export default function CalendarPage() {
     localStorage.setItem("calendarEvents", JSON.stringify(updated));
   };
 
+  const handleDeleteEvent = () => {
+    if (!newEvent.id) return;
+    const updated = events.filter((e) => e.id !== newEvent.id);
+    setEvents(updated);
+    localStorage.setItem("calendarEvents", JSON.stringify(updated));
+    setIsModalOpen(false);
+  };
+
   const handleEventDidMount = (info) => {
     info.el.addEventListener("dblclick", () => {
       const { id, title, start, end, extendedProps } = info.event;
@@ -128,14 +136,15 @@ export default function CalendarPage() {
         eventDidMount={handleEventDidMount}
       />
 
-      <EventModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        newEvent={newEvent}
-        setNewEvent={setNewEvent}
-        handleAddEvent={handleAddEvent}
-        templates={templates}
-      />
+<EventModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  newEvent={newEvent}
+  setNewEvent={setNewEvent}
+  handleAddEvent={handleAddEvent}
+  handleDeleteEvent={handleDeleteEvent}
+  templates={templates}
+/>
     </>
   );
 }
