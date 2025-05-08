@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -12,8 +12,6 @@ export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
-
-  const lastClickTimeRef = useRef(null);
 
   useEffect(() => {
     const storedEvents = JSON.parse(localStorage.getItem("calendarEvents")) || [];
@@ -50,20 +48,15 @@ export default function CalendarPage() {
     setEvents(updatedEvents);
   };
 
-  const handleEventClick = (clickInfo) => {
-    const now = new Date().getTime();
-    if (
-      lastClickTimeRef.current &&
-      now - lastClickTimeRef.current < 400
-    ) {
-      // Detected a double-click
-      const matched = events.find((e) => e.id === clickInfo.event.id);
+  const handleEventDidMount = (info) => {
+    const eventEl = info.el;
+    eventEl.addEventListener("dblclick", () => {
+      const matched = events.find((e) => e.id === info.event.id);
       if (matched) {
         setNewEvent(matched);
         setIsModalOpen(true);
       }
-    }
-    lastClickTimeRef.current = now;
+    });
   };
 
   return (
@@ -90,7 +83,7 @@ export default function CalendarPage() {
         editable={true}
         droppable={true}
         eventDrop={handleEventDrop}
-        eventClick={handleEventClick}
+        eventDidMount={handleEventDidMount}
       />
 
       <EventModal
@@ -103,6 +96,7 @@ export default function CalendarPage() {
     </>
   );
 }
+
 
 
 
