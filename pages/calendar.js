@@ -35,24 +35,24 @@ export default function CalendarPage() {
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return;
-
-    if (newEvent.id) {
-      setEvents((prev) => prev.map((e) => (e.id === newEvent.id ? newEvent : e)));
-    } else {
-      const newId = Date.now().toString();
-      setEvents((prev) => [...prev, { ...newEvent, id: newId }]);
-    }
-
-    setNewEvent({
-      id: null,
-      title: "",
-      start: "",
-      end: "",
-      category: "Mission",
-      template: "",
+  
+    setEvents((prevEvents) => {
+      let updated;
+      if (newEvent.id) {
+        // Edit mode
+        updated = prevEvents.map((e) => (e.id === newEvent.id ? newEvent : e));
+      } else {
+        // New event
+        updated = [...prevEvents, { ...newEvent, id: Date.now() }];
+      }
+      localStorage.setItem("calendarEvents", JSON.stringify(updated));
+      return updated;
     });
+  
+    setNewEvent({ title: "", start: "", end: "", category: "", templateId: "" });
     setIsModalOpen(false);
   };
+  
 
   const handleEventDrop = (info) => {
     const updated = events.map((evt) =>
