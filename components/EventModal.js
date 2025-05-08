@@ -4,8 +4,6 @@ import Modal from "react-modal";
 Modal.setAppElement("#__next");
 
 const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) => {
-  if (!isOpen) return null;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -37,7 +35,7 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
         type="datetime-local"
         value={newEvent.end}
         onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-        style={{ width: "100%", marginBottom: "1rem" }}
+        style={{ width: "100%", marginBottom: "1.5rem" }}
       />
 
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
@@ -49,6 +47,7 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
 };
 
 export default EventModal;
+
 
 
 
