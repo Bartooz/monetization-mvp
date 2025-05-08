@@ -52,50 +52,46 @@ const EventModal = ({
                     border: "1px solid #ccc",
                     boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
                     display: "flex",
-                    flexDirection: showPreview ? "row" : "column",
-                    gap: showPreview ? "2rem" : "0",
+                    flexDirection: "row",
+                    gap: "2rem",
                 },
             }}
-
         >
-            {/* LEFT PREVIEW */}
-            <>
-                {showPreview && newEvent.category === "Offer" && selectedTemplateData && (
-                    <div style={{ flex: "1", minWidth: "250px", maxWidth: "300px" }}>
-                        <h4 style={{ marginBottom: 12 }}>{selectedTemplateData.title}</h4>
-                        {selectedTemplateData.slots?.map((slot, idx) => (
-                            <div key={idx} style={{
+            {/* Preview Panel */}
+            {showPreview && newEvent.category === "Offer" && selectedTemplateData && (
+                <div style={{ flex: "1", minWidth: "250px", maxWidth: "300px" }}>
+                    <h4 style={{ marginBottom: 12 }}>{selectedTemplateData.title}</h4>
+                    {selectedTemplateData.slots?.map((slot, idx) => (
+                        <div
+                            key={idx}
+                            style={{
                                 marginBottom: 12,
                                 padding: "10px",
                                 background: "#fff",
                                 border: "1px solid #ccc",
                                 borderRadius: 6,
-                                textAlign: "center"
-                            }}>
-                                <div style={{ fontWeight: "bold" }}>{slot.label}</div>
-                                <div style={{
+                                textAlign: "center",
+                            }}
+                        >
+                            <div style={{ fontWeight: "bold" }}>{slot.label}</div>
+                            <div
+                                style={{
                                     marginTop: 6,
                                     padding: "6px 10px",
                                     background: "#4caf50",
                                     color: "white",
                                     borderRadius: 4,
-                                    display: "inline-block"
-                                }}>
-                                    {slot.cta}
-                                </div>
+                                    display: "inline-block",
+                                }}
+                            >
+                                {slot.cta}
                             </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Right form panel always shown */}
-                <div style={{ flex: "2", maxWidth: "480px", margin: showPreview ? "0" : "auto" }}>
-                    {/* form inputs... */}
+                        </div>
+                    ))}
                 </div>
-            </>
+            )}
 
-
-            {/* RIGHT FORM */}
+            {/* Form Panel */}
             <div style={{ flex: "2", maxWidth: "480px" }}>
                 <h2 style={{ marginTop: 0 }}>{newEvent?.id ? "Edit Event" : "Create Event"}</h2>
 
@@ -175,12 +171,11 @@ const EventModal = ({
                             Delete
                         </button>
                     )}
-                    <button onClick={handleAddEvent}>
-                        {newEvent.id ? "Save" : "Add"}
-                    </button>
+                    <button onClick={handleAddEvent}>{newEvent.id ? "Save" : "Add"}</button>
                 </div>
             </div>
         </Modal>
+
 
 
     );
