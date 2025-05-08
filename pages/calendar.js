@@ -83,7 +83,20 @@ export default function CalendarPage() {
         editable={true}
         droppable={true}
         eventDrop={handleEventDrop}
-        eventDidMount={handleEventDidMount}
+        eventContent={(arg) => {
+          const event = events.find((e) => e.id === arg.event.id);
+          return (
+            <div
+              onDoubleClick={() => {
+                setNewEvent(event);
+                setIsModalOpen(true);
+              }}
+            >
+              {arg.event.title}
+            </div>
+          );
+        }}
+        
       />
 
       <EventModal
