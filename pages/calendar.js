@@ -85,6 +85,9 @@ export default function CalendarPage() {
         eventDrop={handleEventDrop}
         eventContent={(arg) => {
           const event = events.find((e) => e.id === arg.event.id);
+        
+          if (!event) return null; // 🛑 Don't render if event not found
+        
           return (
             <div
               onDoubleClick={() => {
@@ -92,7 +95,7 @@ export default function CalendarPage() {
                 setIsModalOpen(true);
               }}
             >
-              {arg.event.title}
+              {event.title}
             </div>
           );
         }}
