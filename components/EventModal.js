@@ -85,34 +85,6 @@ const EventModal = ({
                         onChange={(e) => handleChange("template", e.target.value)}
                         style={{ width: "100%", marginBottom: "1.5rem" }}
                     >
-                        {selectedTemplateData && (
-                            <div style={{ marginTop: "1rem", padding: "1rem", background: "#fafafa", border: "1px solid #ddd", borderRadius: 8 }}>
-                                <h4 style={{ marginBottom: 12, fontSize: 18 }}>{selectedTemplateData.title}</h4>
-                                {selectedTemplateData.slots?.map((slot, idx) => (
-                                    <div key={idx} style={{
-                                        marginBottom: 12,
-                                        padding: "10px",
-                                        background: "#fff",
-                                        border: "1px solid #ccc",
-                                        borderRadius: 6,
-                                        textAlign: "center"
-                                    }}>
-                                        <div style={{ fontWeight: "bold" }}>{slot.label}</div>
-                                        <div style={{
-                                            marginTop: 6,
-                                            padding: "6px 10px",
-                                            background: "#4caf50",
-                                            color: "white",
-                                            borderRadius: 4,
-                                            display: "inline-block"
-                                        }}>
-                                            {slot.cta}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
                         <option value="">Select a Template</option>
                         {templates.map((t, idx) => (
                             <option key={idx} value={t.name}>
@@ -120,6 +92,33 @@ const EventModal = ({
                             </option>
                         ))}
                     </select>
+                    {selectedTemplateData && (
+                        <div style={{ marginTop: "1rem", padding: "1rem", background: "#fafafa", border: "1px solid #ddd", borderRadius: 8 }}>
+                            <h4 style={{ marginBottom: 12, fontSize: 18 }}>{selectedTemplateData.title}</h4>
+                            {selectedTemplateData.slots?.map((slot, idx) => (
+                                <div key={idx} style={{
+                                    marginBottom: 12,
+                                    padding: "10px",
+                                    background: "#fff",
+                                    border: "1px solid #ccc",
+                                    borderRadius: 6,
+                                    textAlign: "center"
+                                }}>
+                                    <div style={{ fontWeight: "bold" }}>{slot.label}</div>
+                                    <div style={{
+                                        marginTop: 6,
+                                        padding: "6px 10px",
+                                        background: "#4caf50",
+                                        color: "white",
+                                        borderRadius: 4,
+                                        display: "inline-block"
+                                    }}>
+                                        {slot.cta}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </>
             )}
 
