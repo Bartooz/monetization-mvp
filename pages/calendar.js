@@ -11,49 +11,56 @@ Modal.setAppElement("#__next");
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
+  const [newEvent, setNewEvent] = useState({ id: null, title: "", start: "", end: "" });
 
+  // Load from localStorage
   useEffect(() => {
-    const storedEvents = JSON.parse(localStorage.getItem("calendarEvents")) || [];
-    setEvents(storedEvents);
+    const stored = JSON.parse(localStorage.getItem("calendarEvents")) || [];
+    setEvents(stored);
   }, []);
 
+  // Save to localStorage
   useEffect(() => {
     localStorage.setItem("calendarEvents", JSON.stringify(events));
   }, [events]);
 
+  // Add or update event
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return;
 
     if (newEvent.id) {
-      // Update existing
       setEvents((prev) =>
-        prev.map((evt) => (evt.id === newEvent.id ? newEvent : evt))
+        prev.map((e) => (e.id === newEvent.id ? newEvent : e))
       );
     } else {
-      // Add new
-      setEvents((prev) => [...prev, { ...newEvent, id: Date.now() }]);
+      const newId = Date.now().toString();
+      setEvents((prev) => [...prev, { ...newEvent, id: newId }]);
     }
 
-    setNewEvent({ title: "", start: "", end: "" });
+    setNewEvent({ id: null, title: "", start: "", end: "" });
     setIsModalOpen(false);
   };
 
+  // Drag event
   const handleEventDrop = (info) => {
-    const updatedEvents = events.map((evt) =>
+    const updated = events.map((evt) =>
       evt.id === info.event.id
-        ? { ...evt, start: info.event.startStr, end: info.event.endStr }
+        ? {
+            ...evt,
+            start: info.event.startStr,
+            end: info.event.endStr,
+          }
         : evt
     );
-    setEvents(updatedEvents);
+    setEvents(updated);
   };
 
+  // Double-click to edit
   const handleEventDidMount = (info) => {
-    const eventEl = info.el;
-    eventEl.addEventListener("dblclick", () => {
-      const matched = events.find((e) => e.id === info.event.id);
-      if (matched) {
-        setNewEvent(matched);
+    info.el.addEventListener("dblclick", () => {
+      const evt = events.find((e) => e.id === info.event.id);
+      if (evt) {
+        setNewEvent(evt);
         setIsModalOpen(true);
       }
     });
@@ -63,7 +70,7 @@ export default function CalendarPage() {
     <>
       <button
         onClick={() => {
-          setNewEvent({ title: "", start: "", end: "" });
+          setNewEvent({ id: null, title: "", start: "", end: "" });
           setIsModalOpen(true);
         }}
         style={{ marginBottom: "10px", padding: "10px 20px", fontWeight: "bold" }}
@@ -83,23 +90,7 @@ export default function CalendarPage() {
         editable={true}
         droppable={true}
         eventDrop={handleEventDrop}
-        eventContent={(arg) => {
-          const event = events.find((e) => e.id === arg.event.id);
-        
-          if (!event) return null; // 🛑 Don't render if event not found
-        
-          return (
-            <div
-              onDoubleClick={() => {
-                setNewEvent(event);
-                setIsModalOpen(true);
-              }}
-            >
-              {event.title}
-            </div>
-          );
-        }}
-        
+        eventDidMount={handleEventDidMount}
       />
 
       <EventModal
@@ -112,6 +103,7 @@ export default function CalendarPage() {
     </>
   );
 }
+
 
 
 
