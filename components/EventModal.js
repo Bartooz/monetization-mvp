@@ -44,47 +44,56 @@ const EventModal = ({
             className="ReactModal__Content"
             style={{
                 content: {
-                    maxWidth: "900px",
+                    maxWidth: showPreview ? "900px" : "500px",
                     margin: "auto",
                     borderRadius: "12px",
                     padding: "2rem",
                     backgroundColor: "#f9f9f9",
                     border: "1px solid #ccc",
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "2rem",
                     boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                    display: "flex",
+                    flexDirection: showPreview ? "row" : "column",
+                    gap: showPreview ? "2rem" : "0",
                 },
             }}
+
         >
             {/* LEFT PREVIEW */}
-            {newEvent.category === "Offer" && showPreview && selectedTemplateData && (
-                <div style={{ flex: "1", minWidth: "250px", maxWidth: "300px" }}>
-                    <h4 style={{ marginBottom: 12 }}>{selectedTemplateData.title}</h4>
-                    {selectedTemplateData.slots?.map((slot, idx) => (
-                        <div key={idx} style={{
-                            marginBottom: 12,
-                            padding: "10px",
-                            background: "#fff",
-                            border: "1px solid #ccc",
-                            borderRadius: 6,
-                            textAlign: "center"
-                        }}>
-                            <div style={{ fontWeight: "bold" }}>{slot.label}</div>
-                            <div style={{
-                                marginTop: 6,
-                                padding: "6px 10px",
-                                background: "#4caf50",
-                                color: "white",
-                                borderRadius: 4,
-                                display: "inline-block"
+            <>
+                {showPreview && newEvent.category === "Offer" && selectedTemplateData && (
+                    <div style={{ flex: "1", minWidth: "250px", maxWidth: "300px" }}>
+                        <h4 style={{ marginBottom: 12 }}>{selectedTemplateData.title}</h4>
+                        {selectedTemplateData.slots?.map((slot, idx) => (
+                            <div key={idx} style={{
+                                marginBottom: 12,
+                                padding: "10px",
+                                background: "#fff",
+                                border: "1px solid #ccc",
+                                borderRadius: 6,
+                                textAlign: "center"
                             }}>
-                                {slot.cta}
+                                <div style={{ fontWeight: "bold" }}>{slot.label}</div>
+                                <div style={{
+                                    marginTop: 6,
+                                    padding: "6px 10px",
+                                    background: "#4caf50",
+                                    color: "white",
+                                    borderRadius: 4,
+                                    display: "inline-block"
+                                }}>
+                                    {slot.cta}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                )}
+
+                {/* Right form panel always shown */}
+                <div style={{ flex: "2", maxWidth: "480px", margin: showPreview ? "0" : "auto" }}>
+                    {/* form inputs... */}
                 </div>
-            )}
+            </>
+
 
             {/* RIGHT FORM */}
             <div style={{ flex: "2", maxWidth: "480px" }}>
