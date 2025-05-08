@@ -25,7 +25,7 @@ export default function CalendarPage() {
     const stored = JSON.parse(localStorage.getItem("calendarEvents")) || [];
     setEvents(stored);
 
-    const storedTemplates = JSON.parse(localStorage.getItem("offerTemplates")) || [];
+    const storedTemplates = JSON.parse(localStorage.getItem("liveops-templates")) || [];
     setTemplates(storedTemplates);
   }, []);
 
