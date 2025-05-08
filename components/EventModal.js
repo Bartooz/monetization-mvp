@@ -3,24 +3,28 @@ import Modal from "react-modal";
 
 Modal.setAppElement("#__next");
 
-const modalStyles = {
-  overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1000,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  content: {
-    position: "relative",
-    inset: "unset",
-    padding: "2rem",
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    maxWidth: "500px",
-    width: "90%",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-  },
+const overlayStyles = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1000,
+};
+
+const contentStyles = {
+  backgroundColor: "#fff",
+  padding: "2rem",
+  borderRadius: "8px",
+  width: "90%",
+  maxWidth: "500px",
+  boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
+  inset: "unset", // override react-modal defaults
+  position: "relative",
 };
 
 const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) => {
@@ -35,8 +39,8 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      style={modalStyles}
-      contentLabel="Event Modal"
+      style={{ overlay: overlayStyles, content: contentStyles }}
+      contentLabel="Create Event"
     >
       <h2 style={{ marginTop: 0 }}>Create Event</h2>
 
@@ -77,6 +81,7 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
 };
 
 export default EventModal;
+
 
 
 
