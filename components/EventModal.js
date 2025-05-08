@@ -1,26 +1,27 @@
 import React from "react";
 import Modal from "react-modal";
 
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    padding: "2rem",
-    borderRadius: "8px",
-    background: "#fff",
-    zIndex: 1000,
-  },
+Modal.setAppElement("#__next");
+
+const modalStyles = {
   overlay: {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 999,
+    zIndex: 1000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  content: {
+    position: "relative",
+    inset: "unset",
+    padding: "2rem",
+    borderRadius: "8px",
+    backgroundColor: "#fff",
+    maxWidth: "500px",
+    width: "90%",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
   },
 };
-
-Modal.setAppElement("#__next");
 
 const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) => {
   const handleChange = (field, value) => {
@@ -34,10 +35,10 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      style={customStyles}
+      style={modalStyles}
       contentLabel="Event Modal"
     >
-      <h2>Create Event</h2>
+      <h2 style={{ marginTop: 0 }}>Create Event</h2>
 
       <label>Title:</label>
       <input
@@ -76,6 +77,7 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
 };
 
 export default EventModal;
+
 
 
 
