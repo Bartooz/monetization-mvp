@@ -38,10 +38,12 @@ const EventModal = ({ isOpen, onClose, newEvent, setNewEvent, handleAddEvent }) 
         style={{ width: "100%", marginBottom: "1.5rem" }}
       />
 
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-        <button onClick={onClose}>Cancel</button>
-        <button onClick={handleAddEvent}>Add</button>
-      </div>
+<div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+  <button onClick={onClose}>Cancel</button>
+  <button onClick={handleAddEvent}>
+    {newEvent.id ? "Save" : "Add"}
+  </button>
+</div>
     </Modal>
   );
 };

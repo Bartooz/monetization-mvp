@@ -24,7 +24,17 @@ export default function CalendarPage() {
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return;
-    setEvents([...events, { ...newEvent, id: Date.now() }]);
+
+    if (newEvent.id) {
+      // Update existing
+      setEvents((prev) =>
+        prev.map((evt) => (evt.id === newEvent.id ? newEvent : evt))
+      );
+    } else {
+      // Add new
+      setEvents((prev) => [...prev, { ...newEvent, id: Date.now() }]);
+    }
+
     setNewEvent({ title: "", start: "", end: "" });
     setIsModalOpen(false);
   };
@@ -38,10 +48,23 @@ export default function CalendarPage() {
     setEvents(updatedEvents);
   };
 
+  const handleEventDidMount = (info) => {
+    info.el.addEventListener("dblclick", () => {
+      const matched = events.find((e) => e.id === info.event.id);
+      if (matched) {
+        setNewEvent(matched);
+        setIsModalOpen(true);
+      }
+    });
+  };
+
   return (
     <>
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          setNewEvent({ title: "", start: "", end: "" });
+          setIsModalOpen(true);
+        }}
         style={{ marginBottom: "10px", padding: "10px 20px", fontWeight: "bold" }}
       >
         New Event
@@ -59,15 +82,16 @@ export default function CalendarPage() {
         editable={true}
         droppable={true}
         eventDrop={handleEventDrop}
+        eventDidMount={handleEventDidMount}
       />
 
-<EventModal
-  isOpen={isModalOpen}
-  onClose={() => setIsModalOpen(false)}
-  newEvent={newEvent}
-  setNewEvent={setNewEvent}
-  handleAddEvent={handleAddEvent}
-/>
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        newEvent={newEvent}
+        setNewEvent={setNewEvent}
+        handleAddEvent={handleAddEvent}
+      />
     </>
   );
 }
