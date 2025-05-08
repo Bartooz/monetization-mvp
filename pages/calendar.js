@@ -59,13 +59,28 @@ export default function CalendarPage() {
   // Double-click to edit
   const handleEventDidMount = (info) => {
     info.el.addEventListener("dblclick", () => {
-      const evt = events.find((e) => e.id === info.event.id);
-      if (evt) {
-        setNewEvent(evt);
+      const matched = events.find((e) => e.id === info.event.id);
+      if (matched) {
+        // Reformat start/end as valid datetime-local strings
+        const formatDateTimeLocal = (date) => {
+          const d = new Date(date);
+          const offset = d.getTimezoneOffset() * 60000;
+          const localISOTime = new Date(d - offset).toISOString().slice(0, 16);
+          return localISOTime;
+        };
+  
+        const withFormattedDates = {
+          ...matched,
+          start: formatDateTimeLocal(matched.start),
+          end: formatDateTimeLocal(matched.end),
+        };
+  
+        setNewEvent(withFormattedDates);
         setIsModalOpen(true);
       }
     });
   };
+  
 
   return (
     <>
