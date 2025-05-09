@@ -1,61 +1,54 @@
 import React, { useState, useEffect } from "react";
 
-const tripleLayouts = [
-  "layout-vertical",
-  "layout-horizontal",
-  "layout-stepped",
-];
-
-const layoutStyles = {
-  "layout-vertical": { flexDirection: "column", alignItems: "center" },
-  "layout-horizontal": { flexDirection: "row", justifyContent: "space-between" },
-  "layout-stepped": { flexDirection: "column", alignItems: "center" },
-};
-
-const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", onSave, template }) => {
+const TripleOfferEditor = ({
+  configurations = [],
+  offerType = "Triple Offer",
+  onSave,
+  template,
+}) => {
   const [templateName, setTemplateName] = useState("");
   const [offerTitle, setOfferTitle] = useState("");
   const [selectedConfigName, setSelectedConfigName] = useState("");
-  const [layoutIndex, setLayoutIndex] = useState(0);
 
-  // Sync form with template on edit
   useEffect(() => {
     if (template) {
       setTemplateName(template.name || "");
       setOfferTitle(template.title || "");
-      setSelectedConfigName(() => {
-        const match = configurations.find((c) =>
-          JSON.stringify(c.slots) === JSON.stringify(template.slots)
-        );
-        return match?.name || "";
-      });
-      const idx = tripleLayouts.indexOf(template.layout);
-      setLayoutIndex(idx !== -1 ? idx : 0);
+      const match = configurations.find((c) =>
+        JSON.stringify(c.slots) === JSON.stringify(template.slots)
+      );
+      setSelectedConfigName(match?.name || "");
     }
   }, [template, configurations]);
 
-  const filteredConfigs = configurations.filter((c) => c.offerType === offerType);
-  const selectedConfig = filteredConfigs.find((c) => c.name === selectedConfigName);
-  const currentLayout = tripleLayouts[layoutIndex];
+  const filteredConfigs = configurations.filter(
+    (c) => c.offerType === offerType
+  );
+
+  const selectedConfig = filteredConfigs.find(
+    (c) => c.name === selectedConfigName
+  );
 
   const handleSave = () => {
     if (!templateName || !offerTitle || !selectedConfig) return;
+
     const newTemplate = {
       name: templateName,
       title: offerTitle,
       type: offerType,
-      layout: currentLayout,
+      layout: "default",
       slots: selectedConfig.slots,
     };
+
     onSave(newTemplate);
+
     setTemplateName("");
     setOfferTitle("");
     setSelectedConfigName("");
-    setLayoutIndex(0);
   };
 
   return (
-    <div style={{ display: "flex", gap: "2rem" }}>
+    <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
       <div style={{ flex: 1 }}>
         <h3>{template ? "Edit" : "Create"} Triple Offer Template</h3>
 
@@ -91,32 +84,31 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
           style={{ width: "100%", marginBottom: "1rem" }}
         />
 
-        <button onClick={() => setLayoutIndex((layoutIndex - 1 + tripleLayouts.length) % tripleLayouts.length)}>◀</button>
-        <button onClick={() => setLayoutIndex((layoutIndex + 1) % tripleLayouts.length)} style={{ marginLeft: "1rem" }}>
-          ▶
-        </button>
-
-        <br /><br />
         <button onClick={handleSave} disabled={!templateName || !selectedConfig}>
           Save Template
         </button>
       </div>
 
-      {/* Right Side Preview */}
-      <div style={{ flex: 1, textAlign: "center" }}>
-        <h4>Preview: {currentLayout.replace("layout-", "").toUpperCase()}</h4>
-        <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{offerTitle}</div>
+      {/* Preview */}
+      <div
+        style={{
+          flex: 1,
+          background: "#fafafa",
+          padding: "1rem",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+        }}
+      >
+        <h4 style={{ textAlign: "center" }}>🔍 Live Preview</h4>
+        <div style={{ fontWeight: "bold", marginBottom: "0.5rem", textAlign: "center" }}>
+          {offerTitle || "Template Title"}
+        </div>
         <div
           style={{
             display: "flex",
-            ...layoutStyles[currentLayout],
             gap: "1rem",
-            padding: "1rem",
-            background: "#f4f4f4",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            minHeight: "200px",
             justifyContent: "center",
+            padding: "1rem",
           }}
         >
           {selectedConfig?.slots?.map((slot, idx) => (
@@ -152,6 +144,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
 };
 
 export default TripleOfferEditor;
+
 
 
 
