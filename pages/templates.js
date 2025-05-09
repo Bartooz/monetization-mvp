@@ -49,7 +49,7 @@ export default function TemplatesPage() {
           <h3>{tpl.name || "(Unnamed Template)"}</h3>
           <p><strong>Offer Type:</strong> {tpl.type || "N/A"}</p>
           <p><strong>Layout:</strong> {tpl.layout || "N/A"}</p>
-          <p><strong>Configuration:</strong> {tpl.configuration || "N/A"}</p>
+          <p><strong>Slots:</strong> {tpl.slots?.length || 0}</p>
 
           <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
             <button onClick={() => handleEdit(index)}>✏ Edit</button>
@@ -65,6 +65,7 @@ export default function TemplatesPage() {
     </div>
   );
 }
+
 
 
 
