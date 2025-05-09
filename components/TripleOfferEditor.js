@@ -3,34 +3,39 @@ import React, { useState, useEffect } from "react";
 const tripleLayouts = [
   "layout-vertical",
   "layout-horizontal",
-  "layout-stepped"
+  "layout-stepped",
 ];
 
 const layoutStyles = {
   "layout-vertical": { flexDirection: "column", alignItems: "center" },
   "layout-horizontal": { flexDirection: "row", justifyContent: "space-between" },
-  "layout-stepped": { flexDirection: "column", alignItems: "center" } // simplified
+  "layout-stepped": { flexDirection: "column", alignItems: "center" },
 };
 
 const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", onSave, template }) => {
   const [templateName, setTemplateName] = useState("");
   const [offerTitle, setOfferTitle] = useState("");
-  const [selectedConfig, setSelectedConfig] = useState(null);
+  const [selectedConfigName, setSelectedConfigName] = useState("");
   const [layoutIndex, setLayoutIndex] = useState(0);
 
+  // Sync form with template on edit
   useEffect(() => {
     if (template) {
-      setTemplateName(template.name);
-      setOfferTitle(template.title);
-      setLayoutIndex(tripleLayouts.indexOf(template.layout) || 0);
-      const configMatch = configurations.find((c) =>
-        JSON.stringify(c.slots) === JSON.stringify(template.slots)
-      );
-      setSelectedConfig(configMatch || null);
+      setTemplateName(template.name || "");
+      setOfferTitle(template.title || "");
+      setSelectedConfigName(() => {
+        const match = configurations.find((c) =>
+          JSON.stringify(c.slots) === JSON.stringify(template.slots)
+        );
+        return match?.name || "";
+      });
+      const idx = tripleLayouts.indexOf(template.layout);
+      setLayoutIndex(idx !== -1 ? idx : 0);
     }
   }, [template, configurations]);
 
   const filteredConfigs = configurations.filter((c) => c.offerType === offerType);
+  const selectedConfig = filteredConfigs.find((c) => c.name === selectedConfigName);
   const currentLayout = tripleLayouts[layoutIndex];
 
   const handleSave = () => {
@@ -45,7 +50,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
     onSave(newTemplate);
     setTemplateName("");
     setOfferTitle("");
-    setSelectedConfig(null);
+    setSelectedConfigName("");
     setLayoutIndex(0);
   };
 
@@ -56,11 +61,8 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
 
         <label>Configuration:</label>
         <select
-          value={selectedConfig?.name || ""}
-          onChange={(e) => {
-            const config = filteredConfigs.find((c) => c.name === e.target.value);
-            setSelectedConfig(config || null);
-          }}
+          value={selectedConfigName}
+          onChange={(e) => setSelectedConfigName(e.target.value)}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
           <option value="">Select Configuration</option>
@@ -103,6 +105,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
       {/* Right Side Preview */}
       <div style={{ flex: 1, textAlign: "center" }}>
         <h4>Preview: {currentLayout.replace("layout-", "").toUpperCase()}</h4>
+        <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{offerTitle}</div>
         <div
           style={{
             display: "flex",
@@ -113,7 +116,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
             border: "1px solid #ccc",
             borderRadius: 8,
             minHeight: "200px",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           {selectedConfig?.slots?.map((slot, idx) => (
@@ -125,7 +128,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
                 border: "1px solid #bbb",
                 borderRadius: 6,
                 minWidth: "120px",
-                textAlign: "center"
+                textAlign: "center",
               }}
             >
               <div style={{ fontWeight: "bold", marginBottom: 6 }}>{slot.label}</div>
@@ -135,7 +138,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
                   color: "#fff",
                   padding: "6px 10px",
                   borderRadius: 4,
-                  fontSize: "0.9rem"
+                  fontSize: "0.9rem",
                 }}
               >
                 {slot.cta}
@@ -149,6 +152,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
 };
 
 export default TripleOfferEditor;
+
 
 
 
