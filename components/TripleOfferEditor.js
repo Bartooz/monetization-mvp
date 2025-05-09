@@ -1,193 +1,152 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function TripleOfferEditor({ onSave, template }) {
+const tripleLayouts = [
+  "layout-vertical",
+  "layout-horizontal",
+  "layout-stepped"
+];
+
+const layoutStyles = {
+  "layout-vertical": { flexDirection: "column", alignItems: "center" },
+  "layout-horizontal": { flexDirection: "row", justifyContent: "space-between" },
+  "layout-stepped": { flexDirection: "column", alignItems: "center" } // Will fake "stepped" for now
+};
+
+const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", onSave }) => {
   const [templateName, setTemplateName] = useState("");
-  const [title, setTitle] = useState("");
-  const [slots, setSlots] = useState([
-    { label: "", cta: "" },
-    { label: "", cta: "" },
-    { label: "", cta: "" },
-  ]);
-  const [configurations, setConfigurations] = useState([]);
-  const [selectedConfig, setSelectedConfig] = useState("");
+  const [offerTitle, setOfferTitle] = useState("");
+  const [selectedConfig, setSelectedConfig] = useState(null);
+  const [layoutIndex, setLayoutIndex] = useState(0);
 
-  const currencies = {
-    Cash: "💵",
-    "Gold Bars": "🪙",
-    Diamond: "💎",
-  };
+  const filteredConfigs = configurations.filter((c) => c.offerType === offerType);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("liveops-configurations");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      const filtered = parsed.filter((cfg) => cfg.offerType === "Triple Offer");
-      setConfigurations(filtered);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (template) {
-      setTemplateName(template.name || "");
-      setTitle(template.title || "");
-      setSlots(template.slots || [
-        { label: "", cta: "" },
-        { label: "", cta: "" },
-        { label: "", cta: "" },
-      ]);
-    }
-  }, [template]);
-
-  useEffect(() => {
-    if (selectedConfig) {
-      const config = configurations.find((c) => c.name === selectedConfig);
-      if (config) {
-        const updatedSlots = config.slots.map((slot) => {
-          const currencyEmoji = currencies[slot.currency] || "";
-          const label = `${slot.value}${slot.bonus ? ` + ${slot.bonus}` : ""} ${currencyEmoji}`;
-          const cta = slot.paid ? `${slot.value} Only!` : "Free!";
-          return { label: label.trim(), cta };
-        });
-        setSlots(updatedSlots);
-      }
-    }
-  }, [selectedConfig]);
-
-  const handleChange = (index, field, value) => {
-    const updated = [...slots];
-    updated[index][field] = value;
-    setSlots(updated);
-  };
+  const currentLayout = tripleLayouts[layoutIndex];
 
   const handleSave = () => {
-    onSave({
-      name: templateName.trim() || "Untitled",
-      type: "Triple Offer",
-      layout: "Triple",
-      title: title.trim(),
-      slots,
-    });
-
+    if (!templateName || !offerTitle || !selectedConfig) return;
+    const newTemplate = {
+      name: templateName,
+      title: offerTitle,
+      type: offerType,
+      layout: currentLayout,
+      slots: selectedConfig.slots,
+    };
+    const existing = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
+    localStorage.setItem("liveops-templates", JSON.stringify([...existing, newTemplate]));
+    alert("Template saved!");
     setTemplateName("");
-    setTitle("");
-    setSlots([
-      { label: "", cta: "" },
-      { label: "", cta: "" },
-      { label: "", cta: "" },
-    ]);
-    setSelectedConfig("");
+    setOfferTitle("");
+    setSelectedConfig(null);
+    setLayoutIndex(0);
   };
 
   return (
-    <div style={{ display: "flex", gap: 60 }}>
-      {/* Left: Form */}
+    <div style={{ display: "flex", gap: "2rem" }}>
+      {/* LEFT: Form */}
       <div style={{ flex: 1 }}>
-        <h3>Triple Offer Editor</h3>
+        <h3>Create Triple Offer Template</h3>
 
-        <label>
-          Template Name:
-          <input
-            type="text"
-            value={templateName}
-            onChange={(e) => setTemplateName(e.target.value)}
-            style={{ display: "block", margin: "10px 0", padding: 8, width: "80%" }}
-          />
-        </label>
-
-        <label>
-          Offer Title:
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{ display: "block", marginBottom: 20, padding: 8, width: "80%" }}
-          />
-        </label>
-
-        <label>
-          Select Configuration:
-          <select
-            value={selectedConfig}
-            onChange={(e) => setSelectedConfig(e.target.value)}
-            style={{ display: "block", marginBottom: 20, padding: 8, width: "80%" }}
-          >
-            <option value="">-- None --</option>
-            {configurations.map((cfg) => (
-              <option key={cfg.name} value={cfg.name}>
-                {cfg.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {slots.map((slot, idx) => (
-          <div key={idx} style={{ marginBottom: 20 }}>
-            <h4>Slot {idx + 1}</h4>
-            <input
-              type="text"
-              value={slot.label}
-              onChange={(e) => handleChange(idx, "label", e.target.value)}
-              placeholder="Label"
-              style={{ marginBottom: 5, padding: 6, width: "80%" }}
-            />
-            <input
-              type="text"
-              value={slot.cta}
-              onChange={(e) => handleChange(idx, "cta", e.target.value)}
-              placeholder="CTA"
-              style={{ padding: 6, width: "80%" }}
-            />
-          </div>
-        ))}
-
-        <button
-          onClick={handleSave}
-          style={{
-            marginTop: 20,
-            padding: "10px 20px",
-            background: "#111",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
+        <label>Configuration:</label>
+        <select
+          value={selectedConfig?.name || ""}
+          onChange={(e) => {
+            const config = filteredConfigs.find((c) => c.name === e.target.value);
+            setSelectedConfig(config || null);
           }}
+          style={{ width: "100%", marginBottom: "1rem" }}
         >
+          <option value="">Select Configuration</option>
+          {filteredConfigs.map((c, i) => (
+            <option key={i} value={c.name}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <label>Offer Title:</label>
+        <input
+          type="text"
+          value={offerTitle}
+          onChange={(e) => setOfferTitle(e.target.value)}
+          placeholder="Enter visible title"
+          style={{ width: "100%", marginBottom: "1rem" }}
+        />
+
+        <label>Template Name:</label>
+        <input
+          type="text"
+          value={templateName}
+          onChange={(e) => setTemplateName(e.target.value)}
+          placeholder="Internal name"
+          style={{ width: "100%", marginBottom: "1rem" }}
+        />
+
+        <button onClick={handleSave} disabled={!templateName || !selectedConfig}>
           Save Template
         </button>
       </div>
 
-      {/* Right: Preview */}
-      <div style={{ flex: 1, background: "#f7f7f7", padding: 20, borderRadius: 12 }}>
-        <h3 style={{ textAlign: "center", fontSize: 20, marginBottom: 20 }}>{title}</h3>
-        {slots.map((slot, idx) => (
-          <div
-            key={idx}
-            style={{
-              background: "#fff",
-              border: "1px solid #ccc",
-              borderRadius: 8,
-              padding: 16,
-              marginBottom: 16,
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontWeight: "bold", fontSize: 18 }}>{slot.label}</div>
+      {/* RIGHT: Layout Preview */}
+      <div style={{ flex: 1, textAlign: "center" }}>
+        <h4>Preview: {currentLayout.replace("layout-", "").toUpperCase()}</h4>
+
+        {/* Arrows */}
+        <div style={{ marginBottom: "1rem" }}>
+          <button onClick={() => setLayoutIndex((layoutIndex - 1 + tripleLayouts.length) % tripleLayouts.length)}>
+            ◀
+          </button>
+          <button onClick={() => setLayoutIndex((layoutIndex + 1) % tripleLayouts.length)} style={{ marginLeft: "1rem" }}>
+            ▶
+          </button>
+        </div>
+
+        {/* Template Layout */}
+        <div
+          style={{
+            display: "flex",
+            ...layoutStyles[currentLayout],
+            gap: "1rem",
+            padding: "1rem",
+            background: "#f4f4f4",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            minHeight: "200px",
+            justifyContent: "center"
+          }}
+        >
+          {selectedConfig?.slots?.map((slot, idx) => (
             <div
+              key={idx}
               style={{
-                marginTop: 10,
-                padding: "8px 12px",
-                background: "#4caf50",
-                color: "#fff",
+                background: "#fff",
+                padding: "1rem",
+                border: "1px solid #bbb",
                 borderRadius: 6,
-                display: "inline-block",
+                minWidth: "120px",
+                textAlign: "center"
               }}
             >
-              {slot.cta}
+              <div style={{ fontWeight: "bold", marginBottom: 6 }}>{slot.label}</div>
+              <div
+                style={{
+                  background: "#2ecc71",
+                  color: "#fff",
+                  padding: "6px 10px",
+                  borderRadius: 4,
+                  fontSize: "0.9rem"
+                }}
+              >
+                {slot.cta}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default TripleOfferEditor;
+
 
 

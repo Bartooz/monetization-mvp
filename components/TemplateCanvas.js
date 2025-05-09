@@ -1,103 +1,37 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import TripleOfferEditor from "./TripleOfferEditor";
 
-export default function TemplateCanvas({
-  title,
-  setTitle,
-  cta,
-  setCta,
-  slots,
-  setSlots,
-}) {
-  const handleSlotChange = (index, field, value) => {
-    const updated = [...slots];
-    updated[index][field] = value;
-    setSlots(updated);
-  };
+const TemplateCanvas = () => {
+  const [offerType, setOfferType] = useState("Triple Offer");
+  const [configurations, setConfigurations] = useState([]);
+
+  useEffect(() => {
+    const storedConfigs = JSON.parse(localStorage.getItem("liveops-configs") || "[]");
+    setConfigurations(storedConfigs);
+  }, []);
 
   return (
-    <div
-      style={{
-        background: "#f2f2f2",
-        borderRadius: 12,
-        padding: 20,
-        width: "100%",
-        maxWidth: 420,
-        boxShadow: "0 0 8px rgba(0,0,0,0.1)",
-      }}
-    >
-      {/* Title */}
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter Title"
-        style={{
-          width: "100%",
-          padding: 10,
-          fontSize: 22,
-          fontWeight: "bold",
-          borderRadius: 6,
-          marginBottom: 20,
-          border: "1px solid #ccc",
-        }}
-      />
+    <div style={{ padding: "2rem" }}>
+      <h2>Template Builder</h2>
 
-      {/* Offer Slots */}
-      {slots.map((slot, index) => (
-        <div
-          key={index}
-          style={{
-            background: "#fff",
-            border: "1px solid #aaa",
-            borderRadius: 10,
-            padding: "10px 12px",
-            marginBottom: 12,
-            textAlign: "center",
-          }}
-        >
-          <input
-            value={slot.label}
-            onChange={(e) => handleSlotChange(index, "label", e.target.value)}
-            placeholder="Label"
-            style={{
-              width: "90%",
-              padding: 6,
-              fontWeight: "bold",
-              fontSize: 16,
-              marginBottom: 6,
-            }}
-          />
-          <input
-            value={slot.bonus}
-            onChange={(e) => handleSlotChange(index, "bonus", e.target.value)}
-            placeholder="Bonus (optional)"
-            style={{
-              width: "90%",
-              padding: 5,
-              fontSize: 14,
-              color: "#666",
-            }}
-          />
-        </div>
-      ))}
+      <label>Offer Type:</label>
+      <select
+        value={offerType}
+        onChange={(e) => setOfferType(e.target.value)}
+        style={{ width: "300px", marginBottom: "2rem" }}
+      >
+        <option value="Triple Offer">Triple Offer</option>
+        {/* Add more offer types here later */}
+      </select>
 
-      {/* CTA Button */}
-      <input
-        value={cta}
-        onChange={(e) => setCta(e.target.value)}
-        placeholder="CTA Text"
-        style={{
-          marginTop: 10,
-          width: "100%",
-          padding: 12,
-          fontWeight: "bold",
-          fontSize: 18,
-          textAlign: "center",
-          borderRadius: 8,
-          background: "#11aa44",
-          color: "white",
-          border: "none",
-        }}
-      />
+      {offerType === "Triple Offer" && (
+        <TripleOfferEditor
+          configurations={configurations}
+          offerType={offerType}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default TemplateCanvas;
