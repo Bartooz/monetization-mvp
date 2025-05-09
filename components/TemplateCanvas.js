@@ -35,7 +35,7 @@ const TemplateCanvas = () => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h2>Template Builder</h2>
+      <h2>🧱 Template Builder</h2>
 
       <label>Offer Type:</label>
       <select
@@ -62,5 +62,6 @@ const TemplateCanvas = () => {
 };
 
 export default TemplateCanvas;
+
 
 

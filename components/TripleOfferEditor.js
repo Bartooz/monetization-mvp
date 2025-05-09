@@ -9,7 +9,7 @@ const tripleLayouts = [
 const layoutStyles = {
   "layout-vertical": { flexDirection: "column", alignItems: "center" },
   "layout-horizontal": { flexDirection: "row", justifyContent: "space-between" },
-  "layout-stepped": { flexDirection: "column", alignItems: "center" } // Will fake "stepped" for now
+  "layout-stepped": { flexDirection: "column", alignItems: "center" } // simplified
 };
 
 const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", onSave, template }) => {
@@ -23,7 +23,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
       setTemplateName(template.name);
       setOfferTitle(template.title);
       setLayoutIndex(tripleLayouts.indexOf(template.layout) || 0);
-      const configMatch = configurations.find(c =>
+      const configMatch = configurations.find((c) =>
         JSON.stringify(c.slots) === JSON.stringify(template.slots)
       );
       setSelectedConfig(configMatch || null);
@@ -31,7 +31,6 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
   }, [template, configurations]);
 
   const filteredConfigs = configurations.filter((c) => c.offerType === offerType);
-
   const currentLayout = tripleLayouts[layoutIndex];
 
   const handleSave = () => {
@@ -49,13 +48,11 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
     setSelectedConfig(null);
     setLayoutIndex(0);
   };
-  
 
   return (
     <div style={{ display: "flex", gap: "2rem" }}>
-      {/* LEFT: Form */}
       <div style={{ flex: 1 }}>
-        <h3>Create Triple Offer Template</h3>
+        <h3>{template ? "Edit" : "Create"} Triple Offer Template</h3>
 
         <label>Configuration:</label>
         <select
@@ -79,7 +76,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
           type="text"
           value={offerTitle}
           onChange={(e) => setOfferTitle(e.target.value)}
-          placeholder="Enter visible title"
+          placeholder="Displayed in-game"
           style={{ width: "100%", marginBottom: "1rem" }}
         />
 
@@ -88,30 +85,24 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
           type="text"
           value={templateName}
           onChange={(e) => setTemplateName(e.target.value)}
-          placeholder="Internal name"
+          placeholder="Internal reference"
           style={{ width: "100%", marginBottom: "1rem" }}
         />
 
+        <button onClick={() => setLayoutIndex((layoutIndex - 1 + tripleLayouts.length) % tripleLayouts.length)}>◀</button>
+        <button onClick={() => setLayoutIndex((layoutIndex + 1) % tripleLayouts.length)} style={{ marginLeft: "1rem" }}>
+          ▶
+        </button>
+
+        <br /><br />
         <button onClick={handleSave} disabled={!templateName || !selectedConfig}>
           Save Template
         </button>
       </div>
 
-      {/* RIGHT: Layout Preview */}
+      {/* Right Side Preview */}
       <div style={{ flex: 1, textAlign: "center" }}>
         <h4>Preview: {currentLayout.replace("layout-", "").toUpperCase()}</h4>
-
-        {/* Arrows */}
-        <div style={{ marginBottom: "1rem" }}>
-          <button onClick={() => setLayoutIndex((layoutIndex - 1 + tripleLayouts.length) % tripleLayouts.length)}>
-            ◀
-          </button>
-          <button onClick={() => setLayoutIndex((layoutIndex + 1) % tripleLayouts.length)} style={{ marginLeft: "1rem" }}>
-            ▶
-          </button>
-        </div>
-
-        {/* Template Layout */}
         <div
           style={{
             display: "flex",
@@ -158,6 +149,7 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
 };
 
 export default TripleOfferEditor;
+
 
 
 
