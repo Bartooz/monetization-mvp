@@ -12,11 +12,23 @@ const layoutStyles = {
   "layout-stepped": { flexDirection: "column", alignItems: "center" } // Will fake "stepped" for now
 };
 
-const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", onSave }) => {
+const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", onSave, template }) => {
   const [templateName, setTemplateName] = useState("");
   const [offerTitle, setOfferTitle] = useState("");
   const [selectedConfig, setSelectedConfig] = useState(null);
   const [layoutIndex, setLayoutIndex] = useState(0);
+
+  useEffect(() => {
+    if (template) {
+      setTemplateName(template.name);
+      setOfferTitle(template.title);
+      setLayoutIndex(tripleLayouts.indexOf(template.layout) || 0);
+      const configMatch = configurations.find(c =>
+        JSON.stringify(c.slots) === JSON.stringify(template.slots)
+      );
+      setSelectedConfig(configMatch || null);
+    }
+  }, [template, configurations]);
 
   const filteredConfigs = configurations.filter((c) => c.offerType === offerType);
 
@@ -31,14 +43,13 @@ const TripleOfferEditor = ({ configurations = [], offerType = "Triple Offer", on
       layout: currentLayout,
       slots: selectedConfig.slots,
     };
-    const existing = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
-    localStorage.setItem("liveops-templates", JSON.stringify([...existing, newTemplate]));
-    alert("Template saved!");
+    onSave(newTemplate);
     setTemplateName("");
     setOfferTitle("");
     setSelectedConfig(null);
     setLayoutIndex(0);
   };
+  
 
   return (
     <div style={{ display: "flex", gap: "2rem" }}>
