@@ -10,30 +10,20 @@ const TripleOfferEditor = ({
   const [offerTitle, setOfferTitle] = useState("");
   const [selectedConfigName, setSelectedConfigName] = useState("");
 
-  const filteredConfigs = configurations.filter(
-    (c) => c.offerType === offerType
-  );
-
-  const selectedConfig =
-    filteredConfigs.find((c) => c.name === selectedConfigName) || null;
-
   useEffect(() => {
     if (template) {
       setTemplateName(template.name || "");
       setOfferTitle(template.title || "");
-
-      // Try to auto-match configuration by slot structure
-      const matched = filteredConfigs.find((c) =>
-        JSON.stringify(c.slots) === JSON.stringify(template.slots)
-      );
-
-      if (matched) {
-        setSelectedConfigName(matched.name);
-      } else {
-        setSelectedConfigName(""); // fallback if no match
-      }
+      setSelectedConfigName(template.configName || "");
     }
   }, [template]);
+
+  const filteredConfigs = configurations.filter(
+    (c) => c.offerType === offerType
+  );
+  const selectedConfig = filteredConfigs.find(
+    (c) => c.name === selectedConfigName
+  );
 
   const handleSave = () => {
     if (!templateName || !offerTitle || !selectedConfig) return;
@@ -42,7 +32,8 @@ const TripleOfferEditor = ({
       name: templateName,
       title: offerTitle,
       type: offerType,
-      layout: "default",
+      layout: "vertical", // Fixed layout
+      configName: selectedConfig.name,
       slots: selectedConfig.slots,
     };
 
@@ -94,7 +85,7 @@ const TripleOfferEditor = ({
         </button>
       </div>
 
-      {/* Preview */}
+      {/* Right-side Preview */}
       <div
         style={{
           flex: 1,
@@ -111,9 +102,10 @@ const TripleOfferEditor = ({
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             gap: "1rem",
-            justifyContent: "center",
             padding: "1rem",
+            alignItems: "center",
           }}
         >
           {selectedConfig?.slots?.map((slot, idx) => (
@@ -124,7 +116,7 @@ const TripleOfferEditor = ({
                 padding: "1rem",
                 border: "1px solid #bbb",
                 borderRadius: 6,
-                minWidth: "120px",
+                minWidth: "200px",
                 textAlign: "center",
               }}
             >
@@ -141,7 +133,9 @@ const TripleOfferEditor = ({
                 {slot.cta}
               </div>
             </div>
-          )) || <div style={{ opacity: 0.6 }}>No configuration selected</div>}
+          )) || (
+            <div style={{ opacity: 0.6 }}>No configuration selected</div>
+          )}
         </div>
       </div>
     </div>
@@ -149,6 +143,8 @@ const TripleOfferEditor = ({
 };
 
 export default TripleOfferEditor;
+
+
 
 
 
