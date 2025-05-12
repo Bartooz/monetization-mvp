@@ -10,24 +10,30 @@ const TripleOfferEditor = ({
   const [offerTitle, setOfferTitle] = useState("");
   const [selectedConfigName, setSelectedConfigName] = useState("");
 
-  useEffect(() => {
-    if (template) {
-      setTemplateName(template.name || "");
-      setOfferTitle(template.title || "");
-      const match = configurations.find((c) =>
-        JSON.stringify(c.slots) === JSON.stringify(template.slots)
-      );
-      setSelectedConfigName(match?.name || "");
-    }
-  }, [template, configurations]);
-
   const filteredConfigs = configurations.filter(
     (c) => c.offerType === offerType
   );
 
-  const selectedConfig = filteredConfigs.find(
-    (c) => c.name === selectedConfigName
-  );
+  const selectedConfig =
+    filteredConfigs.find((c) => c.name === selectedConfigName) || null;
+
+  useEffect(() => {
+    if (template) {
+      setTemplateName(template.name || "");
+      setOfferTitle(template.title || "");
+
+      // Try to auto-match configuration by slot structure
+      const matched = filteredConfigs.find((c) =>
+        JSON.stringify(c.slots) === JSON.stringify(template.slots)
+      );
+
+      if (matched) {
+        setSelectedConfigName(matched.name);
+      } else {
+        setSelectedConfigName(""); // fallback if no match
+      }
+    }
+  }, [template]);
 
   const handleSave = () => {
     if (!templateName || !offerTitle || !selectedConfig) return;
@@ -41,7 +47,6 @@ const TripleOfferEditor = ({
     };
 
     onSave(newTemplate);
-
     setTemplateName("");
     setOfferTitle("");
     setSelectedConfigName("");
@@ -136,7 +141,7 @@ const TripleOfferEditor = ({
                 {slot.cta}
               </div>
             </div>
-          ))}
+          )) || <div style={{ opacity: 0.6 }}>No configuration selected</div>}
         </div>
       </div>
     </div>
@@ -144,6 +149,7 @@ const TripleOfferEditor = ({
 };
 
 export default TripleOfferEditor;
+
 
 
 
