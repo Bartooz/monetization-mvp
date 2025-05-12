@@ -24,6 +24,8 @@ const TripleOfferEditor = ({
   const selectedConfig = filteredConfigs.find(
     (c) => c.name === selectedConfigName
   );
+  const previewSlots = selectedConfig?.slots || [];
+
 
   const handleSave = () => {
     if (!templateName || !offerTitle || !selectedConfig) return;
@@ -108,7 +110,7 @@ const TripleOfferEditor = ({
             alignItems: "center",
           }}
         >
-          {selectedConfig?.slots?.map((slot, idx) => (
+          {previewSlots.map((slot, idx) => (
             <div
               key={idx}
               style={{
