@@ -9,23 +9,38 @@ const TripleOfferEditor = ({
   const [templateName, setTemplateName] = useState("");
   const [offerTitle, setOfferTitle] = useState("");
   const [selectedConfigName, setSelectedConfigName] = useState("");
+  const [previewSlots, setPreviewSlots] = useState([]);
 
   useEffect(() => {
     if (template) {
       setTemplateName(template.name || "");
       setOfferTitle(template.title || "");
       setSelectedConfigName(template.configName || "");
+
+      // Load preview slots from saved template
+      setPreviewSlots(template.slots || []);
     }
   }, [template]);
 
   const filteredConfigs = configurations.filter(
     (c) => c.offerType === offerType
   );
+
   const selectedConfig = filteredConfigs.find(
     (c) => c.name === selectedConfigName
   );
-  const previewSlots = selectedConfig?.slots || [];
 
+  const handleConfigChange = (e) => {
+    const configName = e.target.value;
+    setSelectedConfigName(configName);
+
+    const found = filteredConfigs.find((c) => c.name === configName);
+    if (found) {
+      setPreviewSlots(found.slots || []);
+    } else {
+      setPreviewSlots([]);
+    }
+  };
 
   const handleSave = () => {
     if (!templateName || !offerTitle || !selectedConfig) return;
@@ -34,15 +49,17 @@ const TripleOfferEditor = ({
       name: templateName,
       title: offerTitle,
       type: offerType,
-      layout: "vertical", // Fixed layout
+      layout: "vertical",
       configName: selectedConfig.name,
       slots: selectedConfig.slots,
     };
 
     onSave(newTemplate);
+
     setTemplateName("");
     setOfferTitle("");
     setSelectedConfigName("");
+    setPreviewSlots([]);
   };
 
   return (
@@ -53,7 +70,7 @@ const TripleOfferEditor = ({
         <label>Configuration:</label>
         <select
           value={selectedConfigName}
-          onChange={(e) => setSelectedConfigName(e.target.value)}
+          onChange={handleConfigChange}
           style={{ width: "100%", marginBottom: "1rem" }}
         >
           <option value="">Select Configuration</option>
@@ -110,32 +127,34 @@ const TripleOfferEditor = ({
             alignItems: "center",
           }}
         >
-          {previewSlots.map((slot, idx) => (
-            <div
-              key={idx}
-              style={{
-                background: "#fff",
-                padding: "1rem",
-                border: "1px solid #bbb",
-                borderRadius: 6,
-                minWidth: "200px",
-                textAlign: "center",
-              }}
-            >
-              <div style={{ fontWeight: "bold", marginBottom: 6 }}>{slot.label}</div>
+          {previewSlots.length > 0 ? (
+            previewSlots.map((slot, idx) => (
               <div
+                key={idx}
                 style={{
-                  background: "#2ecc71",
-                  color: "#fff",
-                  padding: "6px 10px",
-                  borderRadius: 4,
-                  fontSize: "0.9rem",
+                  background: "#fff",
+                  padding: "1rem",
+                  border: "1px solid #bbb",
+                  borderRadius: 6,
+                  minWidth: "200px",
+                  textAlign: "center",
                 }}
               >
-                {slot.cta}
+                <div style={{ fontWeight: "bold", marginBottom: 6 }}>{slot.label}</div>
+                <div
+                  style={{
+                    background: "#2ecc71",
+                    color: "#fff",
+                    padding: "6px 10px",
+                    borderRadius: 4,
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {slot.cta}
+                </div>
               </div>
-            </div>
-          )) || (
+            ))
+          ) : (
             <div style={{ opacity: 0.6 }}>No configuration selected</div>
           )}
         </div>
