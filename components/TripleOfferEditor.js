@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
+
+const currencyEmoji = {
+  Cash: "💵",
+  "Gold Bars": "🪙",
+  Diamond: "💎",
+};
 
 const TripleOfferEditor = ({
   template,
@@ -10,9 +15,8 @@ const TripleOfferEditor = ({
   const [templateName, setTemplateName] = useState(template?.templateName || "");
   const [offerTitle, setOfferTitle] = useState(template?.title || "");
   const [configurationName, setConfigurationName] = useState(template?.configuration || "");
-  const [configSlots, setConfigSlots] = useState([]);
+  const [configSlots, setConfigSlots] = useState(template?.slots || []);
 
-  // Load slot data from selected configuration
   useEffect(() => {
     const config = configurations.find((c) => c.name === configurationName);
     if (config) {
@@ -20,17 +24,25 @@ const TripleOfferEditor = ({
     }
   }, [configurationName, configurations]);
 
-  // Save handler
+  useEffect(() => {
+    if (template) {
+      setTemplateName(template.templateName || "");
+      setOfferTitle(template.title || "");
+      setConfigurationName(template.configuration || "");
+      setConfigSlots(template.slots || []);
+    }
+  }, [template]);
+
   const handleSave = () => {
     if (!templateName || !offerTitle || !configurationName) return;
 
     const updatedTemplate = {
-      ...template,
-      layout: "Vertical",
-      offerType: "Triple Offer",
       templateName,
       title: offerTitle,
+      offerType: "Triple Offer",
+      layout: "Vertical",
       configuration: configurationName,
+      slots: configSlots,
     };
 
     onSave(updatedTemplate);
@@ -41,7 +53,7 @@ const TripleOfferEditor = ({
       <h2>{isEditMode ? "✏️ Edit Triple Offer Template" : "➕ Create Triple Offer Template"}</h2>
 
       <div style={{ display: "flex", gap: 40, marginTop: 20, flexWrap: "wrap" }}>
-        {/* Left - Form */}
+        {/* Form Section */}
         <div style={{ flex: "1", minWidth: "300px" }}>
           <label style={{ fontWeight: "bold" }}>Configuration:</label>
           <select
@@ -91,7 +103,7 @@ const TripleOfferEditor = ({
           </button>
         </div>
 
-        {/* Right - Live Preview */}
+        {/* Preview Section */}
         <div
           style={{
             flex: "1",
@@ -102,8 +114,47 @@ const TripleOfferEditor = ({
             minWidth: "300px",
           }}
         >
-          <h4>🔍 Live Preview</h4>
-          <TripleOfferPreviewVertical title={offerTitle} slots={configSlots} />
+          <h4 style={{ marginBottom: "1rem" }}>🔍 Live Preview</h4>
+          <div style={{ fontWeight: "bold", marginBottom: "1rem", textAlign: "center" }}>
+            {offerTitle || "Template Title"}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {configSlots.length === 0 && <div>No configuration selected.</div>}
+            {configSlots.map((slot, index) => {
+              const emoji = currencyEmoji[slot.currency] || "";
+              const value = slot.value;
+              const bonus = slot.bonus ? ` + ${slot.bonus}` : "";
+              const label = `${emoji} ${value}${bonus}`;
+              const cta = slot.paid ? `${value} Only!` : "Free!";
+
+              return (
+                <div
+                  key={index}
+                  style={{
+                    background: "#fff",
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    padding: 16,
+                    textAlign: "center",
+                  }}
+                >
+                  <div style={{ fontWeight: "bold", marginBottom: 6 }}>{label}</div>
+                  <div
+                    style={{
+                      background: "#2ecc71",
+                      color: "#fff",
+                      padding: "6px 12px",
+                      borderRadius: 4,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {cta}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
@@ -111,6 +162,7 @@ const TripleOfferEditor = ({
 };
 
 export default TripleOfferEditor;
+
 
 
 
