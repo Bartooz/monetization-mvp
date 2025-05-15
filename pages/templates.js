@@ -77,10 +77,10 @@ export default function TemplatesPage() {
             background: "#f9f9f9",
           }}
         >
-          <h4>{tpl.templateName}</h4>
+          <h4>{tpl.templateName || tpl.name || "Unnamed"}</h4>
           <p><strong>Offer Type:</strong> {tpl.offerType}</p>
           <p><strong>Layout:</strong> {tpl.layout}</p>
-
+          <p><strong>Configuration:</strong> {tpl.configuration || "—"}</p>
           <p><strong>Slots:</strong> {tpl.slots?.length || 0}</p>
 
           <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>

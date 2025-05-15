@@ -18,20 +18,30 @@ const TripleOfferEditor = ({
   const [configSlots, setConfigSlots] = useState(template?.slots || []);
 
   useEffect(() => {
-    // If template has slots, use them; otherwise, pull from configuration
+    if (!configurationName) return;
+  
+    const config = configurations.find((c) => c.name === configurationName);
+    if (config) {
+      setConfigSlots(config.slots || []);
+    }
+  }, [configurationName, configurations]);
+  
+  useEffect(() => {
+    setTemplateName(template?.templateName || "");
+    setOfferTitle(template?.title || "");
+    setConfigurationName(template?.configuration || "");
+  
+    // Fallback for older templates
     if (template?.slots?.length) {
       setConfigSlots(template.slots);
-    } else {
-      const config = configurations.find((c) => c.name === template?.configuration);
+    } else if (template?.configuration) {
+      const config = configurations.find((c) => c.name === template.configuration);
       if (config) {
         setConfigSlots(config.slots || []);
       }
     }
+  }, [template]);
   
-    setTemplateName(template?.templateName || "");
-    setOfferTitle(template?.title || "");
-    setConfigurationName(template?.configuration || "");
-  }, [template, configurations]);
 
   const handleSave = () => {
     if (!templateName || !offerTitle || !configurationName) return;
