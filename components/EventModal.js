@@ -27,7 +27,7 @@ const EventModal = ({
             newEvent.template &&
             templates.length > 0
         ) {
-            const match = templates.find((t) => t.name === newEvent.template);
+            const match = templates.find((t) => t.templateName === newEvent.template);
             setSelectedTemplateData(match || null);
         } else {
             setSelectedTemplateData(null);
@@ -139,8 +139,8 @@ const EventModal = ({
                         >
                             <option value="">Select a Template</option>
                             {templates.map((t, idx) => (
-                                <option key={idx} value={t.name}>
-                                    {t.name}
+                                <option key={idx} value={t.templateName}>
+                                    {t.templateName}
                                 </option>
                             ))}
                         </select>
