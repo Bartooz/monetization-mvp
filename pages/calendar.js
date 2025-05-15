@@ -38,6 +38,12 @@ export default function CalendarPage() {
     template: "",
   });
 
+  const currencyEmojis = {
+    Cash: "💵",
+    "Gold Bars": "🪙",
+    Diamond: "💎",
+  };
+
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("calendarEvents")) || [];
     setEvents(stored);

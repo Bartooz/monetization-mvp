@@ -21,6 +21,12 @@ const EventModal = ({
 
     const [selectedTemplateData, setSelectedTemplateData] = useState(null);
 
+    const currencyEmojis = {
+        Cash: "💵",
+        "Gold Bars": "🪙",
+        Diamond: "💎",
+      };
+
     useEffect(() => {
         if (
             newEvent.category === "Offer" &&
