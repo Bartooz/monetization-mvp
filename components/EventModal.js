@@ -62,15 +62,18 @@ const EventModal = ({
                 <div style={{ flex: "1", minWidth: "250px", maxWidth: "300px" }}>
                     <h4 style={{ marginBottom: 12 }}>{selectedTemplateData.title}</h4>
                     {selectedTemplateData.slots?.map((slot, idx) => (
-  <div key={idx} className="slot-box" style={{ padding: "10px", border: "1px solid #ccc", marginBottom: "10px" }}>
-    <div style={{ fontWeight: "bold", marginBottom: "6px" }}>
-      {slot.value} {slot.currency && (slot.currency === "Cash" ? "💵" : slot.currency === "Gold" ? "🪙" : "💎")}
-    </div>
-    <button style={{ backgroundColor: "green", color: "white", border: "none", padding: "6px 10px", borderRadius: "4px" }}>
-      {slot.paid ? `${slot.value} Only!` : "Free!"}
-    </button>
-  </div>
-))}
+                        <div key={idx} className="slot-box" style={{ padding: "10px", border: "1px solid #ccc", marginBottom: "10px" }}>
+                            <div style={{ fontWeight: "bold", marginBottom: "6px" }}>
+                            {slot.bonus
+  ? `${slot.value} + ${slot.bonus} ${currencyEmojis[slot.currency] || slot.currency}`
+  : `${slot.value} ${currencyEmojis[slot.currency] || slot.currency}`
+}
+                            </div>
+                            <button style={{ backgroundColor: "green", color: "white", border: "none", padding: "6px 10px", borderRadius: "4px" }}>
+                                {slot.paid ? `${slot.value} Only!` : "Free!"}
+                            </button>
+                        </div>
+                    ))}
 
                 </div>
             )}
