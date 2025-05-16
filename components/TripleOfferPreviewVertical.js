@@ -1,19 +1,35 @@
 import React from "react";
 
-const TripleOfferPreviewVertical = ({ slots = [], title = "Template Title" }) => {
+export default function TripleOfferPreviewVertical({ slots = [], title }) {
   return (
-    <div style={{ padding: "1rem", border: "1px solid #ccc", background: "#fafafa", borderRadius: "6px" }}>
-      <h3 style={{ textAlign: "center" }}>{title}</h3>
-      {slots.map((slot, index) => (
-        <div key={index} style={{ padding: "1rem", margin: "0.5rem 0", border: "1px solid #ddd", textAlign: "center" }}>
-          <div><strong>{slot.title}</strong></div>
-          <button style={{ marginTop: "0.5rem", padding: "0.3rem 1rem", background: "green", color: "white", border: "none", borderRadius: "4px" }}>
-            {slot.cta || "Buy"}
-          </button>
-        </div>
-      ))}
+    <div style={{ border: "1px solid #ddd", padding: 16, borderRadius: 8, maxWidth: 400 }}>
+      <h4 style={{ marginBottom: 16 }}>{title || "Untitled Offer"}</h4>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {slots.map((slot, index) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ccc",
+              padding: 10,
+              borderRadius: 6,
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontWeight: "bold", marginBottom: 6 }}>
+              {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
+              {slot.currency === "Cash"
+                ? "💵"
+                : slot.currency === "Gold Bars"
+                ? "🪙"
+                : "💎"}
+            </div>
+            <button style={{ width: "100%", padding: "6px" }}>
+              {slot.paid ? `${slot.value} Only!` : "Free!"}
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
+}
 
-export default TripleOfferPreviewVertical;

@@ -1,180 +1,154 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import TripleOfferEditor from "./TripleOfferEditor";
+import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
+import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 
-
-Modal.setAppElement("#__next");
+const layoutComponents = {
+  Horizontal: TripleOfferPreviewHorizontal,
+  Vertical: TripleOfferPreviewVertical,
+};
 
 const EventModal = ({
-    isOpen,
-    onClose,
-    newEvent,
-    setNewEvent,
-    handleAddEvent,
-    handleDeleteEvent,
-    templates = [],
+  isOpen,
+  onClose,
+  newEvent,
+  setNewEvent,
+  handleAddEvent,
+  templates = [],
 }) => {
-    const handleChange = (field, value) => {
-        setNewEvent((prev) => ({ ...prev, [field]: value }));
-    };
-    const [showPreview, setShowPreview] = useState(false);
+  const [selectedTemplateData, setSelectedTemplateData] = useState(null);
 
-    const [selectedTemplateData, setSelectedTemplateData] = useState(null);
-
-    const currencyEmojis = {
-        Cash: "💵",
-        "Gold Bars": "🪙",
-        Diamond: "💎",
-      };
-
-    useEffect(() => {
-        if (
-            newEvent.category === "Offer" &&
-            newEvent.template &&
-            templates.length > 0
-        ) {
-            const match = templates.find((t) => t.templateName === newEvent.template);
-            setSelectedTemplateData(match || null);
+  useEffect(() => {
+    if (
+      newEvent.category === "Offer" &&
+      newEvent.template &&
+      templates.length > 0
+    ) {
+      const match = templates.find(
+        (t) => t.templateName === newEvent.template
+      );
+      if (match) {
+        if (match.slots && match.slots.length > 0) {
+          setSelectedTemplateData(match);
+        } else if (match.configuration) {
+          const configs = JSON.parse(
+            localStorage.getItem("liveops-configurations") || "[]"
+          );
+          const config = configs.find((c) => c.name === match.configuration);
+          if (config) {
+            setSelectedTemplateData({ ...match, slots: config.slots });
+          } else {
+            setSelectedTemplateData(match);
+          }
         } else {
-            setSelectedTemplateData(null);
+          setSelectedTemplateData(match);
         }
-    }, [newEvent.category, newEvent.template, templates]);
+      } else {
+        setSelectedTemplateData(null);
+      }
+    } else {
+      setSelectedTemplateData(null);
+    }
+  }, [newEvent.category, newEvent.template, templates]);
 
+  const handleChange = (field, value) => {
+    setNewEvent({ ...newEvent, [field]: value });
+  };
 
-    return (
-        <Modal
-            isOpen={isOpen}
-            onRequestClose={onClose}
-            contentLabel="Create Event"
-            overlayClassName="ReactModal__Overlay"
-            className="ReactModal__Content"
-            style={{
-                content: {
-                    maxWidth: showPreview ? "900px" : "500px",
-                    margin: "auto",
-                    borderRadius: "12px",
-                    padding: "2rem",
-                    backgroundColor: "#f9f9f9",
-                    border: "1px solid #ccc",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "2rem",
-                },
-            }}
+  const LayoutComponent =
+    selectedTemplateData && layoutComponents[selectedTemplateData.layout || "Horizontal"];
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Event Modal"
+      style={{
+        overlay: { zIndex: 1000, backgroundColor: "rgba(0, 0, 0, 0.4)" },
+        content: {
+          maxWidth: "800px",
+          margin: "auto",
+          padding: "20px",
+          display: "flex",
+          gap: "20px",
+        },
+      }}
+    >
+      <div style={{ flex: 1 }}>
+        <h2>{newEvent.id ? "Edit Event" : "Create Event"}</h2>
+
+        <label>Title:</label>
+        <input
+          type="text"
+          value={newEvent.title || ""}
+          onChange={(e) => handleChange("title", e.target.value)}
+        />
+
+        <label>Start:</label>
+        <input
+          type="datetime-local"
+          value={newEvent.start}
+          onChange={(e) => handleChange("start", e.target.value)}
+        />
+
+        <label>End:</label>
+        <input
+          type="datetime-local"
+          value={newEvent.end}
+          onChange={(e) => handleChange("end", e.target.value)}
+        />
+
+        <label>Category:</label>
+        <select
+          value={newEvent.category || ""}
+          onChange={(e) => handleChange("category", e.target.value)}
         >
-            {/* Preview Panel */}
-            {showPreview && newEvent.category === "Offer" && selectedTemplateData && (
-                <div style={{ flex: "1", minWidth: "250px", maxWidth: "300px" }}>
-                    <h4 style={{ marginBottom: 12 }}>{selectedTemplateData.title}</h4>
-                    {selectedTemplateData.slots?.map((slot, idx) => (
-                        <div key={idx} className="slot-box" style={{ padding: "10px", border: "1px solid #ccc", marginBottom: "10px" }}>
-                            <div style={{ fontWeight: "bold", marginBottom: "6px" }}>
-                            {slot.bonus
-  ? `${slot.value} + ${slot.bonus} ${currencyEmojis[slot.currency] || slot.currency}`
-  : `${slot.value} ${currencyEmojis[slot.currency] || slot.currency}`
-}
-                            </div>
-                            <button style={{ backgroundColor: "green", color: "white", border: "none", padding: "6px 10px", borderRadius: "4px" }}>
-                                {slot.paid ? `${slot.value} Only!` : "Free!"}
-                            </button>
-                        </div>
-                    ))}
+          <option value="">Select</option>
+          <option value="Offer">Offer</option>
+          <option value="Mission">Mission</option>
+        </select>
 
-                </div>
-            )}
+        {newEvent.category === "Offer" && (
+          <>
+            <label>Offer Template:</label>
+            <select
+              value={newEvent.template || ""}
+              onChange={(e) => handleChange("template", e.target.value)}
+            >
+              <option value="">Select</option>
+              {templates
+                .filter((t) => t.category === "Offer" || t.offerType === "Triple Offer")
+                .map((template, i) => (
+                  <option key={i} value={template.templateName}>
+                    {template.templateName}
+                  </option>
+                ))}
+            </select>
+          </>
+        )}
 
-            {/* Form Panel */}
-            <div style={{ flex: "2", maxWidth: "480px" }}>
-                <h2 style={{ marginTop: 0 }}>{newEvent?.id ? "Edit Event" : "Create Event"}</h2>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+          <button onClick={onClose} style={{ marginRight: 10 }}>
+            Cancel
+          </button>
+          <button onClick={handleAddEvent}>Save</button>
+        </div>
+      </div>
 
-                <label>Title:</label>
-                <input
-                    type="text"
-                    value={newEvent.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                    style={{ width: "100%", marginBottom: "1rem" }}
-                />
-
-                <label>Start:</label>
-                <input
-                    type="datetime-local"
-                    value={newEvent.start}
-                    onChange={(e) => handleChange("start", e.target.value)}
-                    style={{ width: "100%", marginBottom: "1rem" }}
-                />
-
-                <label>End:</label>
-                <input
-                    type="datetime-local"
-                    value={newEvent.end}
-                    onChange={(e) => handleChange("end", e.target.value)}
-                    style={{ width: "100%", marginBottom: "1rem" }}
-                />
-
-                <label>Category:</label>
-                <select
-                    value={newEvent.category}
-                    onChange={(e) => handleChange("category", e.target.value)}
-                    style={{ width: "100%", marginBottom: "1rem" }}
-                >
-                    <option value="Mission">Mission</option>
-                    <option value="Offer">Offer</option>
-                </select>
-
-                {newEvent.category === "Offer" && (
-                    <>
-                        <label>Offer Template:</label>
-                        <select
-                            value={newEvent.template}
-                            onChange={(e) => handleChange("template", e.target.value)}
-                            style={{ width: "100%", marginBottom: "0.5rem" }}
-                        >
-                            <option value="">Select a Template</option>
-                            {templates.map((t, idx) => (
-                                <option key={idx} value={t.templateName}>
-                                    {t.templateName}
-                                </option>
-                            ))}
-                        </select>
-
-                        {/* Preview Checkbox */}
-                        <div style={{ marginBottom: "1.5rem" }}>
-                            <label style={{ fontSize: "0.9rem" }}>
-                                <input
-                                    type="checkbox"
-                                    checked={showPreview}
-                                    onChange={(e) => setShowPreview(e.target.checked)}
-                                    style={{ marginRight: "0.5rem" }}
-                                />
-                                Show Preview
-                            </label>
-                        </div>
-                    </>
-                )}
-
-                {/* Buttons */}
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                    <button onClick={onClose}>Cancel</button>
-                    {newEvent.id && (
-                        <button
-                            onClick={handleDeleteEvent}
-                            style={{ background: "#c0392b", color: "white", padding: "0.5rem 1rem" }}
-                        >
-                            Delete
-                        </button>
-                    )}
-                    <button onClick={handleAddEvent}>{newEvent.id ? "Save" : "Add"}</button>
-                </div>
-            </div>
-        </Modal>
-
-
-
-    );
+      {LayoutComponent && selectedTemplateData && (
+        <div style={{ flex: 1 }}>
+          <LayoutComponent
+            slots={selectedTemplateData.slots || []}
+            title={selectedTemplateData.title}
+          />
+        </div>
+      )}
+    </Modal>
+  );
 };
 
 export default EventModal;
+
 
 
 

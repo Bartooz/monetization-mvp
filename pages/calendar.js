@@ -5,51 +5,29 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Modal from "react-modal";
 import EventModal from "../components/EventModal";
+import TripleOfferPreviewHorizontal from "../components/TripleOfferPreviewHorizontal";
+import TripleOfferPreviewVertical from "../components/TripleOfferPreviewVertical";
+
+const layoutComponents = {
+  Horizontal: TripleOfferPreviewHorizontal,
+  Vertical: TripleOfferPreviewVertical,
+};
 
 Modal.setAppElement("#__next");
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [calendarKey, setCalendarKey] = useState(0);
+  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [previewEvent, setPreviewEvent] = useState(null);
-  const [previewPosition, setPreviewPosition] = useState({ top: 0, left: 0 });
-  const previewRef = useRef();
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (previewRef.current && !previewRef.current.contains(e.target)) {
-        setPreviewEvent(null); // Close the preview
-      }
-    };
-  
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  
-  const [newEvent, setNewEvent] = useState({
-    id: null,
-    title: "",
-    start: "",
-    end: "",
-    category: "Mission",
-    template: "",
-  });
-
-  const currencyEmojis = {
-    Cash: "💵",
-    "Gold Bars": "🪙",
-    Diamond: "💎",
-  };
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("calendarEvents")) || [];
-    setEvents(stored);
+    const storedEvents = JSON.parse(localStorage.getItem("calendarEvents") || "[]");
+    setEvents(storedEvents);
 
-    const storedTemplates = JSON.parse(localStorage.getItem("liveops-templates")) || [];
-    setTemplates(storedTemplates);
+    const savedTemplates = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
+    setTemplates(savedTemplates);
   }, []);
 
   useEffect(() => {
@@ -57,33 +35,16 @@ export default function CalendarPage() {
   }, [events]);
 
   const handleAddEvent = () => {
-    const updatedEvent = {
-      ...newEvent,
-      start: newEvent.start,
-      end: newEvent.end,
-      title: newEvent.title,
-      category: newEvent.category,
-      template: newEvent.template,
-    };
+    if (!newEvent.title || !newEvent.start || !newEvent.end) return;
 
-    if (!updatedEvent.title || !updatedEvent.start || !updatedEvent.end) return;
+    const updatedEvents = newEvent.id
+      ? events.map((evt) => (evt.id === newEvent.id ? newEvent : evt))
+      : [...events, { ...newEvent, id: Date.now() }];
 
-    let updated;
-    if (updatedEvent.id) {
-      updated = events.map((e) => (e.id === updatedEvent.id ? updatedEvent : e));
-    } else {
-      updated = [...events, { ...updatedEvent, id: Date.now().toString() }];
-    }
-
-    setEvents(updated);
-    localStorage.setItem("calendarEvents", JSON.stringify(updated));
-    setCalendarKey((prev) => prev + 1);
-
-    setNewEvent({ title: "", start: "", end: "", category: "", template: "" });
+    setEvents(updatedEvents);
     setIsModalOpen(false);
+    setNewEvent({ title: "", start: "", end: "" });
   };
-
-
 
   const handleEventDrop = (info) => {
     const updated = events.map((evt) =>
@@ -92,72 +53,26 @@ export default function CalendarPage() {
         : evt
     );
     setEvents(updated);
-    localStorage.setItem("calendarEvents", JSON.stringify(updated));
   };
 
-  const handleDeleteEvent = () => {
-    if (!newEvent.id) return;
-    const updated = events.filter((e) => e.id !== newEvent.id);
-    setEvents(updated);
-    localStorage.setItem("calendarEvents", JSON.stringify(updated));
-    setIsModalOpen(false);
+  const calendarRef = useRef();
+
+  const handleClickOutside = (e) => {
+    if (!e.target.closest(".preview-box")) {
+      setPreviewEvent(null);
+    }
   };
 
-  const handleEventClick = (clickInfo) => {
-    const event = clickInfo.event;
-    const { id, title, start, end, extendedProps } = event;
-
-    const previewData = {
-      id,
-      title,
-      start: new Date(start).toLocaleString(),
-      end: new Date(end).toLocaleString(),
-      category: extendedProps.category,
-      template: extendedProps.template,
-    };
-
-    const rect = clickInfo.el.getBoundingClientRect();
-    setPreviewPosition({ top: rect.bottom + window.scrollY + 5, left: rect.left + window.scrollX });
-    setPreviewEvent(previewData);
-  };
-
-
-  const handleEventDidMount = (info) => {
-    info.el.addEventListener("dblclick", () => {
-      const { id, title, start, end, extendedProps } = info.event;
-
-      const formatDateTimeLocal = (date) => {
-        const d = new Date(date);
-        const offset = d.getTimezoneOffset() * 60000;
-        return new Date(d - offset).toISOString().slice(0, 16);
-      };
-
-      const formattedEvent = {
-        id,
-        title,
-        start: formatDateTimeLocal(start),
-        end: formatDateTimeLocal(end),
-        category: extendedProps.category || "Mission",
-        template: extendedProps.template || "",
-      };
-
-      setNewEvent(formattedEvent);
-      setIsModalOpen(true);
-    });
-  };
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
     <>
       <button
         onClick={() => {
-          setNewEvent({
-            id: null,
-            title: "",
-            start: "",
-            end: "",
-            category: "Mission",
-            template: "",
-          });
+          setNewEvent({ title: "", start: "", end: "" });
           setIsModalOpen(true);
         }}
         style={{ marginBottom: "10px", padding: "10px 20px", fontWeight: "bold" }}
@@ -166,7 +81,7 @@ export default function CalendarPage() {
       </button>
 
       <FullCalendar
-        key={calendarKey}
+        ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
@@ -174,80 +89,84 @@ export default function CalendarPage() {
           center: "title",
           end: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-        events={events.map((e) => ({
-          ...e,
-          extendedProps: {
-            category: e.category,
-            template: e.template,
-          },
-        }))}
+        events={events}
         editable={true}
         droppable={true}
         eventDrop={handleEventDrop}
-        eventDidMount={handleEventDidMount}
-        eventClick={handleEventClick}
+        eventDidMount={(info) => {
+          info.el.addEventListener("dblclick", () => {
+            const match = events.find((e) => e.id === info.event.id);
+            if (match) {
+              setNewEvent(match);
+              setIsModalOpen(true);
+              setPreviewEvent(null);
+            }
+          });
+
+          info.el.addEventListener("click", () => {
+            const event = events.find((e) => e.id === info.event.id);
+            const template = templates.find((t) => t.templateName === event.template);
+            if (!template) {
+              setPreviewEvent(null);
+              return;
+            }
+
+            const layout = template.layout || "Horizontal";
+            const Layout = layoutComponents[layout];
+
+            let slots = template.slots || [];
+
+            if (slots.length === 0 && template.configuration) {
+              const configs = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
+              const config = configs.find((c) => c.name === template.configuration);
+              if (config) slots = config.slots || [];
+            }
+
+            const box = (
+              <div className="preview-box" style={{
+                position: "absolute",
+                top: info.el.getBoundingClientRect().top + 30,
+                left: info.el.getBoundingClientRect().left,
+                zIndex: 9999,
+                background: "#fff",
+                border: "1px solid #ccc",
+                padding: 10,
+                borderRadius: 8,
+                boxShadow: "0 0 8px rgba(0,0,0,0.2)",
+                minWidth: 300,
+              }}>
+                <h4>{template.title}</h4>
+                <Layout slots={slots} title={template.title} />
+                <div style={{ marginTop: 10 }}>
+                  <button
+                    onClick={() => {
+                      setNewEvent(event);
+                      setIsModalOpen(true);
+                      setPreviewEvent(null);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      const updated = events.filter((e) => e.id !== event.id);
+                      setEvents(updated);
+                      setPreviewEvent(null);
+                    }}
+                    style={{ marginLeft: 10 }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+
+            setPreviewEvent(box);
+          });
+        }}
       />
 
-      {previewEvent && (
-        <div
-        ref={previewRef}
-          style={{
-            position: "absolute",
-            top: previewPosition.top,
-            left: previewPosition.left,
-            background: "#fff",
-            padding: "12px",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            zIndex: 1000,
-            minWidth: "250px"
-          }}
-        >
-          <strong>{previewEvent.title}</strong>
-          <div>Start: {previewEvent.start}</div>
-          <div>End: {previewEvent.end}</div>
-          {previewEvent.category === "Offer" && (
-            <div>Template: {previewEvent.template || "None"}</div>
-          )}
-
-          <div style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-            <button
-              onClick={() => {
-                const found = events.find((e) => e.id === previewEvent.id);
-                if (found) {
-                  const formatDateTimeLocal = (date) => {
-                    const d = new Date(date);
-                    const offset = d.getTimezoneOffset() * 60000;
-                    return new Date(d - offset).toISOString().slice(0, 16);
-                  };
-                  setNewEvent({
-                    ...found,
-                    start: formatDateTimeLocal(found.start),
-                    end: formatDateTimeLocal(found.end),
-                  });
-                  setIsModalOpen(true);
-                  setPreviewEvent(null);
-                }
-              }}
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => {
-                const updated = events.filter((e) => e.id !== previewEvent.id);
-                setEvents(updated);
-                localStorage.setItem("calendarEvents", JSON.stringify(updated));
-                setPreviewEvent(null);
-              }}
-              style={{ background: "#c0392b", color: "white" }}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      )}
-
+      {previewEvent}
 
       <EventModal
         isOpen={isModalOpen}
@@ -255,12 +174,12 @@ export default function CalendarPage() {
         newEvent={newEvent}
         setNewEvent={setNewEvent}
         handleAddEvent={handleAddEvent}
-        handleDeleteEvent={handleDeleteEvent}
         templates={templates}
       />
     </>
   );
 }
+
 
 
 
