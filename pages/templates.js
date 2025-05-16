@@ -13,21 +13,27 @@ export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
-    setTemplates(saved);
+    if (typeof window !== "undefined") {
+      const saved = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
+      setTemplates(saved);
+    }
   }, []);
 
   const handleSaveTemplate = (newTemplate) => {
     const updated = [...templates.filter(t => t.templateName !== newTemplate.templateName), newTemplate];
     setTemplates(updated);
-    localStorage.setItem("liveops-templates", JSON.stringify(updated));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("liveops-templates", JSON.stringify(updated));
+    }
     setSelectedTemplate(null);
   };
 
   const handleDelete = (templateName) => {
     const filtered = templates.filter(t => t.templateName !== templateName);
     setTemplates(filtered);
-    localStorage.setItem("liveops-templates", JSON.stringify(filtered));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("liveops-templates", JSON.stringify(filtered));
+    }
     setSelectedTemplate(null);
   };
 
@@ -65,6 +71,7 @@ export default function TemplatesPage() {
     </div>
   );
 }
+
 
 
 

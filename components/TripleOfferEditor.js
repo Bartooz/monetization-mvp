@@ -13,12 +13,19 @@ export default function TripleOfferEditor({ template, onSave }) {
   const [configurationName, setConfigurationName] = useState("");
   const [layout, setLayout] = useState("Horizontal");
   const [configSlots, setConfigSlots] = useState([]);
+  const [availableConfigs, setAvailableConfigs] = useState([]);
 
   useEffect(() => {
-    const savedConfigs = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
-    const config = savedConfigs.find((c) => c.name === configurationName);
-    if (config) {
-      setConfigSlots(config.slots || []);
+    if (typeof window !== "undefined") {
+      const savedConfigs = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
+      setAvailableConfigs(savedConfigs);
+
+      if (configurationName) {
+        const config = savedConfigs.find(c => c.name === configurationName);
+        if (config) {
+          setConfigSlots(config.slots || []);
+        }
+      }
     }
   }, [configurationName]);
 
@@ -57,7 +64,7 @@ export default function TripleOfferEditor({ template, onSave }) {
         <label>Configuration:</label>
         <select value={configurationName} onChange={(e) => setConfigurationName(e.target.value)}>
           <option value="">Select</option>
-          {JSON.parse(localStorage.getItem("liveops-configurations") || "[]").map((c, i) => (
+          {availableConfigs.map((c, i) => (
             <option key={i} value={c.name}>{c.name}</option>
           ))}
         </select>
@@ -77,6 +84,7 @@ export default function TripleOfferEditor({ template, onSave }) {
     </div>
   );
 }
+
 
 
 
