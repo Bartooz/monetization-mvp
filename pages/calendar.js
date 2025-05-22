@@ -10,7 +10,13 @@ import TripleOfferPreviewVertical from "../components/TripleOfferPreviewVertical
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    start: "",
+    end: "",
+    category: "",
+    templateName: ""
+  });
   const [showPreview, setShowPreview] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
@@ -18,24 +24,20 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = JSON.parse(localStorage.getItem("calendarEvents") || "[]");
-      setEvents(stored);
+      setEvents(JSON.parse(localStorage.getItem("calendarEvents") || "[]"));
       setTemplates(JSON.parse(localStorage.getItem("liveops-templates") || "[]"));
       setConfigurations(JSON.parse(localStorage.getItem("liveops-configurations") || "[]"));
     }
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("calendarEvents", JSON.stringify(events));
-    }
+    localStorage.setItem("calendarEvents", JSON.stringify(events));
   }, [events]);
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return;
 
-    const fullTemplate =
-      templates.find((t) => t.templateName === newEvent.templateName) || null;
+    const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || null;
 
     const eventToSave = {
       ...newEvent,
@@ -43,17 +45,17 @@ export default function CalendarPage() {
     };
 
     const updatedEvents = newEvent.id
-      ? events.map((evt) => (evt.id === newEvent.id ? eventToSave : evt))
+      ? events.map(evt => (evt.id === newEvent.id ? eventToSave : evt))
       : [...events, { ...eventToSave, id: Date.now() }];
 
     setEvents(updatedEvents);
     setIsModalOpen(false);
-    setNewEvent({ title: "", start: "", end: "" });
+    setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });
   };
 
   const handleEventDrop = (info) => {
-    const updated = events.map((evt) =>
-      evt.id === info.event.id
+    const updated = events.map(evt =>
+      evt.id == info.event.id
         ? { ...evt, start: info.event.startStr, end: info.event.endStr }
         : evt
     );
@@ -61,10 +63,8 @@ export default function CalendarPage() {
   };
 
   const handleEventClick = (info) => {
-    const matched = events.find((e) => e.id === info.event.id);
-    if (matched) {
-      setSelectedEventForPreview(matched);
-    }
+    const matched = events.find(e => e.id == info.event.id);
+    if (matched) setSelectedEventForPreview(matched);
   };
 
   const handleEditFromPreview = () => {
@@ -75,15 +75,24 @@ export default function CalendarPage() {
 
   const handleDeleteFromPreview = () => {
     if (!selectedEventForPreview) return;
-    const updated = events.filter((e) => e.id !== selectedEventForPreview.id);
-    setEvents(updated);
+    setEvents(events.filter(e => e.id !== selectedEventForPreview.id));
     setSelectedEventForPreview(null);
+  };
+
+  const handleEventDidMount = (info) => {
+    info.el.addEventListener("dblclick", () => {
+      const matched = events.find(e => e.id == info.event.id);
+      if (matched) {
+        setNewEvent(matched);
+        setIsModalOpen(true);
+      }
+    });
   };
 
   const renderPreviewTemplate = (template) => {
     if (!template || !template.layout) return null;
     const { layout, slots, title, configuration } = template;
-    const config = configurations.find((c) => c.name === configuration);
+    const config = configurations.find(c => c.name === configuration);
     const slotData = config ? config.slots || [] : slots || [];
 
     const previewProps = { layout, title, slots: slotData };
@@ -94,13 +103,13 @@ export default function CalendarPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: 20 }}>
       <button
         onClick={() => {
-          setNewEvent({ title: "", start: "", end: "" });
+          setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });
           setIsModalOpen(true);
         }}
-        style={{ marginBottom: "12px", padding: "10px 20px", fontWeight: "bold" }}
+        style={{ marginBottom: 12 }}
       >
         New Event
       </button>
@@ -113,10 +122,11 @@ export default function CalendarPage() {
           center: "title",
           end: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-        editable={true}
         events={events}
+        editable={true}
         eventDrop={handleEventDrop}
         eventClick={handleEventClick}
+        eventDidMount={handleEventDidMount}
       />
 
       <EventModal
@@ -132,32 +142,18 @@ export default function CalendarPage() {
       />
 
       {selectedEventForPreview && (
-        <div
-          style={{
-            position: "fixed",
-            top: "100px",
-            right: "20px",
-            backgroundColor: "#fff",
-            border: "1px solid #ddd",
-            padding: "16px",
-            borderRadius: "8px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-            zIndex: 2000,
-            width: "300px",
-          }}
-        >
+        <div style={{
+          position: "fixed", top: "100px", right: "20px",
+          background: "#fff", border: "1px solid #ccc", padding: "16px",
+          width: 300, borderRadius: 8, zIndex: 1000
+        }}>
           <h3>{selectedEventForPreview.title}</h3>
-          <p>
-            <strong>Start:</strong> {selectedEventForPreview.start}
-            <br />
-            <strong>End:</strong> {selectedEventForPreview.end}
-          </p>
+          <p><strong>Start:</strong> {selectedEventForPreview.start}</p>
+          <p><strong>End:</strong> {selectedEventForPreview.end}</p>
           {selectedEventForPreview.template && (
-            <div style={{ marginTop: "10px" }}>
-              {renderPreviewTemplate(selectedEventForPreview.template)}
-            </div>
+            <div>{renderPreviewTemplate(selectedEventForPreview.template)}</div>
           )}
-          <div style={{ marginTop: "10px", display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
             <button onClick={handleEditFromPreview}>Edit</button>
             <button onClick={handleDeleteFromPreview}>Delete</button>
           </div>
@@ -166,6 +162,7 @@ export default function CalendarPage() {
     </div>
   );
 }
+
 
 
 
