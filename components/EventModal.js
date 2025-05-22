@@ -97,7 +97,10 @@ const EventModal = ({
                 <label>Template:</label>
                 <select
                     value={newEvent.templateName || ""}
-                    onChange={(e) => handleChange("templateName", e.target.value)}
+                    onChange={(e) => {
+                        handleChange("templateName", e.target.value);
+                        setShowPreview(true);
+                    }}
                     style={{ width: "100%", marginBottom: "10px" }}
                 >
                     <option value="">Select Template</option>
