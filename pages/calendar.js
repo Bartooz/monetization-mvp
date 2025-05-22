@@ -42,24 +42,33 @@ export default function CalendarPage() {
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return;
-
+  
+    // Load templates from localStorage
+    const savedTemplates = JSON.parse(localStorage.getItem("liveops-templates")) || [];
+  
+    let enrichedEvent = { ...newEvent };
+  
+    // Enrich with slots + layout from selected template
+    if (newEvent.category === "Offer" && newEvent.template) {
+      const matchedTemplate = savedTemplates.find(t => t.templateName === newEvent.template);
+      if (matchedTemplate) {
+        enrichedEvent = {
+          ...enrichedEvent,
+          slots: matchedTemplate.slots || [],
+          layout: matchedTemplate.layout || "Horizontal", // default fallback
+        };
+      }
+    }
+  
     const updatedEvents = newEvent.id
-      ? events.map((evt) => (evt.id === newEvent.id ? newEvent : evt))
-      : [...events, { ...newEvent, id: Date.now() }];
-
+      ? events.map((evt) => (evt.id === newEvent.id ? enrichedEvent : evt))
+      : [...events, { ...enrichedEvent, id: Date.now() }];
+  
     setEvents(updatedEvents);
     setIsModalOpen(false);
     setNewEvent({ title: "", start: "", end: "" });
   };
-
-  const handleEventDrop = (info) => {
-    const updated = events.map((evt) =>
-      evt.id === info.event.id
-        ? { ...evt, start: info.event.startStr, end: info.event.endStr }
-        : evt
-    );
-    setEvents(updated);
-  };
+  
 
   const calendarRef = useRef();
 
