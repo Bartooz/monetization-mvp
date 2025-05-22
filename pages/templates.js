@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
 import TripleOfferEditor from "../components/TripleOfferEditor";
-import TripleOfferPreviewHorizontal from "../components/TripleOfferPreviewHorizontal";
-import TripleOfferPreviewVertical from "../components/TripleOfferPreviewVertical";
-
-const layoutComponents = {
-  Horizontal: TripleOfferPreviewHorizontal,
-  Vertical: TripleOfferPreviewVertical,
-};
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -20,54 +14,77 @@ export default function TemplatesPage() {
   }, []);
 
   const handleSaveTemplate = (newTemplate) => {
-    const updated = [...templates.filter(t => t.templateName !== newTemplate.templateName), newTemplate];
+    const updated = editingTemplate
+      ? templates.map((tpl) =>
+          tpl.templateName === editingTemplate.templateName ? newTemplate : tpl
+        )
+      : [...templates, newTemplate];
+
+    localStorage.setItem("liveops-templates", JSON.stringify(updated));
     setTemplates(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("liveops-templates", JSON.stringify(updated));
-    }
-    setSelectedTemplate(null);
+    setEditingTemplate(null);
   };
 
-  const handleDelete = (templateName) => {
-    const filtered = templates.filter(t => t.templateName !== templateName);
-    setTemplates(filtered);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("liveops-templates", JSON.stringify(filtered));
-    }
-    setSelectedTemplate(null);
+  const handleDelete = (name) => {
+    const updated = templates.filter((tpl) => tpl.templateName !== name);
+    localStorage.setItem("liveops-templates", JSON.stringify(updated));
+    setTemplates(updated);
   };
 
-  const renderPreview = (template) => {
-    const Layout = layoutComponents[template.layout || "Horizontal"];
-    return <Layout slots={template.slots || []} title={template.title} />;
-  };
+  const filteredTemplates = templates.filter((tpl) =>
+    tpl.templateName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div style={{ display: "flex", gap: 24 }}>
-      <div style={{ flex: 1 }}>
-        <h2>{selectedTemplate ? "Edit Template" : "Create New Template"}</h2>
-        <TripleOfferEditor template={selectedTemplate} onSave={handleSaveTemplate} />
-      </div>
+    <div style={{ padding: 30, maxWidth: 1000, margin: "0 auto" }}>
+      <TripleOfferEditor template={editingTemplate} onSave={handleSaveTemplate} />
 
-      <div style={{ flex: 1 }}>
-        <h2>Saved Templates</h2>
-        {templates.length === 0 && <p>No templates yet.</p>}
-        {templates.map((t, i) => (
-          <div key={i} style={{ border: "1px solid #ccc", marginBottom: 12, padding: 10 }}>
-            <strong>{t.templateName}</strong>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>
-              Offer Type: {t.offerType || "N/A"}<br />
-              Layout: {t.layout || "Horizontal"}<br />
-              Configuration: {t.configuration || "N/A"}
+      <hr style={{ margin: "30px 0" }} />
+
+      <h3>Saved Templates</h3>
+      <input
+        type="text"
+        placeholder="Search templates..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{
+          width: "100%",
+          marginBottom: 20,
+          padding: 10,
+          fontSize: 16,
+          borderRadius: 6,
+          border: "1px solid #ccc",
+        }}
+      />
+
+      {filteredTemplates.length === 0 && <p>No matching templates found.</p>}
+
+      {filteredTemplates.map((tpl) => (
+        <div
+          key={tpl.templateName}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 6,
+            padding: 12,
+            marginBottom: 10,
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <strong>{tpl.templateName}</strong> — <span>{tpl.layout}</span>
             </div>
-            {renderPreview(t)}
-            <div style={{ marginTop: 8 }}>
-              <button onClick={() => setSelectedTemplate(t)} style={{ marginRight: 10 }}>Edit</button>
-              <button onClick={() => handleDelete(t.templateName)}>Delete</button>
+            <div>
+              <button onClick={() => setEditingTemplate(tpl)} style={{ marginRight: 10 }}>
+                Edit
+              </button>
+              <button onClick={() => handleDelete(tpl.templateName)} style={{ color: "red" }}>
+                Delete
+              </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
