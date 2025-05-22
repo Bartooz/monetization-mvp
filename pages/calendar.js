@@ -68,6 +68,15 @@ export default function CalendarPage() {
     setIsModalOpen(false);
     setNewEvent({ title: "", start: "", end: "" });
   };
+
+  const handleEventDrop = (info) => {
+    const updated = events.map((evt) =>
+      evt.id === info.event.id
+        ? { ...evt, start: info.event.startStr, end: info.event.endStr }
+        : evt
+    );
+    setEvents(updated);
+  };
   
 
   const calendarRef = useRef();
