@@ -126,7 +126,7 @@ export default function CalendarPage() {
               setPreviewEvent(null);
             }
           });
-
+        
           info.el.addEventListener("click", () => {
             const event = events.find((e) => e.id === info.event.id);
             const template = templates.find((t) =>
@@ -137,18 +137,25 @@ export default function CalendarPage() {
               setPreviewEvent(null);
               return;
             }
-
+        
             const layout = template.layout || "Horizontal";
             const Layout = layoutComponents[layout];
-
+        
             let slots = template.slots || [];
-
-            if (slots.length === 0 && template.configuration) {
+        
+            // Load config slots if template has a configuration but no slot data
+            if ((!slots || slots.length === 0) && template.configuration) {
               const configs = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
               const config = configs.find((c) => c.name === template.configuration);
-              if (config) slots = config.slots || [];
+              if (config) {
+                slots = config.slots.map((s) => ({
+                  ...s,
+                  cta: s.paid ? `${s.value} Only!` : "Free!",
+                  label: `${currencyEmojis[s.currency] || ""} ${s.value}${s.bonus ? " + " + s.bonus : ""}`,
+                }));
+              }
             }
-
+        
             const box = (
               <div className="preview-box" style={{
                 position: "absolute",
@@ -187,10 +194,11 @@ export default function CalendarPage() {
                 </div>
               </div>
             );
-
+        
             setPreviewEvent(box);
           });
         }}
+        
       />
 
       {previewEvent}
