@@ -54,35 +54,23 @@ export default function TripleOfferEditor({ template, onSave }) {
     setOfferType("Triple Offer");
   };
 
-  const LayoutPreview = layoutComponents[layout];
-  const selectedConfig = configurations.find((c) => c.name === configuration);
-  const slots = selectedConfig?.slots || [];
-
   const handleLayoutSwitch = (dir) => {
     const index = layouts.indexOf(layout);
     const newIndex = dir === "next" ? (index + 1) % layouts.length : (index - 1 + layouts.length) % layouts.length;
     setLayout(layouts[newIndex]);
   };
 
+  const LayoutPreview = layoutComponents[layout];
+  const selectedConfig = configurations.find((c) => c.name === configuration);
+  const slots = selectedConfig?.slots || [
+    { value: "", bonus: "", currency: "", paid: false },
+    { value: "", bonus: "", currency: "", paid: false },
+    { value: "", bonus: "", currency: "", paid: false },
+  ];
+
   return (
     <div style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
-      {/* LEFT: Layout & Preview */}
-      <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-          <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
-            ◀
-          </button>
-          <strong>{layout} Layout</strong>
-          <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
-            ▶
-          </button>
-        </div>
-        <div style={{ border: "1px solid #ccc", borderRadius: 6, padding: 16 }}>
-          <LayoutPreview title={offerTitle} slots={slots} />
-        </div>
-      </div>
-
-      {/* RIGHT: Form */}
+      {/* LEFT: Form */}
       <div style={{ flex: 1 }}>
         <h2>Create New Template</h2>
 
@@ -91,7 +79,6 @@ export default function TripleOfferEditor({ template, onSave }) {
             Event Type:{" "}
             <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
               <option>Offer</option>
-              {/* Future: <option>Mission</option> etc. */}
             </select>
           </label>
         </div>
@@ -101,7 +88,6 @@ export default function TripleOfferEditor({ template, onSave }) {
             Offer Type:{" "}
             <select value={offerType} onChange={(e) => setOfferType(e.target.value)}>
               <option>Triple Offer</option>
-              {/* Future: <option>Multisale</option> etc. */}
             </select>
           </label>
         </div>
@@ -149,6 +135,22 @@ export default function TripleOfferEditor({ template, onSave }) {
         <button onClick={handleSave} disabled={!templateName || !offerTitle || !configuration}>
           Save Template
         </button>
+      </div>
+
+      {/* RIGHT: Layout & Preview */}
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+          <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
+            ◀
+          </button>
+          <strong>{layout} Layout</strong>
+          <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
+            ▶
+          </button>
+        </div>
+        <div style={{ border: "1px solid #ccc", borderRadius: 6, padding: 16 }}>
+          <LayoutPreview title={offerTitle} slots={slots} />
+        </div>
       </div>
     </div>
   );
