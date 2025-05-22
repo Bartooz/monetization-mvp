@@ -8,6 +8,12 @@ import EventModal from "../components/EventModal";
 import TripleOfferPreviewHorizontal from "../components/TripleOfferPreviewHorizontal";
 import TripleOfferPreviewVertical from "../components/TripleOfferPreviewVertical";
 
+const currencyEmojis = {
+  Cash: "💵",
+  Gold: "🪙",
+  Diamond: "💎",
+};
+
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
   Vertical: TripleOfferPreviewVertical,

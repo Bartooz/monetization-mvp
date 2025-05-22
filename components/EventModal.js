@@ -3,6 +3,12 @@ import Modal from "react-modal";
 import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 
+const currencyEmojis = {
+    Cash: "💵",
+    Gold: "🪙",
+    Diamond: "💎",
+  };
+
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
   Vertical: TripleOfferPreviewVertical,
