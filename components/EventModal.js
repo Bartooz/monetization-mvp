@@ -20,7 +20,6 @@ const EventModal = ({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const selected = templates.find((t) => t.templateName === newEvent.templateName);
     setSelectedTemplateData(selected || null);
   }, [isOpen, newEvent.templateName, templates]);
@@ -32,10 +31,15 @@ const EventModal = ({
   const layout = selectedTemplateData?.layout || "Vertical";
   const slots = selectedTemplateData?.slots || [];
 
-  const currencyEmojis = {
-    Cash: "💵",
-    Gold: "🪙",
-    Diamond: "💎"
+  // Normalize date for inputs
+  const normalizeDateTime = (value) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      return date.toISOString().slice(0, 16); // "yyyy-MM-ddThh:mm"
+    } catch {
+      return "";
+    }
   };
 
   return (
@@ -68,7 +72,7 @@ const EventModal = ({
         <label>Start:</label>
         <input
           type="datetime-local"
-          value={newEvent.start || ""}
+          value={normalizeDateTime(newEvent.start)}
           onChange={(e) => handleChange("start", e.target.value)}
           style={{ width: "100%", marginBottom: "10px" }}
         />
@@ -76,7 +80,7 @@ const EventModal = ({
         <label>End:</label>
         <input
           type="datetime-local"
-          value={newEvent.end || ""}
+          value={normalizeDateTime(newEvent.end)}
           onChange={(e) => handleChange("end", e.target.value)}
           style={{ width: "100%", marginBottom: "10px" }}
         />
@@ -122,7 +126,9 @@ const EventModal = ({
           borderLeft: "1px solid #ccc",
           paddingLeft: "16px"
         }}>
-          <h4 style={{ marginBottom: 10 }}>{selectedTemplateData.title}</h4>
+          {selectedTemplateData.title && (
+            <h4 style={{ marginBottom: 10 }}>{selectedTemplateData.title}</h4>
+          )}
           {layout === "Horizontal" ? (
             <TripleOfferPreviewHorizontal slots={slots} />
           ) : (
@@ -135,6 +141,7 @@ const EventModal = ({
 };
 
 export default EventModal;
+
 
 
 
