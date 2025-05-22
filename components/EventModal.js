@@ -1,183 +1,151 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
+import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 
-const currencyEmojis = {
-    Cash: "💵",
-    "Gold Bars": "🪙",
-    Diamond: "💎",
-};
-
-const layoutComponents = {
-    Horizontal: TripleOfferPreviewHorizontal,
-    Vertical: TripleOfferPreviewVertical,
-};
+Modal.setAppElement("#__next");
 
 const EventModal = ({
-    isOpen,
-    onClose,
-    newEvent,
-    setNewEvent,
-    handleAddEvent,
-    templates = [],
+  isOpen,
+  onClose,
+  newEvent,
+  setNewEvent,
+  handleAddEvent,
+  templates = [],
+  configurations = [],
+  showPreview,
+  setShowPreview
 }) => {
-    console.log("🧪 EVENT MODAL PROPS:", {
-        newEvent,
-        templates,
-        configurations,
-      });
-    const [selectedTemplateData, setSelectedTemplateData] = useState(null);
-    const [showPreview, setShowPreview] = useState(true);
+  const [selectedTemplateData, setSelectedTemplateData] = useState(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
 
-    // Load template + configuration slot data
-    useEffect(() => {
-        if (!newEvent?.template || templates.length === 0) {
-            setSelectedTemplateData(null);
-            return;
-        }
+    const selected = templates.find((t) => t.name === newEvent.templateName);
+    setSelectedTemplateData(selected || null);
+  }, [isOpen, newEvent.templateName, templates]);
 
-        const match = templates.find((t) => t.templateName === newEvent.template);
-        if (!match) {
-            setSelectedTemplateData(null);
-            return;
-        }
+  const handleChange = (field, value) => {
+    setNewEvent({ ...newEvent, [field]: value });
+  };
 
-        if (match.slots?.length > 0) {
-            setSelectedTemplateData(match);
-        } else if (match.configuration) {
-            const configs = JSON.parse(
-                localStorage.getItem("liveops-configurations") || "[]"
-            );
-            const config = configs.find((c) => c.name === match.configuration);
-            if (config && config.slots) {
-                setSelectedTemplateData({ ...match, slots: config.slots });
-            } else {
-                setSelectedTemplateData({ ...match, slots: [] });
-            }
-        } else {
-            setSelectedTemplateData({ ...match, slots: [] });
-        }
-    }, [newEvent.template, templates]);
+  const layout = selectedTemplateData?.layout || "Vertical";
+  const slots = selectedTemplateData?.slots || [];
 
-    const handleChange = (field, value) => {
-        setNewEvent({ ...newEvent, [field]: value });
-    };
+  const currencyEmojis = {
+    Cash: "💵",
+    Gold: "🪙",
+    Diamond: "💎"
+  };
 
-    const LayoutComponent =
-        selectedTemplateData &&
-        layoutComponents[selectedTemplateData.layout || "Horizontal"];
+  const renderSlot = (slot, i) => (
+    <div key={i} style={{ marginBottom: 6 }}>
+      <div>
+        <strong>{slot.value} {currencyEmojis[slot.currency] || slot.currency}</strong>
+      </div>
+      {slot.bonus && (
+        <div style={{ fontSize: 12, color: "green" }}>
+          +{slot.bonus} bonus
+        </div>
+      )}
+    </div>
+  );
 
-    return (
-        <Modal
-            isOpen={isOpen}
-            onRequestClose={onClose}
-            contentLabel="Event Modal"
-            style={{
-                overlay: { zIndex: 1000, backgroundColor: "rgba(0, 0, 0, 0.4)" },
-                content: {
-                    maxWidth: "900px",
-                    margin: "auto",
-                    padding: "20px",
-                    display: "flex",
-                    gap: "20px",
-                    borderRadius: "8px",
-                    border: "1px solid #ccc",
-                },
-            }}
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Event Modal"
+      style={{
+        content: {
+          top: "50%", left: "50%", right: "auto", bottom: "auto",
+          transform: "translate(-50%, -50%)",
+          maxWidth: "800px",
+          display: "flex",
+          flexDirection: "row",
+          gap: "20px",
+        },
+      }}
+    >
+      <div style={{ flex: "1", minWidth: "300px" }}>
+        <h2>{newEvent.id ? "Edit Event" : "Create Event"}</h2>
+
+        <label>Title:</label>
+        <input
+          type="text"
+          value={newEvent.title || ""}
+          onChange={(e) => handleChange("title", e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+
+        <label>Start:</label>
+        <input
+          type="datetime-local"
+          value={newEvent.start || ""}
+          onChange={(e) => handleChange("start", e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+
+        <label>End:</label>
+        <input
+          type="datetime-local"
+          value={newEvent.end || ""}
+          onChange={(e) => handleChange("end", e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+
+        <label>Template:</label>
+        <select
+          value={newEvent.templateName || ""}
+          onChange={(e) => handleChange("templateName", e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
         >
-            <div style={{ flex: 1 }}>
-                <h2>{newEvent.id ? "Edit Event" : "Create Event"}</h2>
+          <option value="">Select Template</option>
+          {templates.map((t) => (
+            <option key={t.name} value={t.name}>
+              {t.name}
+            </option>
+          ))}
+        </select>
 
-                <label>Title:</label>
-                <input
-                    type="text"
-                    value={newEvent.title || ""}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                />
+        <div style={{ marginBottom: "12px" }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={showPreview}
+              onChange={() => setShowPreview(!showPreview)}
+            />
+            Show Preview
+          </label>
+        </div>
 
-                <label>Start:</label>
-                <input
-                    type="datetime-local"
-                    value={newEvent.start || ""}
-                    onChange={(e) => handleChange("start", e.target.value)}
-                />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+          <button onClick={onClose}>Cancel</button>
+          <button onClick={handleAddEvent}>Save</button>
+        </div>
+      </div>
 
-                <label>End:</label>
-                <input
-                    type="datetime-local"
-                    value={newEvent.end || ""}
-                    onChange={(e) => handleChange("end", e.target.value)}
-                />
-
-                <label>Category:</label>
-                <select
-                    value={newEvent.category || ""}
-                    onChange={(e) => handleChange("category", e.target.value)}
-                >
-                    <option value="">Select</option>
-                    <option value="Offer">Offer</option>
-                    <option value="Mission">Mission</option>
-                </select>
-
-                {newEvent.category === "Offer" && (
-                    <>
-                        <label>Offer Template:</label>
-                        <select
-                            value={newEvent.template || ""}
-                            onChange={(e) => handleChange("template", e.target.value)}
-                        >
-                            <option value="">Select</option>
-                            {templates
-                                .filter((t) => t.category === "Offer")
-                                .map((template, i) => (
-                                    <option key={i} value={template.templateName}>
-                                        {template.templateName}
-                                    </option>
-                                ))}
-                        </select>
-
-                        <div style={{ marginTop: 10 }}>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={showPreview}
-                                    onChange={(e) => setShowPreview(e.target.checked)}
-                                    style={{ marginRight: 6 }}
-                                />
-                                Show Preview
-                            </label>
-                        </div>
-
-                    </>
-                )}
-
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-                    <button onClick={onClose} style={{ marginRight: 10 }}>
-                        Cancel
-                    </button>
-                    <button onClick={handleAddEvent}>Save</button>
-                </div>
-            </div>
-
-            {/* 🔍 PREVIEW SECTION */}
-            {showPreview &&
-                newEvent.category === "Offer" &&
-                LayoutComponent &&
-                selectedTemplateData?.slots?.length > 0 && (
-                    <div style={{ flex: 1 }}>
-                        <LayoutComponent
-                            slots={selectedTemplateData.slots}
-                            title={selectedTemplateData.title}
-                        />
-                    </div>
-                )}
-        </Modal>
-    );
+      {showPreview && selectedTemplateData && (
+        <div style={{
+          flex: "1",
+          minWidth: "250px",
+          borderLeft: "1px solid #ccc",
+          paddingLeft: "16px"
+        }}>
+          <h4 style={{ marginBottom: 10 }}>{selectedTemplateData.title}</h4>
+          {layout === "Horizontal" ? (
+            <TripleOfferPreviewHorizontal slots={slots} />
+          ) : (
+            <TripleOfferPreviewVertical slots={slots} />
+          )}
+        </div>
+      )}
+    </Modal>
+  );
 };
 
 export default EventModal;
+
 
 
 
