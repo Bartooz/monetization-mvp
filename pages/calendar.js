@@ -12,7 +12,6 @@ export default function CalendarPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
   const [showPreview, setShowPreview] = useState(false);
-
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
@@ -21,12 +20,8 @@ export default function CalendarPage() {
     if (typeof window !== "undefined") {
       const stored = JSON.parse(localStorage.getItem("calendarEvents") || "[]");
       setEvents(stored);
-
-      const loadedTemplates = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
-      setTemplates(loadedTemplates);
-
-      const loadedConfigs = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
-      setConfigurations(loadedConfigs);
+      setTemplates(JSON.parse(localStorage.getItem("liveops-templates") || "[]"));
+      setConfigurations(JSON.parse(localStorage.getItem("liveops-configurations") || "[]"));
     }
   }, []);
 
@@ -39,9 +34,17 @@ export default function CalendarPage() {
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return;
 
+    const fullTemplate =
+      templates.find((t) => t.templateName === newEvent.templateName) || null;
+
+    const eventToSave = {
+      ...newEvent,
+      template: fullTemplate,
+    };
+
     const updatedEvents = newEvent.id
-      ? events.map((evt) => (evt.id === newEvent.id ? newEvent : evt))
-      : [...events, { ...newEvent, id: Date.now() }];
+      ? events.map((evt) => (evt.id === newEvent.id ? eventToSave : evt))
+      : [...events, { ...eventToSave, id: Date.now() }];
 
     setEvents(updatedEvents);
     setIsModalOpen(false);
@@ -80,16 +83,10 @@ export default function CalendarPage() {
   const renderPreviewTemplate = (template) => {
     if (!template || !template.layout) return null;
     const { layout, slots, title, configuration } = template;
-
     const config = configurations.find((c) => c.name === configuration);
-
     const slotData = config ? config.slots || [] : slots || [];
 
-    const previewProps = {
-      layout,
-      title,
-      slots: slotData,
-    };
+    const previewProps = { layout, title, slots: slotData };
 
     if (layout === "Horizontal") return <TripleOfferPreviewHorizontal {...previewProps} />;
     if (layout === "Vertical") return <TripleOfferPreviewVertical {...previewProps} />;
@@ -149,7 +146,7 @@ export default function CalendarPage() {
             width: "300px",
           }}
         >
-          <h3 style={{ marginTop: 0 }}>{selectedEventForPreview.title}</h3>
+          <h3>{selectedEventForPreview.title}</h3>
           <p>
             <strong>Start:</strong> {selectedEventForPreview.start}
             <br />
