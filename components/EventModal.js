@@ -22,6 +22,16 @@ const EventModal = ({
     if (!isOpen) return;
     const selected = templates.find((t) => t.templateName === newEvent.templateName);
     setSelectedTemplateData(selected || null);
+
+    // Auto-fill category, offerType, and configuration when template is selected
+    if (selected) {
+      setNewEvent((prev) => ({
+        ...prev,
+        category: selected.eventType || "Offer",
+        offerType: selected.offerType || "Triple Offer",
+        configuration: selected.configuration || "",
+      }));
+    }
   }, [isOpen, newEvent.templateName, templates]);
 
   const handleChange = (field, value) => {
@@ -31,12 +41,11 @@ const EventModal = ({
   const layout = selectedTemplateData?.layout || "Vertical";
   const slots = selectedTemplateData?.slots || [];
 
-  // Normalize date for inputs
   const normalizeDateTime = (value) => {
     if (!value) return "";
     try {
       const date = new Date(value);
-      return date.toISOString().slice(0, 16); // "yyyy-MM-ddThh:mm"
+      return date.toISOString().slice(0, 16);
     } catch {
       return "";
     }
@@ -126,7 +135,7 @@ const EventModal = ({
           borderLeft: "1px solid #ccc",
           paddingLeft: "16px"
         }}>
-          {selectedTemplateData.title && (
+          {selectedTemplateData.title && selectedTemplateData.title !== "Untitled Offer" && (
             <h4 style={{ marginBottom: 10 }}>{selectedTemplateData.title}</h4>
           )}
           {layout === "Horizontal" ? (
@@ -141,6 +150,7 @@ const EventModal = ({
 };
 
 export default EventModal;
+
 
 
 
