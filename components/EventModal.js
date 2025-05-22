@@ -4,10 +4,10 @@ import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 
 const currencyEmojis = {
-    Cash: "💵",
-    Gold: "🪙",
-    Diamond: "💎",
-  };
+  Cash: "💵",
+  "Gold Bars": "🪙",
+  Diamond: "💎",
+};
 
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
@@ -24,45 +24,43 @@ const EventModal = ({
 }) => {
   const [selectedTemplateData, setSelectedTemplateData] = useState(null);
 
+  // Load template + configuration slot data
   useEffect(() => {
-    if (
-      newEvent?.category === "Offer" &&
-      newEvent?.template &&
-      templates.length > 0
-    ) {
-      const match = templates.find(
-        (t) => t.templateName === newEvent.template
+    if (!newEvent?.template || templates.length === 0) {
+      setSelectedTemplateData(null);
+      return;
+    }
+
+    const match = templates.find((t) => t.templateName === newEvent.template);
+    if (!match) {
+      setSelectedTemplateData(null);
+      return;
+    }
+
+    if (match.slots?.length > 0) {
+      setSelectedTemplateData(match);
+    } else if (match.configuration) {
+      const configs = JSON.parse(
+        localStorage.getItem("liveops-configurations") || "[]"
       );
-      if (match) {
-        if (match.slots?.length > 0) {
-          setSelectedTemplateData(match);
-        } else if (match.configuration) {
-          const configs = JSON.parse(
-            localStorage.getItem("liveops-configurations") || "[]"
-          );
-          const config = configs.find((c) => c.name === match.configuration);
-          if (config) {
-            setSelectedTemplateData({ ...match, slots: config.slots });
-          } else {
-            setSelectedTemplateData(match);
-          }
-        } else {
-          setSelectedTemplateData(match);
-        }
+      const config = configs.find((c) => c.name === match.configuration);
+      if (config && config.slots) {
+        setSelectedTemplateData({ ...match, slots: config.slots });
       } else {
-        setSelectedTemplateData(null);
+        setSelectedTemplateData({ ...match, slots: [] });
       }
     } else {
-      setSelectedTemplateData(null);
+      setSelectedTemplateData({ ...match, slots: [] });
     }
-  }, [newEvent.category, newEvent.template, templates]);
+  }, [newEvent.template, templates]);
 
   const handleChange = (field, value) => {
     setNewEvent({ ...newEvent, [field]: value });
   };
 
   const LayoutComponent =
-    selectedTemplateData && layoutComponents[selectedTemplateData.layout || "Horizontal"];
+    selectedTemplateData &&
+    layoutComponents[selectedTemplateData.layout || "Horizontal"];
 
   return (
     <Modal
@@ -125,7 +123,7 @@ const EventModal = ({
             >
               <option value="">Select</option>
               {templates
-                .filter((t) => t.category === "Offer" || t.offerType === "Triple Offer")
+                .filter((t) => t.category === "Offer")
                 .map((template, i) => (
                   <option key={i} value={template.templateName}>
                     {template.templateName}
@@ -143,10 +141,11 @@ const EventModal = ({
         </div>
       </div>
 
-      {LayoutComponent && selectedTemplateData && (
+      {/* 🔍 PREVIEW SECTION */}
+      {LayoutComponent && selectedTemplateData?.slots?.length > 0 && (
         <div style={{ flex: 1 }}>
           <LayoutComponent
-            slots={selectedTemplateData.slots || []}
+            slots={selectedTemplateData.slots}
             title={selectedTemplateData.title}
           />
         </div>
