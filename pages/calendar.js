@@ -209,7 +209,8 @@ export default function CalendarPage() {
         newEvent={newEvent}
         setNewEvent={setNewEvent}
         handleAddEvent={handleAddEvent}
-        templates={templates}
+        templates={JSON.parse(localStorage.getItem("liveops-templates") || "[]")}
+        configurations={JSON.parse(localStorage.getItem("liveops-configurations") || "[]")}
       />
     </>
   );

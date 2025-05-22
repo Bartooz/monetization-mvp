@@ -22,6 +22,11 @@ const EventModal = ({
     handleAddEvent,
     templates = [],
 }) => {
+    console.log("🧪 EVENT MODAL PROPS:", {
+        newEvent,
+        templates,
+        configurations,
+      });
     const [selectedTemplateData, setSelectedTemplateData] = useState(null);
     const [showPreview, setShowPreview] = useState(true);
 
