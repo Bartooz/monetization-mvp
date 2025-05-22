@@ -105,7 +105,10 @@ export default function CalendarPage() {
 
           info.el.addEventListener("click", () => {
             const event = events.find((e) => e.id === info.event.id);
-            const template = templates.find((t) => t.templateName === event.template);
+            const template = templates.find((t) =>
+              t.templateName === event.template ||
+              (event.category === "Offer" && t.templateName === event?.template)
+            );
             if (!template) {
               setPreviewEvent(null);
               return;

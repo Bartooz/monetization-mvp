@@ -20,15 +20,15 @@ const EventModal = ({
 
   useEffect(() => {
     if (
-      newEvent.category === "Offer" &&
-      newEvent.template &&
+      newEvent?.category === "Offer" &&
+      newEvent?.template &&
       templates.length > 0
     ) {
       const match = templates.find(
         (t) => t.templateName === newEvent.template
       );
       if (match) {
-        if (match.slots && match.slots.length > 0) {
+        if (match.slots?.length > 0) {
           setSelectedTemplateData(match);
         } else if (match.configuration) {
           const configs = JSON.parse(
@@ -66,11 +66,13 @@ const EventModal = ({
       style={{
         overlay: { zIndex: 1000, backgroundColor: "rgba(0, 0, 0, 0.4)" },
         content: {
-          maxWidth: "800px",
+          maxWidth: "900px",
           margin: "auto",
           padding: "20px",
           display: "flex",
           gap: "20px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
         },
       }}
     >
@@ -87,14 +89,14 @@ const EventModal = ({
         <label>Start:</label>
         <input
           type="datetime-local"
-          value={newEvent.start}
+          value={newEvent.start || ""}
           onChange={(e) => handleChange("start", e.target.value)}
         />
 
         <label>End:</label>
         <input
           type="datetime-local"
-          value={newEvent.end}
+          value={newEvent.end || ""}
           onChange={(e) => handleChange("end", e.target.value)}
         />
 
@@ -148,6 +150,7 @@ const EventModal = ({
 };
 
 export default EventModal;
+
 
 
 
