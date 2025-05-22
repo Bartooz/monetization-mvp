@@ -4,6 +4,8 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
+import TripleOfferPreviewHorizontal from "../components/TripleOfferPreviewHorizontal";
+import TripleOfferPreviewVertical from "../components/TripleOfferPreviewVertical";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -13,6 +15,7 @@ export default function CalendarPage() {
 
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
+  const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -57,9 +60,40 @@ export default function CalendarPage() {
   const handleEventClick = (info) => {
     const matched = events.find((e) => e.id === info.event.id);
     if (matched) {
-      setNewEvent(matched);
-      setIsModalOpen(true);
+      setSelectedEventForPreview(matched);
     }
+  };
+
+  const handleEditFromPreview = () => {
+    setNewEvent(selectedEventForPreview);
+    setIsModalOpen(true);
+    setSelectedEventForPreview(null);
+  };
+
+  const handleDeleteFromPreview = () => {
+    if (!selectedEventForPreview) return;
+    const updated = events.filter((e) => e.id !== selectedEventForPreview.id);
+    setEvents(updated);
+    setSelectedEventForPreview(null);
+  };
+
+  const renderPreviewTemplate = (template) => {
+    if (!template || !template.layout) return null;
+    const { layout, slots, title, configuration } = template;
+
+    const config = configurations.find((c) => c.name === configuration);
+
+    const slotData = config ? config.slots || [] : slots || [];
+
+    const previewProps = {
+      layout,
+      title,
+      slots: slotData,
+    };
+
+    if (layout === "Horizontal") return <TripleOfferPreviewHorizontal {...previewProps} />;
+    if (layout === "Vertical") return <TripleOfferPreviewVertical {...previewProps} />;
+    return null;
   };
 
   return (
@@ -99,6 +133,39 @@ export default function CalendarPage() {
         showPreview={showPreview}
         setShowPreview={setShowPreview}
       />
+
+      {selectedEventForPreview && (
+        <div
+          style={{
+            position: "fixed",
+            top: "100px",
+            right: "20px",
+            backgroundColor: "#fff",
+            border: "1px solid #ddd",
+            padding: "16px",
+            borderRadius: "8px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+            zIndex: 2000,
+            width: "300px",
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>{selectedEventForPreview.title}</h3>
+          <p>
+            <strong>Start:</strong> {selectedEventForPreview.start}
+            <br />
+            <strong>End:</strong> {selectedEventForPreview.end}
+          </p>
+          {selectedEventForPreview.template && (
+            <div style={{ marginTop: "10px" }}>
+              {renderPreviewTemplate(selectedEventForPreview.template)}
+            </div>
+          )}
+          <div style={{ marginTop: "10px", display: "flex", justifyContent: "space-between" }}>
+            <button onClick={handleEditFromPreview}>Edit</button>
+            <button onClick={handleDeleteFromPreview}>Delete</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
