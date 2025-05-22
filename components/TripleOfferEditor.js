@@ -1,140 +1,159 @@
 import React, { useState, useEffect } from "react";
-import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
+import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 
-const layoutOptions = ["Horizontal", "Vertical"];
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
   Vertical: TripleOfferPreviewVertical,
 };
 
+const layouts = Object.keys(layoutComponents);
+
 export default function TripleOfferEditor({ template, onSave }) {
   const [templateName, setTemplateName] = useState("");
-  const [title, setTitle] = useState("");
+  const [offerTitle, setOfferTitle] = useState("");
+  const [configuration, setConfiguration] = useState("");
   const [eventType, setEventType] = useState("Offer");
   const [offerType, setOfferType] = useState("Triple Offer");
-  const [layoutIndex, setLayoutIndex] = useState(0);
-  const [configuration, setConfiguration] = useState("");
+  const [layout, setLayout] = useState(layouts[0]);
   const [configurations, setConfigurations] = useState([]);
-  const [slots, setSlots] = useState([]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
-      setConfigurations(saved);
-    }
+    const saved = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
+    setConfigurations(saved);
   }, []);
 
   useEffect(() => {
     if (template) {
       setTemplateName(template.templateName || "");
-      setTitle(template.title || "");
+      setOfferTitle(template.title || "");
+      setConfiguration(template.configuration || "");
+      setLayout(template.layout || layouts[0]);
       setEventType(template.eventType || "Offer");
       setOfferType(template.offerType || "Triple Offer");
-      setLayoutIndex(layoutOptions.indexOf(template.layout) || 0);
-      setConfiguration(template.configuration || "");
-      setSlots(template.slots || []);
-    } else {
-      setTemplateName("");
-      setTitle("");
-      setEventType("Offer");
-      setOfferType("Triple Offer");
-      setLayoutIndex(0);
-      setConfiguration("");
-      setSlots([]);
     }
   }, [template]);
 
-  useEffect(() => {
-    const config = configurations.find(c => c.name === configuration);
-    if (config) {
-      setSlots(config.slots || []);
-    }
-  }, [configuration]);
-
   const handleSave = () => {
-    if (!templateName || !title || !configuration) return;
-    onSave({
+    const configObj = configurations.find((c) => c.name === configuration);
+    const payload = {
       templateName,
-      title,
+      title: offerTitle,
+      configuration,
+      layout,
       eventType,
       offerType,
-      layout: layoutOptions[layoutIndex],
-      configuration,
-      slots,
-    });
+      slots: configObj?.slots || [],
+    };
+    onSave(payload);
+    setTemplateName("");
+    setOfferTitle("");
+    setConfiguration("");
+    setLayout(layouts[0]);
+    setEventType("Offer");
+    setOfferType("Triple Offer");
   };
 
-  const LayoutPreview = layoutComponents[layoutOptions[layoutIndex]];
+  const LayoutPreview = layoutComponents[layout];
+  const selectedConfig = configurations.find((c) => c.name === configuration);
+  const slots = selectedConfig?.slots || [];
+
+  const handleLayoutSwitch = (dir) => {
+    const index = layouts.indexOf(layout);
+    const newIndex = dir === "next" ? (index + 1) % layouts.length : (index - 1 + layouts.length) % layouts.length;
+    setLayout(layouts[newIndex]);
+  };
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 20, borderRadius: 8, maxWidth: 900 }}>
-      <h3>{template ? "Edit Template" : "Create New Template"}</h3>
-
-      <label>Event Type:</label>
-      <select value={eventType} onChange={e => setEventType(e.target.value)} style={{ marginBottom: 10 }}>
-        <option value="Offer">Offer</option>
-        {/* Add more as needed */}
-      </select>
-
-      <label>Offer Type:</label>
-      <select value={offerType} onChange={e => setOfferType(e.target.value)} style={{ marginBottom: 10 }}>
-        <option value="Triple Offer">Triple Offer</option>
-        {/* Add more as needed */}
-      </select>
-
-      <label>Template Name:</label>
-      <input
-        value={templateName}
-        onChange={e => setTemplateName(e.target.value)}
-        style={{ width: "100%", marginBottom: 10 }}
-      />
-
-      <label>Offer Title:</label>
-      <input
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        style={{ width: "100%", marginBottom: 10 }}
-      />
-
-      <label>Configuration:</label>
-      <select value={configuration} onChange={e => setConfiguration(e.target.value)} style={{ width: "100%", marginBottom: 10 }}>
-        <option value="">-- Select --</option>
-        {configurations
-          .filter(cfg => cfg.offerType === offerType)
-          .map(cfg => (
-            <option key={cfg.name} value={cfg.name}>{cfg.name}</option>
-          ))}
-      </select>
-
-      {/* Layout Switch */}
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
-        <button
-          onClick={() => setLayoutIndex((layoutIndex - 1 + layoutOptions.length) % layoutOptions.length)}
-          style={{ marginRight: 10 }}
-        >
-          ◀
-        </button>
-        <strong>{layoutOptions[layoutIndex]} Layout</strong>
-        <button
-          onClick={() => setLayoutIndex((layoutIndex + 1) % layoutOptions.length)}
-          style={{ marginLeft: 10 }}
-        >
-          ▶
-        </button>
+    <div style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
+      {/* LEFT: Layout & Preview */}
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+          <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
+            ◀
+          </button>
+          <strong>{layout} Layout</strong>
+          <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
+            ▶
+          </button>
+        </div>
+        <div style={{ border: "1px solid #ccc", borderRadius: 6, padding: 16 }}>
+          <LayoutPreview title={offerTitle} slots={slots} />
+        </div>
       </div>
 
-      {/* Live Preview */}
-      <div style={{ border: "1px solid #ddd", padding: 12, marginBottom: 12 }}>
-        <LayoutPreview title={title} slots={slots} />
-      </div>
+      {/* RIGHT: Form */}
+      <div style={{ flex: 1 }}>
+        <h2>Create New Template</h2>
 
-      <button onClick={handleSave} style={{ padding: "10px 20px", fontWeight: "bold" }}>
-        {template ? "Update Template" : "Save Template"}
-      </button>
+        <div style={{ marginBottom: 10 }}>
+          <label>
+            Event Type:{" "}
+            <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
+              <option>Offer</option>
+              {/* Future: <option>Mission</option> etc. */}
+            </select>
+          </label>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label>
+            Offer Type:{" "}
+            <select value={offerType} onChange={(e) => setOfferType(e.target.value)}>
+              <option>Triple Offer</option>
+              {/* Future: <option>Multisale</option> etc. */}
+            </select>
+          </label>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label>
+            Template Name:
+            <input
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          </label>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label>
+            Offer Title:
+            <input
+              value={offerTitle}
+              onChange={(e) => setOfferTitle(e.target.value)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          </label>
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+          <label>
+            Configuration:
+            <select
+              value={configuration}
+              onChange={(e) => setConfiguration(e.target.value)}
+              style={{ width: "100%", marginTop: 4 }}
+            >
+              <option value="">Select</option>
+              {configurations.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <button onClick={handleSave} disabled={!templateName || !offerTitle || !configuration}>
+          Save Template
+        </button>
+      </div>
     </div>
   );
 }
+
 
 
 
