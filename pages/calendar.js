@@ -1,25 +1,24 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import Modal from "react-modal";
 import EventModal from "../components/EventModal";
+
+Modal.setAppElement("#__next");
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    title: "", start: "", end: "", category: "", templateName: ""
-  });
-  const [templates, setTemplates] = useState([]);
-  const [configurations, setConfigurations] = useState([]);
-  const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
+  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
+  const [previewEvent, setPreviewEvent] = useState(null);
+  const calendarRef = useRef(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setEvents(JSON.parse(localStorage.getItem("calendarEvents") || "[]"));
-      setTemplates(JSON.parse(localStorage.getItem("liveops-templates") || "[]"));
-      setConfigurations(JSON.parse(localStorage.getItem("liveops-configurations") || "[]"));
+    const stored = localStorage.getItem("calendarEvents");
+    if (stored) {
+      setEvents(JSON.parse(stored));
     }
   }, []);
 
@@ -28,83 +27,77 @@ export default function CalendarPage() {
   }, [events]);
 
   const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end) return;
+    if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.template) return;
 
-    const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || null;
+    const fullTemplate = JSON.parse(localStorage.getItem("savedTemplates") || "[]").find(
+      (t) => t.name === newEvent.template
+    );
 
-    const eventToSave = {
+    const enrichedEvent = {
       ...newEvent,
-      template: fullTemplate,
+      category: fullTemplate?.eventType || "Offer",
+      offerType: fullTemplate?.offerType || "Triple Offer",
+      configuration: fullTemplate?.configuration || null,
     };
 
     const updatedEvents = newEvent.id
-      ? events.map(evt => (evt.id === newEvent.id ? eventToSave : evt))
-      : [...events, { ...eventToSave, id: Date.now() }];
+      ? events.map((evt) => (evt.id === newEvent.id ? enrichedEvent : evt))
+      : [...events, { ...enrichedEvent, id: Date.now() }];
 
     setEvents(updatedEvents);
     setIsModalOpen(false);
-    setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });
+    setNewEvent({ title: "", start: "", end: "" });
   };
 
   const handleEventDrop = (info) => {
-    const updated = events.map(evt =>
-      evt.id == info.event.id
+    const updated = events.map((evt) =>
+      evt.id === info.event.id
         ? { ...evt, start: info.event.startStr, end: info.event.endStr }
         : evt
     );
     setEvents(updated);
   };
 
-  const handleEventClick = (info) => {
-    const matched = events.find(e => e.id == info.event.id);
-    if (matched) setSelectedEventForPreview(matched);
-  };
-
-  const handleEditFromPreview = () => {
-    setNewEvent(selectedEventForPreview);
-    setIsModalOpen(true);
-    setSelectedEventForPreview(null);
-  };
-
-  const handleDeleteFromPreview = () => {
-    if (!selectedEventForPreview) return;
-    setEvents(events.filter(e => e.id !== selectedEventForPreview.id));
-    setSelectedEventForPreview(null);
+  const handleEventClick = (clickInfo) => {
+    const evt = events.find((e) => e.id === clickInfo.event.id);
+    if (evt) {
+      setPreviewEvent(evt);
+    }
   };
 
   const handleEventDidMount = (info) => {
     info.el.addEventListener("dblclick", () => {
-      const matched = events.find(e => e.id == info.event.id);
+      const matched = events.find((e) => e.id === info.event.id);
       if (matched) {
-        setNewEvent({ ...matched }); // ensures latest date
+        setNewEvent({
+          ...matched,
+          start: matched.start?.slice(0, 16),
+          end: matched.end?.slice(0, 16),
+        });
         setIsModalOpen(true);
       }
     });
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest(".fc-event")) {
-        setSelectedEventForPreview(null);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+  const handleDeleteEvent = (id) => {
+    setEvents((prev) => prev.filter((evt) => evt.id !== id));
+    setPreviewEvent(null);
+  };
 
   return (
-    <div style={{ padding: 20 }}>
+    <>
       <button
         onClick={() => {
-          setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });
+          setNewEvent({ title: "", start: "", end: "" });
           setIsModalOpen(true);
         }}
-        style={{ marginBottom: 12 }}
+        style={{ marginBottom: "10px", padding: "10px 20px", fontWeight: "bold" }}
       >
         New Event
       </button>
 
       <FullCalendar
+        ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
@@ -114,9 +107,10 @@ export default function CalendarPage() {
         }}
         events={events}
         editable={true}
+        droppable={true}
         eventDrop={handleEventDrop}
-        eventClick={handleEventClick}
         eventDidMount={handleEventDidMount}
+        eventClick={handleEventClick}
       />
 
       <EventModal
@@ -125,30 +119,63 @@ export default function CalendarPage() {
         newEvent={newEvent}
         setNewEvent={setNewEvent}
         handleAddEvent={handleAddEvent}
-        templates={templates}
-        configurations={configurations}
-        showPreview={true}
-        setShowPreview={() => {}}
       />
 
-      {selectedEventForPreview && (
-        <div style={{
-          position: "fixed", top: "100px", right: "20px",
-          background: "#fff", border: "1px solid #ccc", padding: "16px",
-          width: 300, borderRadius: 8, zIndex: 1000
-        }}>
-          <h3>{selectedEventForPreview.title}</h3>
-          <p><strong>Start:</strong> {selectedEventForPreview.start}</p>
-          <p><strong>End:</strong> {selectedEventForPreview.end}</p>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
-            <button onClick={handleEditFromPreview}>Edit</button>
-            <button onClick={handleDeleteFromPreview}>Delete</button>
+      {previewEvent && (
+        <div
+          style={{
+            position: "fixed",
+            top: "100px",
+            right: "20px",
+            background: "#fff",
+            border: "1px solid #ccc",
+            padding: "16px",
+            borderRadius: "8px",
+            zIndex: 999,
+            width: "280px",
+          }}
+        >
+          <h3>{previewEvent.title}</h3>
+          <p><strong>Start:</strong> {previewEvent.start}</p>
+          <p><strong>End:</strong> {previewEvent.end}</p>
+          <p><strong>Template:</strong> {previewEvent.template}</p>
+          <div style={{ display: "flex", gap: "10px", marginTop: 12 }}>
+            <button
+              onClick={() => {
+                setNewEvent({
+                  ...previewEvent,
+                  start: previewEvent.start?.slice(0, 16),
+                  end: previewEvent.end?.slice(0, 16),
+                });
+                setIsModalOpen(true);
+                setPreviewEvent(null);
+              }}
+            >
+              Edit
+            </button>
+            <button onClick={() => handleDeleteEvent(previewEvent.id)}>Delete</button>
           </div>
         </div>
       )}
-    </div>
+
+      {previewEvent && (
+        <div
+          onClick={() => setPreviewEvent(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "transparent",
+            zIndex: 998,
+          }}
+        />
+      )}
+    </>
   );
 }
+
 
 
 
