@@ -41,29 +41,31 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
   };
 
   return (
-    <div style={{ textAlign: "center", padding: "1rem", position: "relative" }}>
+    <div style={{ textAlign: "center", padding: "1rem" }}>
       <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
   
-      {/* Carousel wrapper (centered) */}
+      {/* Flex row with arrows + slots */}
       <div
         style={{
-          width: "100%",
-          maxWidth: "360px",
-          margin: "0 auto",
-          position: "relative",
-          height: "260px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          perspective: "1000px",
+          gap: "1.5rem",
+          width: "100%",
         }}
       >
-        {/* Slots */}
+        {/* Left Arrow */}
+        <button onClick={rotateLeft} style={{ fontSize: "1.5rem" }}>
+          ◀
+        </button>
+  
+        {/* Slot stack */}
         <div
           style={{
             position: "relative",
             width: "300px",
-            height: "100%",
+            height: "260px",
+            perspective: "1000px",
           }}
         >
           {slots.map((slot, index) => (
@@ -98,22 +100,15 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
             </div>
           ))}
         </div>
-      </div>
   
-      {/* Bottom arrows */}
-      <div
-        style={{
-          marginTop: "1rem",
-          display: "flex",
-          justifyContent: "center",
-          gap: "1.5rem",
-        }}
-      >
-        <button onClick={rotateLeft}>◀</button>
-        <button onClick={rotateRight}>▶</button>
+        {/* Right Arrow */}
+        <button onClick={rotateRight} style={{ fontSize: "1.5rem" }}>
+          ▶
+        </button>
       </div>
     </div>
   );
+  
   
   
   
