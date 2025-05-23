@@ -160,12 +160,7 @@ export default function TripleOfferEditor({ template, onSave }) {
             ▶
           </button>
         </div>
-        <div sstyle={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-        }}>
+        <div sstyle={{ width: "360px", margin: "0 auto" }}>
           <LayoutPreview title={offerTitle} slots={slots} />
         </div>
       </div>
