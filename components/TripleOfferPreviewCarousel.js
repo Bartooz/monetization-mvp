@@ -44,14 +44,16 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
     <div style={{ textAlign: "center", padding: "1rem", position: "relative" }}>
       <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
   
+      {/* Outer Carousel Wrapper (centered) */}
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          width: "360px",
+          margin: "0 auto",
           position: "relative",
           height: "260px",
-          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {/* Left Arrow */}
@@ -59,25 +61,22 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
           onClick={rotateLeft}
           style={{
             position: "absolute",
-            left: "10px",
+            left: "-30px",
             top: "50%",
             transform: "translateY(-50%)",
-            zIndex: 5,
+            zIndex: 10,
             fontSize: "1.5rem",
           }}
         >
           ◀
         </button>
   
-        {/* Center Wrapper for Carousel */}
+        {/* Slots */}
         <div
           style={{
             position: "relative",
             width: "300px",
             height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
             perspective: "1000px",
           }}
         >
@@ -119,10 +118,10 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
           onClick={rotateRight}
           style={{
             position: "absolute",
-            right: "10px",
+            right: "-30px",
             top: "50%",
             transform: "translateY(-50%)",
-            zIndex: 5,
+            zIndex: 10,
             fontSize: "1.5rem",
           }}
         >
@@ -131,6 +130,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
       </div>
     </div>
   );
+  
   
 }
 
