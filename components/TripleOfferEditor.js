@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
+import TripleOfferPreviewCarousel from "./TripleOfferPreviewCarousel";
+
 
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
   Vertical: TripleOfferPreviewVertical,
+  Carousel: TripleOfferPreviewCarousel,
 };
 
 const layouts = Object.keys(layoutComponents);
