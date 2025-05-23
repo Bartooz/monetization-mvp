@@ -20,7 +20,7 @@ export default function TripleOfferPreviewVerticalCarousel({ slots = [], title }
         {slots.map((slot, index) => {
           const offset = (index - activeIndex + slots.length) % slots.length;
 
-          let transform = "translateY(-50%)";
+          let transform = "translate(-50%, -50%)";
           let zIndex = 2;
           let filter = "blur(2px)";
           let opacity = 0.6;
