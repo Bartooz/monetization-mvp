@@ -75,7 +75,13 @@ export default function TripleOfferEditor({ template, onSave }) {
   ];
 
   return (
-    <div style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      alignItems: "flex-start",
+      gap: "40px",
+      width: "100%",
+    }}>
       {/* LEFT: Form */}
       <div style={{ flex: 1 }}>
         <h2>Create New Template</h2>
@@ -154,15 +160,12 @@ export default function TripleOfferEditor({ template, onSave }) {
             ▶
           </button>
         </div>
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "1rem",
-          }}
-        >
+        <div sstyle={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+        }}>
           <LayoutPreview title={offerTitle} slots={slots} />
         </div>
       </div>
