@@ -55,7 +55,28 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
         }}
       >
         {slots.map((slot, index) => {
-          const isActive = index === activeIndex;
+          const offset = (index - activeIndex + slots.length) % slots.length;
+  
+          let transformStyle;
+          let zIndex = 2;
+          let filter = "blur(2px)";
+          let opacity = 0.6;
+          let pointerEvents = "none";
+  
+          if (offset === 0) {
+            transformStyle = "translateX(0px) scale(1)";
+            zIndex = 3;
+            filter = "none";
+            opacity = 1;
+            pointerEvents = "auto";
+          } else if (offset === 1) {
+            transformStyle = "translateX(120px) scale(0.85)";
+          } else if (offset === 2) {
+            transformStyle = "translateX(-120px) scale(0.85)";
+          } else {
+            return null;
+          }
+  
           return (
             <div
               key={index}
@@ -71,11 +92,11 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                 borderRadius: "10px",
                 background: "#fff",
                 textAlign: "center",
-                cursor: isActive ? "pointer" : "default",
-                zIndex: isActive ? 3 : 2,
-                filter: isActive ? "none" : "blur(2px)",
-                opacity: isActive ? 1 : 0.6,
-                pointerEvents: isActive ? "auto" : "none",
+                transform: transformStyle,
+                zIndex,
+                filter,
+                opacity,
+                pointerEvents,
               }}
             >
               <div style={{ fontWeight: "bold", marginBottom: 8 }}>
@@ -98,10 +119,6 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
       </div>
     </div>
   );
-  
-  
-  
-  
   
 }
 
