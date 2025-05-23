@@ -44,31 +44,19 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
     <div style={{ textAlign: "center", padding: "1rem" }}>
       <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
   
-      {/* Flex row with arrows + slots */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "1.5rem",
           width: "100%",
+          maxWidth: "360px",
+          margin: "0 auto",
+          position: "relative",
+          height: "260px",
+          perspective: "1000px",
         }}
       >
-        {/* Left Arrow */}
-        <button onClick={rotateLeft} style={{ fontSize: "1.5rem" }}>
-          ◀
-        </button>
-  
-        {/* Slot stack */}
-        <div
-          style={{
-            position: "relative",
-            width: "300px",
-            height: "260px",
-            perspective: "1000px",
-          }}
-        >
-          {slots.map((slot, index) => (
+        {slots.map((slot, index) => {
+          const isActive = index === activeIndex;
+          return (
             <div
               key={index}
               style={{
@@ -83,7 +71,11 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                 borderRadius: "10px",
                 background: "#fff",
                 textAlign: "center",
-                ...getTransformStyle(index),
+                cursor: isActive ? "pointer" : "default",
+                zIndex: isActive ? 3 : 2,
+                filter: isActive ? "none" : "blur(2px)",
+                opacity: isActive ? 1 : 0.6,
+                pointerEvents: isActive ? "auto" : "none",
               }}
             >
               <div style={{ fontWeight: "bold", marginBottom: 8 }}>
@@ -94,20 +86,19 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                   ? "🪙"
                   : "💎"}
               </div>
-              <button style={{ padding: "6px 16px" }}>
+              <button
+                style={{ padding: "6px 16px" }}
+                onClick={() => setActiveIndex((activeIndex + 1) % slots.length)}
+              >
                 {slot.paid ? `${slot.value} Only!` : "Free!"}
               </button>
             </div>
-          ))}
-        </div>
-  
-        {/* Right Arrow */}
-        <button onClick={rotateRight} style={{ fontSize: "1.5rem" }}>
-          ▶
-        </button>
+          );
+        })}
       </div>
     </div>
   );
+  
   
   
   
