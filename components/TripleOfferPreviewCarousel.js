@@ -57,7 +57,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                                 borderRadius: "10px",
                                 background: "#fff",
                                 textAlign: "center",
-                                transform: transformStyle,
+                                transform: transform,
                                 zIndex,
                                 filter,
                                 opacity,
