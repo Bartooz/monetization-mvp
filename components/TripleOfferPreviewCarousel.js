@@ -46,13 +46,12 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
   
       <div
         style={{
-          position: "relative",
-          width: "100%",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          position: "relative",
           height: "260px",
-          perspective: "1000px",
+          width: "100%",
         }}
       >
         {/* Left Arrow */}
@@ -60,7 +59,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
           onClick={rotateLeft}
           style={{
             position: "absolute",
-            left: 0,
+            left: "10px",
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 5,
@@ -70,8 +69,18 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
           ◀
         </button>
   
-        {/* Carousel Slots */}
-        <div style={{ position: "relative", width: "300px", height: "100%" }}>
+        {/* Center Wrapper for Carousel */}
+        <div
+          style={{
+            position: "relative",
+            width: "300px",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            perspective: "1000px",
+          }}
+        >
           {slots.map((slot, index) => (
             <div
               key={index}
@@ -110,7 +119,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
           onClick={rotateRight}
           style={{
             position: "absolute",
-            right: 0,
+            right: "10px",
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 5,
@@ -122,5 +131,6 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
       </div>
     </div>
   );
+  
 }
 
