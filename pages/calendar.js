@@ -28,19 +28,22 @@ export default function CalendarPage() {
   }, [events]);
 
   const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end) return;
-
-    const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || null;
-
+    if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.templateName) return;
+  
+    const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || {};
+  
     const eventToSave = {
       ...newEvent,
+      category: newEvent.category || fullTemplate.eventType || "Offer",
+      offerType: newEvent.offerType || fullTemplate.offerType || "Triple Offer",
+      configuration: newEvent.configuration || fullTemplate.configuration || "",
       template: fullTemplate,
     };
-
+  
     const updatedEvents = newEvent.id
       ? events.map(evt => (evt.id === newEvent.id ? eventToSave : evt))
       : [...events, { ...eventToSave, id: Date.now() }];
-
+  
     setEvents(updatedEvents);
     setIsModalOpen(false);
     setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });

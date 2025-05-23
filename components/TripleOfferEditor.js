@@ -37,13 +37,17 @@ export default function TripleOfferEditor({ template, onSave }) {
   const handleSave = () => {
     const configObj = configurations.find((c) => c.name === configuration);
     const payload = {
-      templateName,
-      title: offerTitle,
-      configuration,
-      layout,
-      eventType,
-      offerType,
-      slots: configObj?.slots || [],
+      templateName: templateName.trim(),
+      title: offerTitle.trim(),
+      configuration: configuration || "",
+      layout: layout || "Vertical",
+      eventType: eventType || "Offer",
+      offerType: offerType || "Triple Offer",
+      slots: configObj?.slots || [
+        { value: "", bonus: "", currency: "Cash", paid: true },
+        { value: "", bonus: "", currency: "Cash", paid: true },
+        { value: "", bonus: "", currency: "Cash", paid: true }
+      ],
     };
     onSave(payload);
     setTemplateName("");
@@ -53,7 +57,6 @@ export default function TripleOfferEditor({ template, onSave }) {
     setEventType("Offer");
     setOfferType("Triple Offer");
   };
-
   const handleLayoutSwitch = (dir) => {
     const index = layouts.indexOf(layout);
     const newIndex = dir === "next" ? (index + 1) % layouts.length : (index - 1 + layouts.length) % layouts.length;
