@@ -3,7 +3,7 @@ import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewCarousel from "./TripleOfferPreviewCarousel";
 import TripleOfferPreviewVerticalCarousel from "./TripleOfferPreviewVerticalCarousel";
-
+import PhonePreviewWrapper from "./PhonePreviewWrapper";
 
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
@@ -170,8 +170,15 @@ export default function TripleOfferEditor({ template, onSave }) {
             width: "100%",
           }}
         >
-          <div style={{ width: "360px" }}>
-            <LayoutPreview title={offerTitle} slots={slots} />
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}>
+            <PhonePreviewWrapper>
+              <LayoutPreview title={offerTitle} slots={slots} />
+            </PhonePreviewWrapper>
           </div>
         </div>
       </div>
