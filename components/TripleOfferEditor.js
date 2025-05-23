@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewCarousel from "./TripleOfferPreviewCarousel";
+import TripleOfferPreviewVerticalCarousel from "./TripleOfferPreviewVerticalCarousel";
 
 
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
   Vertical: TripleOfferPreviewVertical,
   Carousel: TripleOfferPreviewCarousel,
+  "Vertical Carousel": TripleOfferPreviewVerticalCarousel,
 };
 
 const layouts = Object.keys(layoutComponents);
@@ -161,17 +163,17 @@ export default function TripleOfferEditor({ template, onSave }) {
           </button>
         </div>
         <div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-  }}
->
-  <div style={{ width: "360px" }}>
-    <LayoutPreview title={offerTitle} slots={slots} />
-  </div>
-</div>
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <div style={{ width: "360px" }}>
+            <LayoutPreview title={offerTitle} slots={slots} />
+          </div>
+        </div>
       </div>
     </div>
   );
