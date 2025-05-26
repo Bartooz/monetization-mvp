@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import TripleOfferPreviewVertical from "./TripleOfferPreviewVertical";
 import TripleOfferPreviewHorizontal from "./TripleOfferPreviewHorizontal";
 import TripleOfferPreviewCarousel from "./TripleOfferPreviewCarousel";
-
+import TripleOfferPreviewVerticalCarousel from "./TripleOfferPreviewVerticalCarousel";
 
 Modal.setAppElement("#__next");
 
@@ -144,6 +144,7 @@ const EventModal = ({
                         Horizontal: <TripleOfferPreviewHorizontal slots={slots} />,
                         Vertical: <TripleOfferPreviewVertical slots={slots} />,
                         Carousel: <TripleOfferPreviewCarousel slots={slots} />,
+                        VerticalCarousel: <TripleOfferPreviewVerticalCarousel slots={slots} />,
                     }[layout] || <TripleOfferPreviewVertical slots={slots} />}
                 </div>
             )}

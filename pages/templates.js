@@ -6,33 +6,65 @@ export default function TemplatesPage() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // ✅ Fetch templates from backend
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = JSON.parse(localStorage.getItem("liveops-templates") || "[]");
-      setTemplates(saved);
-    }
+    fetch("http://localhost:4000/api/templates")
+      .then((res) => res.json())
+      .then((data) => setTemplates(data))
+      .catch((err) => {
+        console.error("Failed to fetch templates:", err);
+        setTemplates([]);
+      });
   }, []);
 
-  const handleSaveTemplate = (newTemplate) => {
-    const updated = editingTemplate
-      ? templates.map((tpl) =>
-          tpl.templateName === editingTemplate.templateName ? newTemplate : tpl
-        )
-      : [...templates, newTemplate];
+  // ✅ Save or update a template
+  const handleSaveTemplate = async (newTemplate) => {
+    try {
+      const res = await fetch("http://localhost:4000/api/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newTemplate),
+      });
 
-    localStorage.setItem("liveops-templates", JSON.stringify(updated));
-    setTemplates(updated);
-    setEditingTemplate(null);
+      if (!res.ok) throw new Error("Failed to save template");
+
+      const saved = await res.json();
+      setTemplates((prev) => {
+        const exists = prev.find((tpl) => tpl.template_name === saved.template_name);
+        return exists
+          ? prev.map((tpl) =>
+              tpl.template_name === saved.template_name ? saved : tpl
+            )
+          : [...prev, saved];
+      });
+      setEditingTemplate(null);
+    } catch (err) {
+      console.error("Save error:", err);
+    }
   };
 
-  const handleDelete = (name) => {
-    const updated = templates.filter((tpl) => tpl.templateName !== name);
-    localStorage.setItem("liveops-templates", JSON.stringify(updated));
-    setTemplates(updated);
+  // ✅ Delete a template
+  const handleDelete = async (name) => {
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/templates/${encodeURIComponent(name)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to delete template");
+
+      setTemplates((prev) =>
+        prev.filter((tpl) => tpl.template_name !== name)
+      );
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   const filteredTemplates = templates.filter((tpl) =>
-    tpl.templateName.toLowerCase().includes(searchTerm.toLowerCase())
+    tpl.template_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -61,7 +93,7 @@ export default function TemplatesPage() {
 
       {filteredTemplates.map((tpl) => (
         <div
-          key={tpl.templateName}
+          key={tpl.template_name}
           style={{
             border: "1px solid #ddd",
             borderRadius: 6,
@@ -72,13 +104,16 @@ export default function TemplatesPage() {
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <strong>{tpl.templateName}</strong> — <span>{tpl.layout}</span>
+              <strong>{tpl.template_name}</strong> — <span>{tpl.layout}</span>
             </div>
             <div>
               <button onClick={() => setEditingTemplate(tpl)} style={{ marginRight: 10 }}>
                 Edit
               </button>
-              <button onClick={() => handleDelete(tpl.templateName)} style={{ color: "red" }}>
+              <button
+                onClick={() => handleDelete(tpl.template_name)}
+                style={{ color: "red" }}
+              >
                 Delete
               </button>
             </div>
@@ -88,6 +123,7 @@ export default function TemplatesPage() {
     </div>
   );
 }
+
 
 
 
