@@ -46,7 +46,7 @@ export default function TripleOfferEditor({ template, onSave }) {
       title: offerTitle.trim(),
       configuration: configuration || "",
       layout: layout || "Vertical",
-      eventType: eventType || "Offer",
+      event_type: eventType || "Offer",
       offerType: offerType || "Triple Offer",
       slots: configObj?.slots || [
         { value: "", bonus: "", currency: "Cash", paid: true },
