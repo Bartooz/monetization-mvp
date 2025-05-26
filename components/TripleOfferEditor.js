@@ -41,7 +41,6 @@ export default function TripleOfferEditor({ template, onSave }) {
 
   const handleSave = () => {
     const configObj = configurations.find((c) => c.name === configuration);
-    console.log("Payload being sent:", payload);
     const payload = {
       template_name: templateName.trim(),
       title: offerTitle.trim(),
@@ -54,8 +53,8 @@ export default function TripleOfferEditor({ template, onSave }) {
         { value: "", bonus: "", currency: "Cash", paid: true },
         { value: "", bonus: "", currency: "Cash", paid: true }
       ],
-
     };
+    console.log("Payload being sent:", payload);
     onSave(payload);
     setTemplateName("");
     setOfferTitle("");
