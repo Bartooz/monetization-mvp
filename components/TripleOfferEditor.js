@@ -30,12 +30,12 @@ export default function TripleOfferEditor({ template, onSave }) {
 
   useEffect(() => {
     if (template) {
-      setTemplateName(template.templateName || "");
+      setTemplateName(template.template_name || "");
       setOfferTitle(template.title || "");
       setConfiguration(template.configuration || "");
       setLayout(template.layout || layouts[0]);
-      setEventType(template.eventType || "Offer");
-      setOfferType(template.offerType || "Triple Offer");
+      setEventType(template.event_type || "Offer");
+      setOfferType(template.offer_type || "Triple Offer");
     }
   }, [template]);
 
@@ -47,7 +47,7 @@ export default function TripleOfferEditor({ template, onSave }) {
       configuration: configuration || "",
       layout: layout || "Vertical",
       event_type: eventType || "Offer",
-      offerType: offerType || "Triple Offer",
+      offer_type: offerType || "Triple Offer", // ✅ Fixed here
       slots: configObj?.slots || [
         { value: "", bonus: "", currency: "Cash", paid: true },
         { value: "", bonus: "", currency: "Cash", paid: true },
