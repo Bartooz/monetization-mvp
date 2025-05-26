@@ -113,6 +113,7 @@ export default function TripleOfferEditor({ template, onSave }) {
             <input
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
+              disabled={!!template}
               style={{ width: "100%", marginTop: 4 }}
             />
           </label>
@@ -147,9 +148,25 @@ export default function TripleOfferEditor({ template, onSave }) {
           </label>
         </div>
 
-        <button onClick={handleSave} disabled={!templateName || !offerTitle || !configuration}>
-          Save Template
+        <button onClick={handleSave}>
+          {template ? "Update Template" : "Save Template"}
         </button>
+        {template && (
+          <button
+            style={{ marginLeft: "10px" }}
+            onClick={() => {
+              setTemplateName("");
+              setOfferTitle("");
+              setConfiguration("");
+              setLayout("Vertical");
+              setEventType("Offer");
+              setOfferType("Triple Offer");
+              onSave(null); // resets parent state
+            }}
+          >
+            Cancel Edit
+          </button>
+        )}
       </div>
 
       {/* RIGHT: Layout & Preview */}
