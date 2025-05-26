@@ -18,17 +18,23 @@ export default function TemplatesPage() {
   }, []);
 
   // ✅ Save or update a template
-  const handleSaveTemplate = async (newTemplate) => {
+  const handleSaveTemplate = async (templateData) => {
     try {
-      const res = await fetch("http://localhost:4000/api/templates", {
-        method: "POST",
+      const method = editingTemplate ? "PUT" : "POST";
+      const endpoint = editingTemplate
+        ? `http://localhost:4000/api/templates/${editingTemplate.template_name}`
+        : "http://localhost:4000/api/templates";
+
+      const res = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTemplate),
+        body: JSON.stringify(templateData),
       });
 
       if (!res.ok) throw new Error("Failed to save template");
 
-      const saved = await res.json();
+      const saved = method === "POST" ? await res.json() : templateData;
+
       setTemplates((prev) => {
         const exists = prev.find((tpl) => tpl.template_name === saved.template_name);
         return exists
@@ -37,10 +43,16 @@ export default function TemplatesPage() {
             )
           : [...prev, saved];
       });
+
       setEditingTemplate(null);
     } catch (err) {
       console.error("Save error:", err);
     }
+  };
+
+  // ✅ Cancel editing
+  const handleCancelEdit = () => {
+    setEditingTemplate(null);
   };
 
   // ✅ Delete a template
@@ -69,7 +81,11 @@ export default function TemplatesPage() {
 
   return (
     <div style={{ padding: 30, maxWidth: 1000, margin: "0 auto" }}>
-      <TripleOfferEditor template={editingTemplate} onSave={handleSaveTemplate} />
+      <TripleOfferEditor
+        template={editingTemplate}
+        onSave={handleSaveTemplate}
+        onCancel={handleCancelEdit}
+      />
 
       <hr style={{ margin: "30px 0" }} />
 
@@ -102,7 +118,13 @@ export default function TemplatesPage() {
             backgroundColor: "#f9f9f9",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <div>
               <strong>{tpl.template_name}</strong> — <span>{tpl.layout}</span>
             </div>
@@ -123,6 +145,7 @@ export default function TemplatesPage() {
     </div>
   );
 }
+
 
 
 

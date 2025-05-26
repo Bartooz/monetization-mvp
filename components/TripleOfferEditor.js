@@ -14,7 +14,7 @@ const layoutComponents = {
 
 const layouts = Object.keys(layoutComponents);
 
-export default function TripleOfferEditor({ template, onSave }) {
+export default function TripleOfferEditor({ template, onSave, onCancel }) {
   const [templateName, setTemplateName] = useState("");
   const [offerTitle, setOfferTitle] = useState("");
   const [configuration, setConfiguration] = useState("");
@@ -36,6 +36,14 @@ export default function TripleOfferEditor({ template, onSave }) {
       setLayout(template.layout || layouts[0]);
       setEventType(template.event_type || "Offer");
       setOfferType(template.offer_type || "Triple Offer");
+    } else {
+      // Reset fields when no template is selected
+      setTemplateName("");
+      setOfferTitle("");
+      setConfiguration("");
+      setLayout("Vertical");
+      setEventType("Offer");
+      setOfferType("Triple Offer");
     }
   }, [template]);
 
@@ -47,22 +55,20 @@ export default function TripleOfferEditor({ template, onSave }) {
       configuration: configuration || "",
       layout: layout || "Vertical",
       event_type: eventType || "Offer",
-      offer_type: offerType || "Triple Offer", // ✅ Fixed here
+      offer_type: offerType || "Triple Offer",
       slots: configObj?.slots || [
         { value: "", bonus: "", currency: "Cash", paid: true },
         { value: "", bonus: "", currency: "Cash", paid: true },
-        { value: "", bonus: "", currency: "Cash", paid: true }
+        { value: "", bonus: "", currency: "Cash", paid: true },
       ],
     };
-    console.log("Payload being sent:", payload);
     onSave(payload);
-    setTemplateName("");
-    setOfferTitle("");
-    setConfiguration("");
-    setLayout(layouts[0]);
-    setEventType("Offer");
-    setOfferType("Triple Offer");
   };
+
+  const handleCancel = () => {
+    onCancel();
+  };
+
   const handleLayoutSwitch = (dir) => {
     const index = layouts.indexOf(layout);
     const newIndex = dir === "next" ? (index + 1) % layouts.length : (index - 1 + layouts.length) % layouts.length;
@@ -87,7 +93,7 @@ export default function TripleOfferEditor({ template, onSave }) {
     }}>
       {/* LEFT: Form */}
       <div style={{ flex: 1 }}>
-        <h2>Create New Template</h2>
+        <h2>{template ? "Edit Template" : "Create New Template"}</h2>
 
         <div style={{ marginBottom: 10 }}>
           <label>
@@ -151,19 +157,9 @@ export default function TripleOfferEditor({ template, onSave }) {
         <button onClick={handleSave}>
           {template ? "Update Template" : "Save Template"}
         </button>
+
         {template && (
-          <button
-            style={{ marginLeft: "10px" }}
-            onClick={() => {
-              setTemplateName("");
-              setOfferTitle("");
-              setConfiguration("");
-              setLayout("Vertical");
-              setEventType("Offer");
-              setOfferType("Triple Offer");
-              onSave(null); // resets parent state
-            }}
-          >
+          <button style={{ marginLeft: 10 }} onClick={handleCancel}>
             Cancel Edit
           </button>
         )}
@@ -180,29 +176,14 @@ export default function TripleOfferEditor({ template, onSave }) {
             ▶
           </button>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
-          <div style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "100%",
-          }}>
-            <PhonePreviewWrapper>
-              <LayoutPreview title={offerTitle} slots={slots} />
-            </PhonePreviewWrapper>
-          </div>
-        </div>
+        <PhonePreviewWrapper>
+          <LayoutPreview title={offerTitle} slots={slots} />
+        </PhonePreviewWrapper>
       </div>
     </div>
   );
 }
+
 
 
 
