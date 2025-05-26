@@ -42,7 +42,7 @@ export default function TripleOfferEditor({ template, onSave }) {
   const handleSave = () => {
     const configObj = configurations.find((c) => c.name === configuration);
     const payload = {
-      templateName: templateName.trim(),
+      template_name: templateName.trim(),
       title: offerTitle.trim(),
       configuration: configuration || "",
       layout: layout || "Vertical",
