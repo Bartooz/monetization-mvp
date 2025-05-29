@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 export default function ConfigurationsPage() {
   const [configurations, setConfigurations] = useState([]);
   const [configName, setConfigName] = useState("");
-  const [category, setCategory] = useState("Offer");
+  const [eventType, setEventType] = useState("Offer");
   const [offerType, setOfferType] = useState("Triple Offer");
   const [slots, setSlots] = useState([]);
-  const [editingName, setEditingName] = useState(null);
+  const [editingId, setEditingId] = useState(null);
 
   const defaultSlot = () => ({
     value: "",
@@ -43,7 +43,10 @@ export default function ConfigurationsPage() {
   const updateSlot = (index, field, value) => {
     setSlots((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: field === "paid" ? value : value };
+      updated[index] = {
+        ...updated[index],
+        [field]: field === "paid" ? value === "true" || value === true : value,
+      };
       return updated;
     });
   };
@@ -51,7 +54,7 @@ export default function ConfigurationsPage() {
   const handleSave = async () => {
     const configToSave = {
       config_name: configName.trim(),
-      event_type: category,
+      event_type: eventType,
       offer_type: offerType,
       slots,
     };
@@ -59,7 +62,7 @@ export default function ConfigurationsPage() {
     const duplicate = configurations.some(
       (cfg) =>
         cfg.config_name.toLowerCase() === configToSave.config_name.toLowerCase() &&
-        cfg.config_name !== editingName
+        cfg.id !== editingId
     );
     if (duplicate) {
       alert("A configuration with this name already exists.");
@@ -67,9 +70,9 @@ export default function ConfigurationsPage() {
     }
 
     try {
-      const method = editingName ? "PUT" : "POST";
-      const endpoint = editingName
-        ? `http://localhost:4000/api/configurations/${encodeURIComponent(editingName)}`
+      const method = editingId ? "PUT" : "POST";
+      const endpoint = editingId
+        ? `http://localhost:4000/api/configurations/${editingId}`
         : "http://localhost:4000/api/configurations";
 
       const res = await fetch(endpoint, {
@@ -88,17 +91,17 @@ export default function ConfigurationsPage() {
 
   const handleEdit = (cfg) => {
     setConfigName(cfg.config_name);
-    setCategory(cfg.event_type);
+    setEventType(cfg.event_type);
     setOfferType(cfg.offer_type);
     setSlots(cfg.slots);
-    setEditingName(cfg.config_name);
+    setEditingId(cfg.id);
   };
 
-  const handleDelete = async (name) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this configuration?")) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/configurations/${encodeURIComponent(name)}`, {
+      const res = await fetch(`http://localhost:4000/api/configurations/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
@@ -110,10 +113,10 @@ export default function ConfigurationsPage() {
 
   const resetForm = () => {
     setConfigName("");
-    setCategory("Offer");
+    setEventType("Offer");
     setOfferType("Triple Offer");
     setSlots(Array(3).fill(0).map(() => defaultSlot()));
-    setEditingName(null);
+    setEditingId(null);
   };
 
   return (
@@ -131,7 +134,7 @@ export default function ConfigurationsPage() {
       </div>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: 8 }}>
+        <select value={eventType} onChange={(e) => setEventType(e.target.value)} style={{ padding: 8 }}>
           <option value="Offer">Offer</option>
           <option value="Mission">Mission</option>
         </select>
@@ -197,9 +200,9 @@ export default function ConfigurationsPage() {
           onClick={handleSave}
           style={{ padding: "10px 20px", background: "#111", color: "#fff", border: "none", borderRadius: 6 }}
         >
-          {editingName ? "Update" : "Create"} Configuration
+          {editingId ? "Update" : "Create"} Configuration
         </button>
-        {editingName && (
+        {editingId && (
           <button
             onClick={resetForm}
             style={{ padding: "10px 20px", background: "#888", color: "#fff", border: "none", borderRadius: 6 }}
@@ -210,32 +213,34 @@ export default function ConfigurationsPage() {
       </div>
 
       <h3>📦 Existing Configurations</h3>
-      {configurations.length === 0 && <p>No configurations yet.</p>}
       {configurations.map((cfg) => (
         <div
-          key={cfg.config_name}
+          key={cfg.id}
           style={{
-            background: "#f5f5f5",
             padding: 10,
-            marginBottom: 10,
-            borderRadius: 6,
+            borderBottom: "1px solid #ddd",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
           <div>
-            <strong>{cfg.config_name}</strong> — {cfg.offer_type} / {cfg.event_type}
+            <strong>{cfg.config_name}</strong> — {cfg.event_type} | {cfg.offer_type}
           </div>
-          <div>
-            <button onClick={() => handleEdit(cfg)} style={{ marginRight: 10 }}>✏️</button>
-            <button onClick={() => handleDelete(cfg.config_name)}>🗑</button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={() => handleEdit(cfg)} style={{ padding: "4px 12px" }}>
+              Edit
+            </button>
+            <button onClick={() => handleDelete(cfg.id)} style={{ padding: "4px 12px", color: "red" }}>
+              Delete
+            </button>
           </div>
         </div>
       ))}
     </div>
   );
 }
+
 
 
 
