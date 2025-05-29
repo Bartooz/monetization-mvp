@@ -41,9 +41,11 @@ export default function ConfigurationsPage() {
   }, [offerType]);
 
   const updateSlot = (index, field, value) => {
-    const updated = [...slots];
-    updated[index][field] = field === "paid" ? value === "true" : value;
-    setSlots(updated);
+    setSlots((prevSlots) => {
+      const updated = [...prevSlots];
+      updated[index] = { ...updated[index], [field]: field === "paid" ? value : value };
+      return updated;
+    });
   };
 
   const resetForm = () => {
@@ -133,7 +135,6 @@ export default function ConfigurationsPage() {
           </select>
           <select value={offerType} onChange={(e) => setOfferType(e.target.value)} style={{ padding: 8 }}>
             <option value="Triple Offer">Triple Offer</option>
-            {/* Future types */}
           </select>
         </div>
       </div>
@@ -156,14 +157,13 @@ export default function ConfigurationsPage() {
             />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <label>
-              Paid
+            <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <input
                 type="checkbox"
-                checked={slot.paid === true}
-                onChange={(e) => updateSlot(index, "paid", e.target.checked)}
+                checked={slot.paid}
+                onChange={(e) => updateSlot(idx, "paid", e.target.checked)}
               />
-
+              Paid
             </label>
             <select
               value={slot.currency}
@@ -206,6 +206,7 @@ export default function ConfigurationsPage() {
     </div>
   );
 }
+
 
 
 
