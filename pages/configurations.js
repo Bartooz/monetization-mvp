@@ -91,10 +91,11 @@ export default function ConfigurationsPage() {
 
   const handleEdit = (cfg) => {
     setConfigName(cfg.config_name);
-    setEventType(cfg.event_type);
+    setCategory(cfg.event_type);
     setOfferType(cfg.offer_type);
     setSlots(cfg.slots);
-    setEditingId(cfg.id);
+    setEditingName(cfg.config_name);
+    setEditingId(cfg.id); // 🛠️ critical line to ensure update instead of create
   };
 
   const handleDelete = async (id) => {
