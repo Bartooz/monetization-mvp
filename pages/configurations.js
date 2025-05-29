@@ -91,7 +91,7 @@ export default function ConfigurationsPage() {
 
   const handleEdit = (cfg) => {
     setConfigName(cfg.config_name);
-    setCategory(cfg.event_type);
+    setEventType(cfg.event_type);
     setOfferType(cfg.offer_type);
     setSlots(cfg.slots);
     setEditingName(cfg.config_name);
