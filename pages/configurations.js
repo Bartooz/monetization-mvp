@@ -1,44 +1,42 @@
-import { useEffect, useState } from "react";
 
-export default function ConfigurationsPage() {
-  const [configurations, setConfigurations] = useState([]);
+import { useState, useEffect } from "react";
+
+const defaultSlot = () => ({ value: "", bonus: "", paid: false, currency: "Cash" });
+
+export default function Configurations() {
   const [configName, setConfigName] = useState("");
-  const [slots, setSlots] = useState([
-    { value: "", bonus: "", paid: false, currency: "Cash" },
-    { value: "", bonus: "", paid: false, currency: "Cash" },
-    { value: "", bonus: "", paid: false, currency: "Diamond" },
-  ]);
   const [eventType, setEventType] = useState("Offer");
   const [offerType, setOfferType] = useState("Triple Offer");
+  const [slots, setSlots] = useState([defaultSlot(), defaultSlot(), defaultSlot()]);
+  const [configurations, setConfigurations] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState("");
+
+  const currencies = {
+    "Cash": "💵",
+    "Gold Bars": "🏅",
+    "Diamond": "💎"
+  };
 
   useEffect(() => {
     fetch("http://localhost:4000/api/configurations")
-      .then((res) => res.json())
-      .then((data) => setConfigurations(data));
+      .then(res => res.json())
+      .then(setConfigurations)
+      .catch(err => console.error("Failed to fetch configurations", err));
   }, []);
-
-  const handleSlotChange = (index, field, value) => {
-    const updatedSlots = [...slots];
-    updatedSlots[index][field] = value;
-    setSlots(updatedSlots);
-  };
 
   const resetForm = () => {
     setConfigName("");
-    setSlots([
-      { value: "", bonus: "", paid: false, currency: "Cash" },
-      { value: "", bonus: "", paid: false, currency: "Cash" },
-      { value: "", bonus: "", paid: false, currency: "Diamond" },
-    ]);
     setEventType("Offer");
     setOfferType("Triple Offer");
+    setSlots([defaultSlot(), defaultSlot(), defaultSlot()]);
     setEditingId(null);
+    setError("");
   };
 
-  const handleSubmit = async () => {
-    const newConfig = {
-      config_name: configName,
+  const handleCreateOrUpdate = async () => {
+    const payload = {
+      config_name: configName.trim(),
       event_type: eventType,
       offer_type: offerType,
       slots,
@@ -50,26 +48,28 @@ export default function ConfigurationsPage() {
 
     const method = editingId ? "PUT" : "POST";
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newConfig),
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const result = await res.json();
-    if (res.ok) {
-      if (editingId) {
-        setConfigurations((prev) =>
-          prev.map((cfg) => (cfg.id === editingId ? result : cfg))
-        );
-      } else {
-        setConfigurations((prev) => [...prev, result]);
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg);
       }
+
+      const updated = await res.json();
+      const updatedList = editingId
+        ? configurations.map(c => (c.config_name === editingId ? updated : c))
+        : [...configurations, updated];
+
+      setConfigurations(updatedList);
       resetForm();
-    } else {
-      alert(result.error || "Something went wrong.");
+    } catch (err) {
+      console.error("Error saving configuration", err);
+      setError("Could not save. Config name may already exist.");
     }
   };
 
@@ -78,89 +78,95 @@ export default function ConfigurationsPage() {
     setEventType(config.event_type);
     setOfferType(config.offer_type);
     setSlots(config.slots);
-    setEditingId(config.id);
+    setEditingId(config.config_name);
+    setError("");
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete?");
-    if (!confirmed) return;
+    if (!confirm("Are you sure you want to delete this configuration?")) return;
 
-    const res = await fetch(`http://localhost:4000/api/configurations/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`http://localhost:4000/api/configurations/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete");
 
-    if (res.ok) {
-      setConfigurations((prev) => prev.filter((cfg) => cfg.id !== id));
-    } else {
-      alert("Delete failed.");
+      setConfigurations(configurations.filter(c => c.config_name !== id));
+    } catch (err) {
+      console.error("Delete failed", err);
     }
   };
 
+  const updateSlot = (index, field, value) => {
+    const newSlots = [...slots];
+    newSlots[index][field] = field === "paid" ? value === "true" : value;
+    setSlots(newSlots);
+  };
+
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={{ padding: "20px" }}>
       <h1>Manage Configurations</h1>
 
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
       <input
-        value={configName}
-        onChange={(e) => setConfigName(e.target.value)}
         placeholder="Configuration Name"
+        value={configName}
+        onChange={e => setConfigName(e.target.value)}
       />
       <br />
-      <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
-        <option value="Offer">Offer</option>
-        <option value="Challenge">Challenge</option>
+      <select value={eventType} onChange={e => setEventType(e.target.value)}>
+        <option>Offer</option>
+        <option>Event</option>
       </select>
-      <select value={offerType} onChange={(e) => setOfferType(e.target.value)}>
-        <option value="Triple Offer">Triple Offer</option>
-        <option value="Other">Other</option>
+      <select value={offerType} onChange={e => setOfferType(e.target.value)}>
+        <option>Triple Offer</option>
+        <option>Double Offer</option>
       </select>
 
       <h3>Slots</h3>
-      {slots.map((slot, index) => (
-        <div key={index} style={{ marginBottom: "1rem" }}>
+      {slots.map((slot, i) => (
+        <div key={i} style={{ marginBottom: "5px" }}>
           <input
             placeholder="Value"
             value={slot.value}
-            onChange={(e) => handleSlotChange(index, "value", e.target.value)}
+            onChange={e => updateSlot(i, "value", e.target.value)}
           />
           <input
             placeholder="Bonus"
             value={slot.bonus}
-            onChange={(e) => handleSlotChange(index, "bonus", e.target.value)}
+            onChange={e => updateSlot(i, "bonus", e.target.value)}
           />
-          <input
-            type="checkbox"
-            checked={slot.paid}
-            onChange={(e) => handleSlotChange(index, "paid", e.target.checked)}
-          />{" "}
-          Paid
+          <label>
+            <input
+              type="checkbox"
+              checked={slot.paid}
+              onChange={e => updateSlot(i, "paid", String(e.target.checked))}
+            /> Paid
+          </label>
           <select
             value={slot.currency}
-            onChange={(e) =>
-              handleSlotChange(index, "currency", e.target.value)
-            }
+            onChange={e => updateSlot(i, "currency", e.target.value)}
           >
-            <option value="Cash">Cash</option>
-            <option value="Diamond">Diamond</option>
-            <option value="Gold Bars">Gold Bars</option>
+            {Object.keys(currencies).map(curr => (
+              <option key={curr}>{curr}</option>
+            ))}
           </select>
         </div>
       ))}
 
-      <button onClick={handleSubmit}>
+      <button onClick={handleCreateOrUpdate}>
         {editingId ? "Update Configuration" : "Create Configuration"}
       </button>
       {editingId && <button onClick={resetForm}>Cancel Edit</button>}
 
-      <hr />
       <h2>Existing Configurations</h2>
       <ul>
-        {configurations.map((cfg) => (
-          <li key={cfg.id}>
-            <strong>{cfg.config_name}</strong> – {cfg.offer_type} /{" "}
-            {cfg.event_type}{" "}
-            <button onClick={() => handleEdit(cfg)}>Edit</button>{" "}
-            <button onClick={() => handleDelete(cfg.id)}>Delete</button>
+        {configurations.map(cfg => (
+          <li key={cfg.config_name}>
+            <strong>{cfg.config_name}</strong> – {cfg.offer_type} / {cfg.event_type}
+            <button onClick={() => handleEdit(cfg)}>Edit</button>
+            <button onClick={() => handleDelete(cfg.config_name)}>Delete</button>
           </li>
         ))}
       </ul>
