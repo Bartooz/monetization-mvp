@@ -160,10 +160,10 @@ export default function ConfigurationsPage() {
               Paid
               <input
                 type="checkbox"
-                checked={slot.paid}
-                onChange={(e) => updateSlot(idx, "paid", e.target.checked)}
-                style={{ marginLeft: 6 }}
+                checked={slot.paid === true}
+                onChange={(e) => updateSlot(index, "paid", e.target.checked)}
               />
+
             </label>
             <select
               value={slot.currency}
