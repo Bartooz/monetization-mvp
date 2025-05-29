@@ -24,7 +24,7 @@ export default function ConfigurationsPage() {
 
   // 🔄 Fetch configurations from backend
   useEffect(() => {
-    fetch("http://localhost:3001/configurations")
+    fetch("http://localhost:4000/api/configurations")
       .then((res) => res.json())
       .then((data) => setConfigurations(data))
       .catch((err) => console.error("Failed to fetch configurations", err));
@@ -62,7 +62,7 @@ export default function ConfigurationsPage() {
     try {
       if (editingId) {
         // ✏️ Edit
-        const response = await fetch(`http://localhost:3001/configurations/${editingId}`, {
+        const response = await fetch(`http://localhost:4000/api/configurations/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(configToSave),
@@ -74,7 +74,7 @@ export default function ConfigurationsPage() {
         setEditingId(null);
       } else {
         // ➕ Create
-        const response = await fetch("http://localhost:3001/configurations", {
+        const response = await fetch("http://localhost:4000/api/configurations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(configToSave),
@@ -93,7 +93,7 @@ export default function ConfigurationsPage() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this configuration?")) return;
     try {
-      await fetch(`http://localhost:3001/configurations/${id}`, { method: "DELETE" });
+      await fetch(`http://localhost:4000/api/configurations/${id}`, { method: "DELETE" });
       setConfigurations((prev) => prev.filter((cfg) => cfg.id !== id));
     } catch (err) {
       console.error("Failed to delete configuration", err);

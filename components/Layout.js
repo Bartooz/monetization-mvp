@@ -17,7 +17,7 @@ export default function Layout({ children }) {
         <Link href="/" style={{ color: "white", textDecoration: "none" }}>🏠 Home</Link>
         <Link href="/calendar" style={{ color: "white", textDecoration: "none" }}>📅 Calendar</Link>
         <Link href="/segmentation" style={{ color: "white", textDecoration: "none" }}>🧩 Segmentation</Link>
-        <Link href="/configuration" style={{ color: "white", textDecoration: "none" }}>⚙️ Configuration</Link>
+        <Link href="/configurations" style={{ color: "white", textDecoration: "none" }}>⚙️ Configuration</Link>
         <Link href="/templates" style={{ color: "white", textDecoration: "none" }}>🗂️ Templates</Link>
       </nav>
 
