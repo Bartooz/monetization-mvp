@@ -1,177 +1,211 @@
+import { useEffect, useState } from "react";
 
-import { useState, useEffect } from "react";
-
-const defaultSlot = () => ({ value: "", bonus: "", paid: false, currency: "Cash" });
-
-export default function Configurations() {
+export default function ConfigurationsPage() {
+  const [configurations, setConfigurations] = useState([]);
   const [configName, setConfigName] = useState("");
   const [eventType, setEventType] = useState("Offer");
   const [offerType, setOfferType] = useState("Triple Offer");
-  const [slots, setSlots] = useState([defaultSlot(), defaultSlot(), defaultSlot()]);
-  const [configurations, setConfigurations] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [error, setError] = useState("");
+  const [slots, setSlots] = useState([]);
+  const [editingName, setEditingName] = useState(null);
+
+  const defaultSlot = () => ({
+    value: "",
+    bonus: "",
+    paid: false,
+    currency: "Cash",
+  });
 
   const currencies = {
-    "Cash": "💵",
-    "Gold Bars": "🏅",
-    "Diamond": "💎"
+    Cash: "💵",
+    "Gold Bars": "🪙",
+    Diamond: "💎",
+  };
+
+  const fetchConfigurations = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/api/configurations");
+      const data = await res.json();
+      setConfigurations(data);
+    } catch (err) {
+      console.error("Failed to fetch configurations", err);
+    }
   };
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/configurations")
-      .then(res => res.json())
-      .then(setConfigurations)
-      .catch(err => console.error("Failed to fetch configurations", err));
+    fetchConfigurations();
   }, []);
+
+  useEffect(() => {
+    const count = offerType === "Triple Offer" ? 3 : 1;
+    setSlots(Array(count).fill(0).map(() => defaultSlot()));
+  }, [offerType]);
+
+  const updateSlot = (index, field, value) => {
+    const updated = [...slots];
+    updated[index][field] = field === "paid" ? value === "true" : value;
+    setSlots(updated);
+  };
 
   const resetForm = () => {
     setConfigName("");
     setEventType("Offer");
     setOfferType("Triple Offer");
-    setSlots([defaultSlot(), defaultSlot(), defaultSlot()]);
-    setEditingId(null);
-    setError("");
+    setSlots(Array(3).fill(0).map(() => defaultSlot()));
+    setEditingName(null);
   };
 
-  const handleCreateOrUpdate = async () => {
-    const payload = {
+  const handleSave = async () => {
+    const configToSave = {
       config_name: configName.trim(),
       event_type: eventType,
       offer_type: offerType,
       slots,
     };
 
-    const url = editingId
-      ? `http://localhost:4000/api/configurations/${editingId}`
-      : "http://localhost:4000/api/configurations";
-
-    const method = editingId ? "PUT" : "POST";
+    const exists = configurations.some(
+      (cfg) => cfg.config_name === configToSave.config_name && cfg.config_name !== editingName
+    );
+    if (exists) {
+      alert("A configuration with this name already exists.");
+      return;
+    }
 
     try {
-      const res = await fetch(url, {
+      const method = editingName ? "PUT" : "POST";
+      const endpoint = editingName
+        ? `http://localhost:4000/api/configurations/${encodeURIComponent(editingName)}`
+        : "http://localhost:4000/api/configurations";
+
+      const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(configToSave),
       });
 
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg);
-      }
-
-      const updated = await res.json();
-      const updatedList = editingId
-        ? configurations.map(c => (c.config_name === editingId ? updated : c))
-        : [...configurations, updated];
-
-      setConfigurations(updatedList);
+      if (!res.ok) throw new Error("Save failed");
+      await fetchConfigurations();
       resetForm();
     } catch (err) {
-      console.error("Error saving configuration", err);
-      setError("Could not save. Config name may already exist.");
+      console.error("Failed to save", err);
     }
   };
 
-  const handleEdit = (config) => {
-    setConfigName(config.config_name);
-    setEventType(config.event_type);
-    setOfferType(config.offer_type);
-    setSlots(config.slots);
-    setEditingId(config.config_name);
-    setError("");
+  const handleEdit = (cfg) => {
+    setConfigName(cfg.config_name);
+    setEventType(cfg.event_type);
+    setOfferType(cfg.offer_type);
+    setSlots(cfg.slots);
+    setEditingName(cfg.config_name);
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this configuration?")) return;
+  const handleDelete = async (name) => {
+    if (!window.confirm("Delete this configuration?")) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/configurations/${id}`, {
+      const res = await fetch(`http://localhost:4000/api/configurations/${encodeURIComponent(name)}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete");
 
-      setConfigurations(configurations.filter(c => c.config_name !== id));
+      if (!res.ok) throw new Error("Delete failed");
+      await fetchConfigurations();
     } catch (err) {
-      console.error("Delete failed", err);
+      console.error("Delete error", err);
     }
-  };
-
-  const updateSlot = (index, field, value) => {
-    const newSlots = [...slots];
-    newSlots[index][field] = field === "paid" ? value === "true" : value;
-    setSlots(newSlots);
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Manage Configurations</h1>
+    <div style={{ padding: 40, fontFamily: "sans-serif", maxWidth: 700, margin: "auto" }}>
+      <h2>⚙️ Manage Configurations</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+        <input
+          type="text"
+          placeholder="Configuration Name"
+          value={configName}
+          onChange={(e) => setConfigName(e.target.value)}
+          style={{ padding: 8, fontSize: 16 }}
+        />
 
-      <input
-        placeholder="Configuration Name"
-        value={configName}
-        onChange={e => setConfigName(e.target.value)}
-      />
-      <br />
-      <select value={eventType} onChange={e => setEventType(e.target.value)}>
-        <option>Offer</option>
-        <option>Event</option>
-      </select>
-      <select value={offerType} onChange={e => setOfferType(e.target.value)}>
-        <option>Triple Offer</option>
-        <option>Double Offer</option>
-      </select>
-
-      <h3>Slots</h3>
-      {slots.map((slot, i) => (
-        <div key={i} style={{ marginBottom: "5px" }}>
-          <input
-            placeholder="Value"
-            value={slot.value}
-            onChange={e => updateSlot(i, "value", e.target.value)}
-          />
-          <input
-            placeholder="Bonus"
-            value={slot.bonus}
-            onChange={e => updateSlot(i, "bonus", e.target.value)}
-          />
-          <label>
-            <input
-              type="checkbox"
-              checked={slot.paid}
-              onChange={e => updateSlot(i, "paid", String(e.target.checked))}
-            /> Paid
-          </label>
-          <select
-            value={slot.currency}
-            onChange={e => updateSlot(i, "currency", e.target.value)}
-          >
-            {Object.keys(currencies).map(curr => (
-              <option key={curr}>{curr}</option>
-            ))}
+        <div style={{ display: "flex", gap: 10 }}>
+          <select value={eventType} onChange={(e) => setEventType(e.target.value)} style={{ padding: 8 }}>
+            <option value="Offer">Offer</option>
+            <option value="Mission">Mission</option>
           </select>
+          <select value={offerType} onChange={(e) => setOfferType(e.target.value)} style={{ padding: 8 }}>
+            <option value="Triple Offer">Triple Offer</option>
+            {/* Future types */}
+          </select>
+        </div>
+      </div>
+
+      <h4>Slots</h4>
+      {slots.map((slot, idx) => (
+        <div key={idx} style={{ marginBottom: 20, borderBottom: "1px solid #ccc", paddingBottom: 10 }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 6 }}>
+            <input
+              value={slot.value}
+              placeholder="Value"
+              onChange={(e) => updateSlot(idx, "value", e.target.value)}
+              style={{ flex: 1, padding: 6 }}
+            />
+            <input
+              value={slot.bonus}
+              placeholder="Bonus"
+              onChange={(e) => updateSlot(idx, "bonus", e.target.value)}
+              style={{ flex: 1, padding: 6 }}
+            />
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <label>
+              Paid
+              <input
+                type="checkbox"
+                checked={slot.paid}
+                onChange={(e) => updateSlot(idx, "paid", e.target.checked)}
+                style={{ marginLeft: 6 }}
+              />
+            </label>
+            <select
+              value={slot.currency}
+              onChange={(e) => updateSlot(idx, "currency", e.target.value)}
+              style={{ padding: 6 }}
+            >
+              {Object.entries(currencies).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v} {k}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       ))}
 
-      <button onClick={handleCreateOrUpdate}>
-        {editingId ? "Update Configuration" : "Create Configuration"}
-      </button>
-      {editingId && <button onClick={resetForm}>Cancel Edit</button>}
+      <div style={{ display: "flex", gap: 10, marginBottom: 30 }}>
+        <button onClick={handleSave} style={{ padding: "10px 20px", background: "#111", color: "#fff", border: "none", borderRadius: 4 }}>
+          {editingName ? "Update" : "Create"} Configuration
+        </button>
+        {editingName && (
+          <button onClick={resetForm} style={{ padding: "10px 20px", background: "#888", color: "#fff", border: "none", borderRadius: 4 }}>
+            Cancel Edit
+          </button>
+        )}
+      </div>
 
-      <h2>Existing Configurations</h2>
-      <ul>
-        {configurations.map(cfg => (
-          <li key={cfg.config_name}>
-            <strong>{cfg.config_name}</strong> – {cfg.offer_type} / {cfg.event_type}
-            <button onClick={() => handleEdit(cfg)}>Edit</button>
-            <button onClick={() => handleDelete(cfg.config_name)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <h3>📦 Existing Configurations</h3>
+      {configurations.length === 0 && <p>No configurations yet.</p>}
+
+      {configurations.map((cfg) => (
+        <div key={cfg.config_name} style={{ padding: 12, background: "#f9f9f9", marginBottom: 10, borderRadius: 6 }}>
+          <strong>{cfg.config_name}</strong> — {cfg.offer_type} / {cfg.event_type}
+          <div style={{ marginTop: 6 }}>
+            <button onClick={() => handleEdit(cfg)} style={{ marginRight: 10 }}>✏️ Edit</button>
+            <button onClick={() => handleDelete(cfg.config_name)}>🗑 Delete</button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
+
 
 
