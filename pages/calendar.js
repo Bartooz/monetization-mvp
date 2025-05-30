@@ -9,53 +9,75 @@ export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
-    title: "", start: "", end: "", category: "", templateName: ""
+    title: "", start: "", end: "", category: "", templateName: "", status: "Draft"
   });
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
 
+  // Load from backend and localStorage (for templates/configs only)
   useEffect(() => {
+    fetch("http://localhost:4000/api/events")
+      .then((res) => res.json())
+      .then(setEvents)
+      .catch((err) => {
+        console.error("Failed to fetch events", err);
+        setEvents([]);
+      });
+
     if (typeof window !== "undefined") {
-      setEvents(JSON.parse(localStorage.getItem("calendarEvents") || "[]"));
       setTemplates(JSON.parse(localStorage.getItem("liveops-templates") || "[]"));
       setConfigurations(JSON.parse(localStorage.getItem("liveops-configurations") || "[]"));
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("calendarEvents", JSON.stringify(events));
-  }, [events]);
-
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.templateName) return;
-  
+
     const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || {};
-  
+
     const eventToSave = {
       ...newEvent,
       category: newEvent.category || fullTemplate.eventType || "Offer",
       offerType: newEvent.offerType || fullTemplate.offerType || "Triple Offer",
       configuration: newEvent.configuration || fullTemplate.configuration || "",
-      template: fullTemplate,
+      template_name: newEvent.templateName,
     };
-  
-    const updatedEvents = newEvent.id
-      ? events.map(evt => (evt.id === newEvent.id ? eventToSave : evt))
-      : [...events, { ...eventToSave, id: Date.now() }];
-  
-    setEvents(updatedEvents);
+
+    try {
+      await fetch("http://localhost:4000/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventToSave),
+      });
+      const response = await fetch("http://localhost:4000/api/events");
+      const updatedEvents = await response.json();
+      setEvents(updatedEvents);
+    } catch (err) {
+      console.error("Error saving event", err);
+    }
+
     setIsModalOpen(false);
-    setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });
+    setNewEvent({ title: "", start: "", end: "", category: "", templateName: "", status: "Draft" });
   };
 
-  const handleEventDrop = (info) => {
-    const updated = events.map(evt =>
-      evt.id == info.event.id
-        ? { ...evt, start: info.event.startStr, end: info.event.endStr }
-        : evt
-    );
-    setEvents(updated);
+  const handleEventDrop = async (info) => {
+    const updatedEvent = events.find(evt => evt.id == info.event.id);
+    if (!updatedEvent) return;
+
+    const updated = { ...updatedEvent, start: info.event.startStr, end: info.event.endStr };
+
+    try {
+      await fetch(`http://localhost:4000/api/events/${updated.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+      const refreshed = await fetch("http://localhost:4000/api/events");
+      setEvents(await refreshed.json());
+    } catch (err) {
+      console.error("Error updating event time", err);
+    }
   };
 
   const handleEventClick = (info) => {
@@ -69,9 +91,17 @@ export default function CalendarPage() {
     setSelectedEventForPreview(null);
   };
 
-  const handleDeleteFromPreview = () => {
+  const handleDeleteFromPreview = async () => {
     if (!selectedEventForPreview) return;
-    setEvents(events.filter(e => e.id !== selectedEventForPreview.id));
+    try {
+      await fetch(`http://localhost:4000/api/events/${selectedEventForPreview.id}`, {
+        method: "DELETE",
+      });
+      const refreshed = await fetch("http://localhost:4000/api/events");
+      setEvents(await refreshed.json());
+    } catch (err) {
+      console.error("Error deleting event", err);
+    }
     setSelectedEventForPreview(null);
   };
 
@@ -79,7 +109,7 @@ export default function CalendarPage() {
     info.el.addEventListener("dblclick", () => {
       const matched = events.find(e => e.id == info.event.id);
       if (matched) {
-        setNewEvent({ ...matched }); // ensures latest date
+        setNewEvent({ ...matched });
         setIsModalOpen(true);
       }
     });
@@ -99,7 +129,7 @@ export default function CalendarPage() {
     <div style={{ padding: 20 }}>
       <button
         onClick={() => {
-          setNewEvent({ title: "", start: "", end: "", category: "", templateName: "" });
+          setNewEvent({ title: "", start: "", end: "", category: "", templateName: "", status: "Draft" });
           setIsModalOpen(true);
         }}
         style={{ marginBottom: 12 }}
@@ -143,6 +173,7 @@ export default function CalendarPage() {
           <h3>{selectedEventForPreview.title}</h3>
           <p><strong>Start:</strong> {selectedEventForPreview.start}</p>
           <p><strong>End:</strong> {selectedEventForPreview.end}</p>
+          <p><strong>Status:</strong> {selectedEventForPreview.finalStatus}</p>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
             <button onClick={handleEditFromPreview}>Edit</button>
             <button onClick={handleDeleteFromPreview}>Delete</button>
