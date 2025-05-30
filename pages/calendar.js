@@ -1,3 +1,4 @@
+// calendar.js
 import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -15,7 +16,6 @@ export default function CalendarPage() {
   const [configurations, setConfigurations] = useState([]);
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
 
-  // Load from backend and localStorage (for templates/configs only)
   useEffect(() => {
     fetch("http://localhost:4000/api/events")
       .then((res) => res.json())
@@ -44,15 +44,20 @@ export default function CalendarPage() {
       template_name: newEvent.templateName,
     };
 
+    const isEdit = !!newEvent.id;
+    const method = isEdit ? "PUT" : "POST";
+    const endpoint = isEdit
+      ? `http://localhost:4000/api/events/${newEvent.id}`
+      : "http://localhost:4000/api/events";
+
     try {
-      await fetch("http://localhost:4000/api/events", {
-        method: "POST",
+      await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(eventToSave),
       });
-      const response = await fetch("http://localhost:4000/api/events");
-      const updatedEvents = await response.json();
-      setEvents(updatedEvents);
+      const refreshed = await fetch("http://localhost:4000/api/events");
+      setEvents(await refreshed.json());
     } catch (err) {
       console.error("Error saving event", err);
     }
@@ -62,10 +67,10 @@ export default function CalendarPage() {
   };
 
   const handleEventDrop = async (info) => {
-    const updatedEvent = events.find(evt => evt.id == info.event.id);
-    if (!updatedEvent) return;
+    const movedEvent = events.find(evt => evt.id == info.event.id);
+    if (!movedEvent) return;
 
-    const updated = { ...updatedEvent, start: info.event.startStr, end: info.event.endStr };
+    const updated = { ...movedEvent, start: info.event.startStr, end: info.event.endStr };
 
     try {
       await fetch(`http://localhost:4000/api/events/${updated.id}`, {
@@ -76,7 +81,7 @@ export default function CalendarPage() {
       const refreshed = await fetch("http://localhost:4000/api/events");
       setEvents(await refreshed.json());
     } catch (err) {
-      console.error("Error updating event time", err);
+      console.error("Error saving dropped event", err);
     }
   };
 
@@ -93,6 +98,7 @@ export default function CalendarPage() {
 
   const handleDeleteFromPreview = async () => {
     if (!selectedEventForPreview) return;
+
     try {
       await fetch(`http://localhost:4000/api/events/${selectedEventForPreview.id}`, {
         method: "DELETE",
@@ -102,6 +108,7 @@ export default function CalendarPage() {
     } catch (err) {
       console.error("Error deleting event", err);
     }
+
     setSelectedEventForPreview(null);
   };
 
