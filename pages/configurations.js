@@ -6,7 +6,7 @@ export default function ConfigurationsPage() {
   const [eventType, setEventType] = useState("Offer");
   const [offerType, setOfferType] = useState("Triple Offer");
   const [slots, setSlots] = useState([]);
-  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState(null);
 
   const defaultSlot = () => ({
     value: "",
@@ -62,7 +62,7 @@ export default function ConfigurationsPage() {
     const duplicate = configurations.some(
       (cfg) =>
         cfg.config_name.toLowerCase() === configToSave.config_name.toLowerCase() &&
-        cfg.id !== editingId
+        cfg.config_name !== editingName
     );
     if (duplicate) {
       alert("A configuration with this name already exists.");
@@ -70,9 +70,9 @@ export default function ConfigurationsPage() {
     }
 
     try {
-      const method = editingId ? "PUT" : "POST";
-      const endpoint = editingId
-        ? `http://localhost:4000/api/configurations/${editingId}`
+      const method = editingName ? "PUT" : "POST";
+      const endpoint = editingName
+        ? `http://localhost:4000/api/configurations/${encodeURIComponent(editingName)}`
         : "http://localhost:4000/api/configurations";
 
       const res = await fetch(endpoint, {
@@ -95,16 +95,18 @@ export default function ConfigurationsPage() {
     setOfferType(cfg.offer_type);
     setSlots(cfg.slots);
     setEditingName(cfg.config_name);
-    setEditingId(cfg.id); // 🛠️ critical line to ensure update instead of create
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (name) => {
     if (!window.confirm("Delete this configuration?")) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/configurations/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:4000/api/configurations/${encodeURIComponent(name)}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!res.ok) throw new Error("Delete failed");
       await fetchConfigurations();
     } catch (err) {
@@ -117,7 +119,7 @@ export default function ConfigurationsPage() {
     setEventType("Offer");
     setOfferType("Triple Offer");
     setSlots(Array(3).fill(0).map(() => defaultSlot()));
-    setEditingId(null);
+    setEditingName(null);
   };
 
   return (
@@ -201,9 +203,9 @@ export default function ConfigurationsPage() {
           onClick={handleSave}
           style={{ padding: "10px 20px", background: "#111", color: "#fff", border: "none", borderRadius: 6 }}
         >
-          {editingId ? "Update" : "Create"} Configuration
+          {editingName ? "Update" : "Create"} Configuration
         </button>
-        {editingId && (
+        {editingName && (
           <button
             onClick={resetForm}
             style={{ padding: "10px 20px", background: "#888", color: "#fff", border: "none", borderRadius: 6 }}
@@ -216,7 +218,7 @@ export default function ConfigurationsPage() {
       <h3>📦 Existing Configurations</h3>
       {configurations.map((cfg) => (
         <div
-          key={cfg.id}
+          key={cfg.config_name}
           style={{
             padding: 10,
             borderBottom: "1px solid #ddd",
@@ -232,7 +234,7 @@ export default function ConfigurationsPage() {
             <button onClick={() => handleEdit(cfg)} style={{ padding: "4px 12px" }}>
               Edit
             </button>
-            <button onClick={() => handleDelete(cfg.id)} style={{ padding: "4px 12px", color: "red" }}>
+            <button onClick={() => handleDelete(cfg.config_name)} style={{ padding: "4px 12px", color: "red" }}>
               Delete
             </button>
           </div>
@@ -241,6 +243,7 @@ export default function ConfigurationsPage() {
     </div>
   );
 }
+
 
 
 
