@@ -24,8 +24,13 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
   const [configurations, setConfigurations] = useState([]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("liveops-configurations") || "[]");
-    setConfigurations(saved);
+    fetch("http://localhost:4000/api/configurations")
+      .then((res) => res.json())
+      .then(setConfigurations)
+      .catch((err) => {
+        console.error("Failed to fetch configurations", err);
+        setConfigurations([]);
+      });
   }, []);
 
   useEffect(() => {
@@ -37,7 +42,6 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
       setEventType(template.event_type || "Offer");
       setOfferType(template.offer_type || "Triple Offer");
     } else {
-      // Reset fields when no template is selected
       setTemplateName("");
       setOfferTitle("");
       setConfiguration("");
@@ -47,8 +51,12 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
     }
   }, [template]);
 
+  const filteredConfigurations = configurations.filter(
+    (c) => c.event_type === eventType && c.offer_type === offerType
+  );
+
   const handleSave = () => {
-    const configObj = configurations.find((c) => c.name === configuration);
+    const configObj = configurations.find((c) => c.config_name === configuration);
     const payload = {
       template_name: templateName.trim(),
       title: offerTitle.trim(),
@@ -76,7 +84,7 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
   };
 
   const LayoutPreview = layoutComponents[layout];
-  const selectedConfig = configurations.find((c) => c.name === configuration);
+  const selectedConfig = configurations.find((c) => c.config_name === configuration);
   const slots = selectedConfig?.slots || [
     { value: "", bonus: "", currency: "", paid: false },
     { value: "", bonus: "", currency: "", paid: false },
@@ -91,7 +99,6 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
       gap: "40px",
       width: "100%",
     }}>
-      {/* LEFT: Form */}
       <div style={{ flex: 1 }}>
         <h2>{template ? "Edit Template" : "Create New Template"}</h2>
 
@@ -145,9 +152,9 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
               style={{ width: "100%", marginTop: 4 }}
             >
               <option value="">Select</option>
-              {configurations.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name}
+              {filteredConfigurations.map((c) => (
+                <option key={c.config_name} value={c.config_name}>
+                  {c.config_name}
                 </option>
               ))}
             </select>
@@ -165,7 +172,6 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
         )}
       </div>
 
-      {/* RIGHT: Layout & Preview */}
       <div style={{ flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
           <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
@@ -183,6 +189,7 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
     </div>
   );
 }
+
 
 
 
