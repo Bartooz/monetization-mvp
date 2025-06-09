@@ -106,12 +106,11 @@ const EventModal = ({
             handleChange("templateName", e.target.value);
             setShowPreview(true);
           }}
-          style={{ width: "100%", marginBottom: "10px" }}
         >
           <option value="">Select Template</option>
-          {templates.map((t) => (
-            <option key={t.templateName} value={t.templateName}>
-              {t.templateName}
+          {templates.map((template) => (
+            <option key={template.template_name} value={template.template_name}>
+              {template.template_name}
             </option>
           ))}
         </select>
