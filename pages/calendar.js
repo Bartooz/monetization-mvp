@@ -21,23 +21,27 @@ export default function CalendarPage() {
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/events`)
-      .then((res) => res.json())
-      .then((data) => {
-        const normalized = data.map((e) => ({
-          ...e,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        }));
-        setEvents(normalized);
-      })
+    .then((res) => res.json())
+    .then((data) => {
+      const normalized = data.map((e) => ({
+        ...e,
+        start: new Date(e.start),
+        end: new Date(e.end),
+      }));
+      console.log("📅 Events fetched:", normalized);
+      setEvents(normalized);
+    })
       .catch((err) => {
         console.error("Failed to fetch events", err);
         setEvents([]);
       });
 
-    fetch(`${BASE_URL}/api/templates`)
+      fetch(`${BASE_URL}/api/templates`)
       .then((res) => res.json())
-      .then(setTemplates)
+      .then((data) => {
+        console.log("📦 Templates fetched:", data);
+        setTemplates(data);
+      })
       .catch((err) => {
         console.error("Failed to fetch templates", err);
         setTemplates([]);
