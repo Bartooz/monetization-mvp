@@ -1,10 +1,11 @@
-// calendar.js
 import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventModal from "../components/EventModal";
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -17,7 +18,7 @@ export default function CalendarPage() {
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/events")
+    fetch(`${BASE_URL}/api/events`)
       .then((res) => res.json())
       .then(setEvents)
       .catch((err) => {
@@ -47,8 +48,8 @@ export default function CalendarPage() {
     const isEdit = !!newEvent.id;
     const method = isEdit ? "PUT" : "POST";
     const endpoint = isEdit
-      ? `http://localhost:4000/api/events/${newEvent.id}`
-      : "http://localhost:4000/api/events";
+      ? `${BASE_URL}/api/events/${newEvent.id}`
+      : `${BASE_URL}/api/events`;
 
     try {
       await fetch(endpoint, {
@@ -56,7 +57,7 @@ export default function CalendarPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(eventToSave),
       });
-      const refreshed = await fetch("http://localhost:4000/api/events");
+      const refreshed = await fetch(`${BASE_URL}/api/events`);
       setEvents(await refreshed.json());
     } catch (err) {
       console.error("Error saving event", err);
@@ -73,12 +74,12 @@ export default function CalendarPage() {
     const updated = { ...movedEvent, start: info.event.startStr, end: info.event.endStr };
 
     try {
-      await fetch(`http://localhost:4000/api/events/${updated.id}`, {
+      await fetch(`${BASE_URL}/api/events/${updated.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updated),
       });
-      const refreshed = await fetch("http://localhost:4000/api/events");
+      const refreshed = await fetch(`${BASE_URL}/api/events`);
       setEvents(await refreshed.json());
     } catch (err) {
       console.error("Error saving dropped event", err);
@@ -100,10 +101,10 @@ export default function CalendarPage() {
     if (!selectedEventForPreview) return;
 
     try {
-      await fetch(`http://localhost:4000/api/events/${selectedEventForPreview.id}`, {
+      await fetch(`${BASE_URL}/api/events/${selectedEventForPreview.id}`, {
         method: "DELETE",
       });
-      const refreshed = await fetch("http://localhost:4000/api/events");
+      const refreshed = await fetch(`${BASE_URL}/api/events`);
       setEvents(await refreshed.json());
     } catch (err) {
       console.error("Error deleting event", err);
@@ -190,6 +191,7 @@ export default function CalendarPage() {
     </div>
   );
 }
+
 
 
 

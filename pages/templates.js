@@ -6,9 +6,12 @@ export default function TemplatesPage() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+
   // ✅ Fetch templates from backend
   useEffect(() => {
-    fetch("http://localhost:4000/api/templates")
+    fetch(`${BASE_URL}/api/templates`)
       .then((res) => res.json())
       .then((data) => setTemplates(data))
       .catch((err) => {
@@ -22,8 +25,8 @@ export default function TemplatesPage() {
     try {
       const method = editingTemplate ? "PUT" : "POST";
       const endpoint = editingTemplate
-        ? `http://localhost:4000/api/templates/${editingTemplate.template_name}`
-        : "http://localhost:4000/api/templates";
+        ? `${BASE_URL}/api/templates/${editingTemplate.template_name}`
+        : `${BASE_URL}/api/templates`;
 
       const res = await fetch(endpoint, {
         method,
@@ -39,8 +42,8 @@ export default function TemplatesPage() {
         const exists = prev.find((tpl) => tpl.template_name === saved.template_name);
         return exists
           ? prev.map((tpl) =>
-              tpl.template_name === saved.template_name ? saved : tpl
-            )
+            tpl.template_name === saved.template_name ? saved : tpl
+          )
           : [...prev, saved];
       });
 
@@ -58,9 +61,8 @@ export default function TemplatesPage() {
   // ✅ Delete a template
   const handleDelete = async (name) => {
     try {
-      const res = await fetch(
-        `http://localhost:4000/api/templates/${encodeURIComponent(name)}`,
-        {
+      const res = await fetch(`${BASE_URL}/api/templates/${encodeURIComponent(name)}`, {
+
           method: "DELETE",
         }
       );

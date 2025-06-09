@@ -24,7 +24,8 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
   const [configurations, setConfigurations] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/configurations")
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    fetch(`${BASE_URL}/api/configurations`)
       .then((res) => res.json())
       .then(setConfigurations)
       .catch((err) => {

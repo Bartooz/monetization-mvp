@@ -8,6 +8,8 @@ export default function ConfigurationsPage() {
   const [slots, setSlots] = useState([]);
   const [editingName, setEditingName] = useState(null);
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
   const defaultSlot = () => ({
     value: "",
     bonus: "",
@@ -32,7 +34,7 @@ export default function ConfigurationsPage() {
 
   const fetchConfigurations = async () => {
     try {
-      const res = await fetch("http://localhost:4000/api/configurations");
+      const res = await fetch(`${BASE_URL}/api/configurations`);
       const data = await res.json();
       setConfigurations(data);
     } catch (err) {
@@ -72,8 +74,8 @@ export default function ConfigurationsPage() {
     try {
       const method = editingName ? "PUT" : "POST";
       const endpoint = editingName
-        ? `http://localhost:4000/api/configurations/${encodeURIComponent(editingName)}`
-        : "http://localhost:4000/api/configurations";
+        ? `${BASE_URL}/api/configurations/${encodeURIComponent(editingName)}`
+        : `${BASE_URL}/api/configurations`;
 
       const res = await fetch(endpoint, {
         method,
@@ -102,7 +104,7 @@ export default function ConfigurationsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/api/configurations/${encodeURIComponent(name)}`,
+        `${BASE_URL}/api/configurations/${encodeURIComponent(name)}`,
         {
           method: "DELETE",
         }
