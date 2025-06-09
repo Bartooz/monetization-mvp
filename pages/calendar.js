@@ -7,6 +7,8 @@ import EventModal from "../components/EventModal";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+console.log("🚀 NEW CALENDAR BUILD", new Date().toISOString());
+
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
