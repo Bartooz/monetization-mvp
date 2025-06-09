@@ -26,14 +26,14 @@ export default function CalendarPage() {
         setEvents([]);
       });
 
-      fetch(`${BASE_URL}/api/templates`)
+    fetch(`${BASE_URL}/api/templates`)
       .then((res) => res.json())
       .then(setTemplates)
       .catch((err) => {
         console.error("Failed to fetch templates", err);
         setTemplates([]);
       });
-    
+
     fetch(`${BASE_URL}/api/configurations`)
       .then((res) => res.json())
       .then(setConfigurations)
@@ -69,7 +69,14 @@ export default function CalendarPage() {
         body: JSON.stringify(eventToSave),
       });
       const refreshed = await fetch(`${BASE_URL}/api/events`);
-      setEvents(await refreshed.json());
+      const data = await refreshed.json();
+      const normalized = data.map(e => ({
+        ...e,
+        start: new Date(e.start),
+        end: new Date(e.end),
+      }));
+      setEvents(normalized);
+      console.log("Events received from backend:", normalized);
     } catch (err) {
       console.error("Error saving event", err);
     }
@@ -116,7 +123,15 @@ export default function CalendarPage() {
         method: "DELETE",
       });
       const refreshed = await fetch(`${BASE_URL}/api/events`);
-      setEvents(await refreshed.json());
+      const data = await refreshed.json();
+      const normalized = data.map(e => ({
+        ...e,
+        start: new Date(e.start),
+        end: new Date(e.end),
+      }));
+      setEvents(normalized);
+      console.log("Events received from backend:", normalized);
+
     } catch (err) {
       console.error("Error deleting event", err);
     }
@@ -153,7 +168,7 @@ export default function CalendarPage() {
         }}
         style={{ marginBottom: 12 }}
       >
-        New Event2
+        New Event3
       </button>
 
       <FullCalendar
@@ -180,7 +195,7 @@ export default function CalendarPage() {
         templates={templates}
         configurations={configurations}
         showPreview={true}
-        setShowPreview={() => {}}
+        setShowPreview={() => { }}
       />
 
       {selectedEventForPreview && (
