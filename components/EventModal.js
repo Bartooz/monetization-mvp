@@ -23,7 +23,10 @@ const EventModal = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    const selected = templates.find((t) => t.templateName === newEvent.templateName);
+    const selected = templates.find((t) =>
+      t.templateName === newEvent.templateName ||
+      t.template_name === newEvent.templateName
+    );
     setSelectedTemplateData(selected || null);
 
     if (selected) {

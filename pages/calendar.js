@@ -20,7 +20,14 @@ export default function CalendarPage() {
   useEffect(() => {
     fetch(`${BASE_URL}/api/events`)
       .then((res) => res.json())
-      .then(setEvents)
+      .then((data) => {
+        const normalized = data.map((e) => ({
+          ...e,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        }));
+        setEvents(normalized);
+      })
       .catch((err) => {
         console.error("Failed to fetch events", err);
         setEvents([]);
@@ -98,7 +105,13 @@ export default function CalendarPage() {
         body: JSON.stringify(updated),
       });
       const refreshed = await fetch(`${BASE_URL}/api/events`);
-      setEvents(await refreshed.json());
+      const data = await refreshed.json();
+      const normalized = data.map(e => ({
+        ...e,
+        start: new Date(e.start),
+        end: new Date(e.end),
+      }));
+      setEvents(normalized);
     } catch (err) {
       console.error("Error saving dropped event", err);
     }
@@ -163,7 +176,15 @@ export default function CalendarPage() {
     <div style={{ padding: 20 }}>
       <button
         onClick={() => {
-          setNewEvent({ title: "", start: "", end: "", category: "", templateName: "", status: "Draft" });
+          setNewEvent({
+            title: "",
+            start: "",
+            end: "",
+            category: "Offer",
+            offerType: "Triple Offer",
+            templateName: "",
+            status: "Draft",
+          });
           setIsModalOpen(true);
         }}
         style={{ marginBottom: 12 }}
