@@ -26,10 +26,21 @@ export default function CalendarPage() {
         setEvents([]);
       });
 
-    if (typeof window !== "undefined") {
-      setTemplates(JSON.parse(localStorage.getItem("liveops-templates") || "[]"));
-      setConfigurations(JSON.parse(localStorage.getItem("liveops-configurations") || "[]"));
-    }
+      fetch(`${BASE_URL}/api/templates`)
+      .then((res) => res.json())
+      .then(setTemplates)
+      .catch((err) => {
+        console.error("Failed to fetch templates", err);
+        setTemplates([]);
+      });
+    
+    fetch(`${BASE_URL}/api/configurations`)
+      .then((res) => res.json())
+      .then(setConfigurations)
+      .catch((err) => {
+        console.error("Failed to fetch configurations", err);
+        setConfigurations([]);
+      });
   }, []);
 
   const handleAddEvent = async () => {
@@ -142,7 +153,7 @@ export default function CalendarPage() {
         }}
         style={{ marginBottom: 12 }}
       >
-        New Event
+        New Event2
       </button>
 
       <FullCalendar
