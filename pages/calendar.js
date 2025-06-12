@@ -18,6 +18,7 @@ export default function CalendarPage() {
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
+  const calendarRef = useRef(null);
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/events`)
@@ -178,19 +179,19 @@ export default function CalendarPage() {
   const handleEventDidMount = (info) => {
     info.el.addEventListener("dblclick", () => {
       const matched = events.find((e) => e.id === info.event.id);
-if (matched) {
-  setNewEvent({
-    title: matched.title || "",
-    start: matched.start,
-    end: matched.end,
-    category: matched.category || "Offer",
-    offerType: matched.offerType || "Triple Offer",
-    templateName: matched.template_name || matched.templateName || "",
-    status: matched.status || "Draft",
-    id: matched.id
-  });
-  setIsModalOpen(true);
-}
+      if (matched) {
+        setNewEvent({
+          title: matched.title || "",
+          start: matched.start,
+          end: matched.end,
+          category: matched.category || "Offer",
+          offerType: matched.offerType || "Triple Offer",
+          templateName: matched.template_name || matched.templateName || "",
+          status: matched.status || "Draft",
+          id: matched.id
+        });
+        setIsModalOpen(true);
+      }
     });
   };
 
@@ -225,6 +226,7 @@ if (matched) {
       </button>
 
       <FullCalendar
+        ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
