@@ -263,7 +263,7 @@ export default function CalendarPage() {
         templates={templates}
         configurations={configurations}
         showPreview={true}
-        setShowPreview={() => { }}
+        setShowPreview={() => setShowPreview(true)}
       />
 
       {selectedEventForPreview && (
