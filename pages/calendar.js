@@ -244,7 +244,7 @@ export default function CalendarPage() {
                   status: matched.status || "Draft",
                   id: matched.id
                 });
-                setShowPreview(true);
+                
                 setIsModalOpen(true);
               }
             }}
