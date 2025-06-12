@@ -176,7 +176,7 @@ export default function CalendarPage() {
     setSelectedEventForPreview(null);
   };
 
-  
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -223,14 +223,15 @@ export default function CalendarPage() {
         eventClick={handleEventClick}
         eventContent={(arg) => {
           const matched = events.find(e => e.id === arg.event.id);
-        
+
           console.log("🖱 Rendering event content:", arg.event.title);
-        
+
           return (
             <div
               onDoubleClick={() => {
-                console.log("🔥 DOUBLE CLICK detected on", arg.event.title);
                 if (matched) {
+                  console.log("🔥 DOUBLE CLICK detected on", arg.event.title);
+                  console.log("🧩 Matched event object:", matched);
                   setNewEvent({
                     title: matched.title || "",
                     start: matched.start,
@@ -249,8 +250,8 @@ export default function CalendarPage() {
             </div>
           );
         }}
-        
-        
+
+
       />
 
       <EventModal
