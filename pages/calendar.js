@@ -88,9 +88,12 @@ export default function CalendarPage() {
         start: new Date(e.start).toISOString(),
         end: new Date(e.end).toISOString(),
       }));
-      setEvents([]); // clear to force full re-render
-      setTimeout(() => setEvents(normalized), 50); // allow next tick to hydrate clean state
-      setEvents(normalized);
+
+      setEvents([]); // flush stale cache
+      setTimeout(() => {
+        setEvents(normalized); // inject fresh data
+        calendarRef.current?.getApi().refetchEvents(); // tell FullCalendar to re-render
+      }, 50);
       console.log("Events received from backend:", normalized);
     } catch (err) {
       console.error("Error saving event", err);
@@ -132,7 +135,7 @@ export default function CalendarPage() {
 
   const handleEditFromPreview = () => {
     if (!selectedEventForPreview) return;
-  
+
     setNewEvent({
       title: selectedEventForPreview.title || "",
       start: selectedEventForPreview.start,
@@ -143,7 +146,7 @@ export default function CalendarPage() {
       status: selectedEventForPreview.status || "Draft",
       id: selectedEventForPreview.id,
     });
-  
+
     setIsModalOpen(true);
     setSelectedEventForPreview(null);
   };
@@ -174,20 +177,20 @@ export default function CalendarPage() {
 
   const handleEventDidMount = (info) => {
     info.el.addEventListener("dblclick", () => {
-      const matched = events.find(e => e.id == info.event.id);
-      if (matched) {
-        setNewEvent({
-          title: matched.title || "",
-          start: matched.start,
-          end: matched.end,
-          category: matched.category || "Offer",
-          offerType: matched.offerType || "Triple Offer",
-          templateName: matched.template_name || matched.templateName || "",
-          status: matched.status || "Draft",
-          id: matched.id
-        });
-        setIsModalOpen(true);
-      }      
+      const matched = events.find((e) => e.id === info.event.id);
+if (matched) {
+  setNewEvent({
+    title: matched.title || "",
+    start: matched.start,
+    end: matched.end,
+    category: matched.category || "Offer",
+    offerType: matched.offerType || "Triple Offer",
+    templateName: matched.template_name || matched.templateName || "",
+    status: matched.status || "Draft",
+    id: matched.id
+  });
+  setIsModalOpen(true);
+}
     });
   };
 
