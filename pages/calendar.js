@@ -18,6 +18,8 @@ export default function CalendarPage() {
   const [templates, setTemplates] = useState([]);
   const [configurations, setConfigurations] = useState([]);
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
+  const [selectedStatuses, setSelectedStatuses] = useState(["Show All"]);
+  const allStatuses = ["Draft", "Ready for QA", "QA", "Review", "Ready", "Live", "Done"];
   const calendarRef = useRef(null);
 
   useEffect(() => {
@@ -56,6 +58,17 @@ export default function CalendarPage() {
         setConfigurations([]);
       });
   }, []);
+
+  function getEffectiveStatus(event) {
+    const now = new Date();
+    if (event.status === "Ready" && new Date(event.start) <= now && new Date(event.end) >= now) {
+      return "Live";
+    }
+    if (event.status === "Ready" && new Date(event.end) < now) {
+      return "Done";
+    }
+    return event.status || "Draft";
+  }
 
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.templateName) return;
@@ -208,6 +221,50 @@ export default function CalendarPage() {
         New Event3
       </button>
 
+      <div style={{ marginBottom: 12 }}>
+        {allStatuses.map((status) => (
+          <button
+            key={status}
+            onClick={() => {
+              if (selectedStatuses.includes("Show All")) {
+                setSelectedStatuses([status]);
+              } else if (selectedStatuses.includes(status)) {
+                const filtered = selectedStatuses.filter(s => s !== status);
+                setSelectedStatuses(filtered.length > 0 ? filtered : ["Show All"]);
+              } else {
+                setSelectedStatuses([...selectedStatuses, status]);
+              }
+            }}
+            style={{
+              marginRight: 8,
+              backgroundColor: selectedStatuses.includes(status) ? "#007bff" : "#e0e0e0",
+              color: selectedStatuses.includes(status) ? "#fff" : "#000",
+              padding: "6px 12px",
+              borderRadius: 4,
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            {status}
+          </button>
+        ))}
+        <button
+          onClick={() => setSelectedStatuses(["Show All"])}
+          style={{
+            backgroundColor: selectedStatuses.includes("Show All") ? "#007bff" : "#e0e0e0",
+            color: selectedStatuses.includes("Show All") ? "#fff" : "#000",
+            padding: "6px 12px",
+            borderRadius: 4,
+            border: "none",
+            marginLeft: 12,
+            cursor: "pointer"
+          }}
+        >
+          Show All
+        </button>
+      </div>
+
+
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -217,7 +274,10 @@ export default function CalendarPage() {
           center: "title",
           end: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-        events={events}
+        events={selectedStatuses.includes("Show All")
+          ? events
+          : events.filter(e => selectedStatuses.includes(getEffectiveStatus(e)))
+        }
         editable={true}
         eventDrop={handleEventDrop}
         eventClick={handleEventClick}
@@ -228,26 +288,26 @@ export default function CalendarPage() {
 
           return (
             <div
-            onDoubleClick={() => {
-              const matched = events.find(e => String(e.id) === String(arg.event.id));
-              console.log("✅ DOUBLE CLICK triggered on", arg.event.id);
-              console.log("🔍 Matched event:", matched);
-            
-              if (matched) {
-                setNewEvent({
-                  title: matched.title || "",
-                  start: matched.start,
-                  end: matched.end,
-                  category: matched.category || "Offer",
-                  offerType: matched.offerType || "Triple Offer",
-                  templateName: matched.template_name || matched.templateName || "",
-                  status: matched.status || "Draft",
-                  id: matched.id
-                });
-                
-                setIsModalOpen(true);
-              }
-            }}
+              onDoubleClick={() => {
+                const matched = events.find(e => String(e.id) === String(arg.event.id));
+                console.log("✅ DOUBLE CLICK triggered on", arg.event.id);
+                console.log("🔍 Matched event:", matched);
+
+                if (matched) {
+                  setNewEvent({
+                    title: matched.title || "",
+                    start: matched.start,
+                    end: matched.end,
+                    category: matched.category || "Offer",
+                    offerType: matched.offerType || "Triple Offer",
+                    templateName: matched.template_name || matched.templateName || "",
+                    status: matched.status || "Draft",
+                    id: matched.id
+                  });
+
+                  setIsModalOpen(true);
+                }
+              }}
             >
               <b>{arg.event.title}</b>
             </div>
