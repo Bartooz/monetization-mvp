@@ -176,24 +176,7 @@ export default function CalendarPage() {
     setSelectedEventForPreview(null);
   };
 
-  const handleEventDidMount = (info) => {
-    info.el.addEventListener("dblclick", () => {
-      const matched = events.find((e) => e.id === info.event.id);
-      if (matched) {
-        setNewEvent({
-          title: matched.title || "",
-          start: matched.start,
-          end: matched.end,
-          category: matched.category || "Offer",
-          offerType: matched.offerType || "Triple Offer",
-          templateName: matched.template_name || matched.templateName || "",
-          status: matched.status || "Draft",
-          id: matched.id
-        });
-        setIsModalOpen(true);
-      }
-    });
-  };
+  
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -238,7 +221,31 @@ export default function CalendarPage() {
         editable={true}
         eventDrop={handleEventDrop}
         eventClick={handleEventClick}
-        eventDidMount={handleEventDidMount}
+        eventContent={(arg) => {
+          const matched = events.find(e => e.id === arg.event.id);
+          return (
+            <div
+              onDoubleClick={() => {
+                if (matched) {
+                  setNewEvent({
+                    title: matched.title || "",
+                    start: matched.start,
+                    end: matched.end,
+                    category: matched.category || "Offer",
+                    offerType: matched.offerType || "Triple Offer",
+                    templateName: matched.template_name || matched.templateName || "",
+                    status: matched.status || "Draft",
+                    id: matched.id
+                  });
+                  setIsModalOpen(true);
+                }
+              }}
+            >
+              <b>{arg.event.title}</b>
+            </div>
+          );
+        }}
+        
       />
 
       <EventModal
