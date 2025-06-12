@@ -228,23 +228,26 @@ export default function CalendarPage() {
 
           return (
             <div
-              onDoubleClick={() => {
-                if (matched) {
-                  console.log("🔥 DOUBLE CLICK detected on", arg.event.title);
-                  console.log("🧩 Matched event object:", matched);
-                  setNewEvent({
-                    title: matched.title || "",
-                    start: matched.start,
-                    end: matched.end,
-                    category: matched.category || "Offer",
-                    offerType: matched.offerType || "Triple Offer",
-                    templateName: matched.template_name || matched.templateName || "",
-                    status: matched.status || "Draft",
-                    id: matched.id
-                  });
-                  setIsModalOpen(true);
-                }
-              }}
+            onDoubleClick={() => {
+              const matched = events.find(e => e.id === arg.event.id);
+              console.log("✅ DOUBLE CLICK triggered on", arg.event.id);
+              console.log("🔍 Matched event:", matched);
+            
+              if (matched) {
+                setNewEvent({
+                  title: matched.title || "",
+                  start: matched.start,
+                  end: matched.end,
+                  category: matched.category || "Offer",
+                  offerType: matched.offerType || "Triple Offer",
+                  templateName: matched.template_name || matched.templateName || "",
+                  status: matched.status || "Draft",
+                  id: matched.id
+                });
+                setShowPreview(true);
+                setIsModalOpen(true);
+              }
+            }}
             >
               <b>{arg.event.title}</b>
             </div>
