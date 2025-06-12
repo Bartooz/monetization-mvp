@@ -43,8 +43,16 @@ const EventModal = ({
     setNewEvent({ ...newEvent, [field]: value });
   };
 
-  const layout = selectedTemplateData?.layout || "Vertical";
+  const rawLayout = selectedTemplateData?.layout || "Vertical";
+  const layout = rawLayout.replace(/\s+/g, "");
   const slots = selectedTemplateData?.slots || [];
+
+  const layoutComponentMap = {
+    Horizontal: <TripleOfferPreviewHorizontal slots={slots} />,
+    Vertical: <TripleOfferPreviewVertical slots={slots} />,
+    Carousel: <TripleOfferPreviewCarousel slots={slots} />,
+    VerticalCarousel: <TripleOfferPreviewVerticalCarousel slots={slots} />,
+  };
 
   const normalizeDateTime = (value) => {
     if (!value) return "";
@@ -55,6 +63,8 @@ const EventModal = ({
       return "";
     }
   };
+
+  
 
   return (
     <Modal
@@ -155,12 +165,8 @@ const EventModal = ({
           {selectedTemplateData.title && selectedTemplateData.title !== "Untitled Offer" && (
             <h4 style={{ marginBottom: 10 }}>{selectedTemplateData.title}</h4>
           )}
-          {{
-            Horizontal: <TripleOfferPreviewHorizontal slots={slots} />,
-            Vertical: <TripleOfferPreviewVertical slots={slots} />,
-            Carousel: <TripleOfferPreviewCarousel slots={slots} />,
-            VerticalCarousel: <TripleOfferPreviewVerticalCarousel slots={slots} />,
-          }[layout] || <TripleOfferPreviewVertical slots={slots} />}
+         {layoutComponentMap[layout] || <TripleOfferPreviewVertical slots={slots} />}
+
         </div>
       )}
     </Modal>
