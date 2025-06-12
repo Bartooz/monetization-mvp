@@ -25,8 +25,8 @@ export default function CalendarPage() {
     .then((data) => {
       const normalized = data.map((e) => ({
         ...e,
-        start: new Date(e.start),
-        end: new Date(e.end),
+        start: new Date(e.start).toISOString(),
+        end: new Date(e.end).toISOString(),
       }));
       console.log("📅 Events fetched:", normalized);
       setEvents(normalized);
@@ -85,8 +85,8 @@ export default function CalendarPage() {
       const data = await refreshed.json();
       const normalized = data.map(e => ({
         ...e,
-        start: new Date(e.start),
-        end: new Date(e.end),
+        start: new Date(e.start).toISOString(),
+        end: new Date(e.end).toISOString(),
       }));
       setEvents(normalized);
       console.log("Events received from backend:", normalized);
@@ -114,8 +114,8 @@ export default function CalendarPage() {
       const data = await refreshed.json();
       const normalized = data.map(e => ({
         ...e,
-        start: new Date(e.start),
-        end: new Date(e.end),
+        start: new Date(e.start).toISOString(),
+        end: new Date(e.end).toISOString(),
       }));
       setEvents(normalized);
     } catch (err) {
@@ -145,8 +145,8 @@ export default function CalendarPage() {
       const data = await refreshed.json();
       const normalized = data.map(e => ({
         ...e,
-        start: new Date(e.start),
-        end: new Date(e.end),
+        start: new Date(e.start).toISOString(),
+        end: new Date(e.end).toISOString(),
       }));
       setEvents(normalized);
       console.log("Events received from backend:", normalized);
@@ -162,7 +162,16 @@ export default function CalendarPage() {
     info.el.addEventListener("dblclick", () => {
       const matched = events.find(e => e.id == info.event.id);
       if (matched) {
-        setNewEvent({ ...matched });
+        setNewEvent({
+          title: matched.title || "",
+          start: matched.start,
+          end: matched.end,
+          category: matched.category || "Offer",
+          offerType: matched.offerType || "Triple Offer",
+          templateName: matched.template_name || matched.templateName || "",
+          status: matched.status || "Draft",
+          id: matched.id
+        });
         setIsModalOpen(true);
       }
     });
