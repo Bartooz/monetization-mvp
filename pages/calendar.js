@@ -229,7 +229,7 @@ export default function CalendarPage() {
           return (
             <div
             onDoubleClick={() => {
-              const matched = events.find(e => e.id === arg.event.id);
+              const matched = events.find(e => String(e.id) === String(info.event.id));
               console.log("✅ DOUBLE CLICK triggered on", arg.event.id);
               console.log("🔍 Matched event:", matched);
             
