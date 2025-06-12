@@ -131,7 +131,19 @@ export default function CalendarPage() {
   };
 
   const handleEditFromPreview = () => {
-    setNewEvent(selectedEventForPreview);
+    if (!selectedEventForPreview) return;
+  
+    setNewEvent({
+      title: selectedEventForPreview.title || "",
+      start: selectedEventForPreview.start,
+      end: selectedEventForPreview.end,
+      category: selectedEventForPreview.category || "Offer",
+      offerType: selectedEventForPreview.offerType || "Triple Offer",
+      templateName: selectedEventForPreview.template_name || selectedEventForPreview.templateName || "",
+      status: selectedEventForPreview.status || "Draft",
+      id: selectedEventForPreview.id,
+    });
+  
     setIsModalOpen(true);
     setSelectedEventForPreview(null);
   };
