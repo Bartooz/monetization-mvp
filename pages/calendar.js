@@ -21,22 +21,22 @@ export default function CalendarPage() {
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/events`)
-    .then((res) => res.json())
-    .then((data) => {
-      const normalized = data.map((e) => ({
-        ...e,
-        start: new Date(e.start).toISOString(),
-        end: new Date(e.end).toISOString(),
-      }));
-      console.log("📅 Events fetched:", normalized);
-      setEvents(normalized);
-    })
+      .then((res) => res.json())
+      .then((data) => {
+        const normalized = data.map((e) => ({
+          ...e,
+          start: new Date(e.start).toISOString(),
+          end: new Date(e.end).toISOString(),
+        }));
+        console.log("📅 Events fetched:", normalized);
+        setEvents(normalized);
+      })
       .catch((err) => {
         console.error("Failed to fetch events", err);
         setEvents([]);
       });
 
-      fetch(`${BASE_URL}/api/templates`)
+    fetch(`${BASE_URL}/api/templates`)
       .then((res) => res.json())
       .then((data) => {
         console.log("📦 Templates fetched:", data);
@@ -88,6 +88,8 @@ export default function CalendarPage() {
         start: new Date(e.start).toISOString(),
         end: new Date(e.end).toISOString(),
       }));
+      setEvents([]); // clear to force full re-render
+      setTimeout(() => setEvents(normalized), 50); // allow next tick to hydrate clean state
       setEvents(normalized);
       console.log("Events received from backend:", normalized);
     } catch (err) {
@@ -173,7 +175,7 @@ export default function CalendarPage() {
           id: matched.id
         });
         setIsModalOpen(true);
-      }
+      }      
     });
   };
 
