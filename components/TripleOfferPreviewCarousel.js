@@ -7,6 +7,16 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
 
     return (
         <div style={{ textAlign: "center", padding: "1rem" }}>
+            <div
+                style={{
+                    border: "2px solid #ccc",
+                    borderRadius: "12px",
+                    padding: "1rem",
+                    maxWidth: "400px",
+                    margin: "0 auto",
+                    background: "#fdfdfd",
+                }}
+            ></div>
             <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
 
             <div
