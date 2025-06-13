@@ -18,15 +18,17 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
             <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
 
             <div
-                style={{
-                    width: "100%",
-                    maxWidth: "360px",
-                    margin: "0 auto",
-                    position: "relative",
-                    height: "260px",
-                    perspective: "1000px",
-                    
-                }}
+               style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "280px",
+                overflow: "hidden",
+                position: "relative",
+                maxWidth: "300px",           // limit container width
+                margin: "0 auto",
+              }}
             >
                 {slots.map((slot, index) => {
                     const offset = (index - activeIndex + slots.length) % slots.length;
@@ -60,7 +62,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                                 left: "50%",
                                 transform: transform,
                                 transition: "transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease",
-                                width: "250px",
+                                minWidth: "280px",
                                 padding: "16px",
                                 border: "1px solid #ccc",
                                 borderRadius: "10px",
