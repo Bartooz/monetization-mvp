@@ -6,67 +6,93 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
 
 
     return (
-        <div
-          style={{
-            border: '10px solid black',
-            borderRadius: '30px',
-            width: '375px',
-            height: '667px',
-            margin: '0 auto',
-            backgroundColor: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              overflowX: 'auto',
-              scrollSnapType: 'x mandatory',
-              width: '80%',
-              height: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {slots.map((slot, index) => (
-              <div
-                key={index}
+        <div style={{
+            border: "2px solid #ccc",
+            borderRadius: "12px",
+            padding: "1rem",
+            maxWidth: "400px",
+            margin: "0 auto",
+            background: "#fdfdfd",
+          }}>
+            
+            <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
+
+            <div
                 style={{
-                  flex: '0 0 100%',
-                  scrollSnapAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '20px',
+                    width: "100%",
+                    maxWidth: "360px",
+                    margin: "0 auto",
+                    position: "relative",
+                    height: "260px",
+                    perspective: "1000px",
+                    
                 }}
-              >
-                <h3 style={{ marginBottom: '10px' }}>Untitled Offer</h3>
-                <div
-                  style={{
-                    border: '2px solid #ccc',
-                    borderRadius: '10px',
-                    padding: '10px 20px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ fontWeight: 'bold' }}>
-                    {slot.paid ? `${slot.value}$ + ${slot.bonus}$ 💰` : slot.value}
-                  </div>
-                  <button style={{ marginTop: '5px' }}>
-                    {slot.paid ? `${slot.value}$ Only!` : 'Free!'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+            >
+                {slots.map((slot, index) => {
+                    const offset = (index - activeIndex + slots.length) % slots.length;
+
+                    let transform = "translateX(-50%)";
+                    let zIndex = 2;
+                    let filter = "blur(2px)";
+                    let opacity = 0.6;
+                    let pointerEvents = "none";
+
+                    if (offset === 0) {
+                        transform += " translateX(0px) scale(1)";
+                        zIndex = 3;
+                        filter = "none";
+                        opacity = 1;
+                        pointerEvents = "auto";
+                    } else if (offset === 1) {
+                        transform += " translateX(60px) scale(0.85)";
+                    } else if (offset === 2) {
+                        transform += " translateX(-60px) scale(0.85)";
+                    } else {
+                        return null;
+                    }
+
+                    return (
+                        <div
+                            key={index}
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: "50%",
+                                transform: transform,
+                                transition: "transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease",
+                                width: "250px",
+                                padding: "16px",
+                                border: "1px solid #ccc",
+                                borderRadius: "10px",
+                                background: "#fff",
+                                textAlign: "center",
+                                transform: transform,
+                                zIndex,
+                                filter,
+                                opacity,
+                                pointerEvents,
+                            }}
+                        >
+                            <div style={{ fontWeight: "bold", marginBottom: 8 }}>
+                                {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
+                                {slot.currency === "Cash"
+                                    ? "💵"
+                                    : slot.currency === "Gold Bars"
+                                        ? "🪙"
+                                        : "💎"}
+                            </div>
+                            <button
+                                style={{ padding: "6px 16px" }}
+                                onClick={() => setActiveIndex((activeIndex + 1) % slots.length)}
+                            >
+                                {slot.paid ? `${slot.value} Only!` : "Free!"}
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
-      );
-      
-      
+    );
 
 }
 
