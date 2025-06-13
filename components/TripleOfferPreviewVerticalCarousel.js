@@ -4,36 +4,38 @@ export default function TripleOfferPreviewVerticalCarousel({ slots = [], title }
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div style={{
-      border: "2px solid #ccc",
-      borderRadius: "12px",
-      padding: "1rem",
-      maxWidth: "400px",
-      margin: "0 auto",
-      background: "#fdfdfd",
-    }}>
-      
-      <h3 style={{ marginBottom: "1rem" }}>{title || "Untitled Offer"}</h3>
-
+    <div
+      style={{
+        border: "2px solid #ccc",
+        borderRadius: "12px",
+        padding: "1rem",
+        maxWidth: "400px",
+        margin: "0 auto",
+        background: "#fdfdfd",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>{title || "Untitled Offer"}</h3>
+  
       <div
         style={{
           width: "100%",
-          maxWidth: "360px",
-          margin: "0 auto",
-          position: "relative",
+          maxWidth: "320px",
           height: "300px",
-          perspective: "1000px",
+          position: "relative",
         }}
       >
         {slots.map((slot, index) => {
           const offset = (index - activeIndex + slots.length) % slots.length;
-
+  
           let transform = "translate(-50%, -50%)";
           let zIndex = 2;
           let filter = "blur(2px)";
           let opacity = 0.6;
           let pointerEvents = "none";
-
+  
           if (offset === 0) {
             transform += " translateY(0px) scale(1)";
             zIndex = 3;
@@ -47,7 +49,7 @@ export default function TripleOfferPreviewVerticalCarousel({ slots = [], title }
           } else {
             return null;
           }
-
+  
           return (
             <div
               key={index}
@@ -71,11 +73,7 @@ export default function TripleOfferPreviewVerticalCarousel({ slots = [], title }
             >
               <div style={{ fontWeight: "bold", marginBottom: 8 }}>
                 {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
-                {slot.currency === "Cash"
-                  ? "💵"
-                  : slot.currency === "Gold Bars"
-                  ? "🪙"
-                  : "💎"}
+                {slot.currency === "Cash" ? "💵" : slot.currency === "Gold Bars" ? "🪙" : "💎"}
               </div>
               <button
                 style={{ padding: "6px 16px" }}
@@ -89,4 +87,5 @@ export default function TripleOfferPreviewVerticalCarousel({ slots = [], title }
       </div>
     </div>
   );
+  
 }
