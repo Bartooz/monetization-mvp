@@ -10,7 +10,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
             border: "2px solid #ccc",
             borderRadius: "12px",
             padding: "1rem",
-            maxWidth: "400px",
+            maxWidth: "600px",
             margin: "0 auto",
             background: "#fdfdfd",
           }}>
