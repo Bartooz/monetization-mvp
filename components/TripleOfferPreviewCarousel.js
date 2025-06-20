@@ -10,7 +10,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
             border: "2px solid #ccc",
             borderRadius: "12px",
             padding: "1rem",
-            maxWidth: "600px",
+            width: "360px",
             margin: "0 auto",
             background: "#fdfdfd",
           }}>
@@ -26,7 +26,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                 height: "280px",
                 overflow: "hidden",
                 position: "relative",
-                maxWidth: "300px",           // limit container width
+                width: "100%",       // limit container width
                 margin: "0 auto",
               }}
             >
@@ -62,7 +62,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                                 left: "50%",
                                 transform: transform,
                                 transition: "transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease",
-                                minWidth: "280px",
+                                minWidth: "220px",
                                 padding: "16px",
                                 border: "1px solid #ccc",
                                 borderRadius: "10px",
