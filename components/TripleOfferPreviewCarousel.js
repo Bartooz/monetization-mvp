@@ -6,12 +6,16 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
   const [scale, setScale] = useState(1);
 
   const BASE_WIDTH = 360;
+  const BASE_HEIGHT = 640;
 
   useEffect(() => {
     const observer = new ResizeObserver(entries => {
       for (let entry of entries) {
-        const width = entry.contentRect.width;
-        const newScale = Math.max(0.5, Math.min(1.5, width / BASE_WIDTH));
+        const { width, height } = entry.contentRect;
+        const newScale = Math.max(
+          0.5,
+          Math.min(1.5, Math.min(width / BASE_WIDTH, height / BASE_HEIGHT))
+        );
         setScale(newScale);
       }
     });
@@ -30,17 +34,19 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
       ref={containerRef}
       style={{
         resize: "both",
-        overflow: "auto",
+        overflow: "hidden",
         minWidth: "300px",
+        minHeight: "500px",
         maxWidth: "500px",
-        minHeight: "400px",
         maxHeight: "800px",
-        border: "2px solid #ccc",
-        borderRadius: "12px",
-        padding: "0.5rem",
-        margin: "0 auto",
+        border: "12px solid #333",
+        borderRadius: "30px",
         background: "#fdfdfd",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         boxSizing: "border-box",
+        margin: "0 auto",
       }}
     >
       <div
@@ -48,6 +54,9 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
           transform: `scale(${scale})`,
           transformOrigin: "top left",
           width: `${BASE_WIDTH}px`,
+          height: `${BASE_HEIGHT}px`,
+          overflow: "hidden",
+          position: "relative",
         }}
       >
         <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>
