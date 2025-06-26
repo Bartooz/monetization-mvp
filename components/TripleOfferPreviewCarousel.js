@@ -53,7 +53,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                             const offset =
                                 (index - activeIndex + slots.length) % slots.length;
 
-                            let transform = "translateX(-50%)";
+                            let transform = "translate(-50%, -50%)";
                             let zIndex = 2;
                             let filter = "blur(2px)";
                             let opacity = 0.6;
