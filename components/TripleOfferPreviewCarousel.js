@@ -5,14 +5,16 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
 
   return (
     <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+  style={{
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "1rem", // Optional to prevent tight fit
+    boxSizing: "border-box",
+  }}
+>
       <div
         style={{
           width: "300px",
