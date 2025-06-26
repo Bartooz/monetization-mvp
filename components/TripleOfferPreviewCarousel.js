@@ -3,10 +3,6 @@ import React, { useState } from "react";
 export default function TripleOfferPreviewCarousel({ config, offerTitle = "Untitled Offer" }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!config?.slots?.length) return null;
-
-  const slots = config.slots;
-
   return (
     <div
       style={{
