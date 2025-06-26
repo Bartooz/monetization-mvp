@@ -41,6 +41,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
+                        position: "relative",
                     }}
                 >
                     {slots.length === 0 ? (
