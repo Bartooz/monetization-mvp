@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-export default function TripleOfferPreviewCarousel({ config, offerTitle = "Untitled Offer" }) {
+export default function TripleOfferPreviewCarousel({ slots = [], title }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const slots = config?.slots || [];
 
   return (
     <div
@@ -21,7 +20,9 @@ export default function TripleOfferPreviewCarousel({ config, offerTitle = "Untit
         alignItems: "center",
       }}
     >
-      <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>{offerTitle}</h3>
+      <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>
+        {title || "Untitled Offer"}
+      </h3>
 
       <div
         style={{
@@ -34,7 +35,9 @@ export default function TripleOfferPreviewCarousel({ config, offerTitle = "Untit
         }}
       >
         {slots.length === 0 ? (
-          <div style={{ textAlign: "center", color: "#888" }}>No slots configured</div>
+          <div style={{ textAlign: "center", color: "#888" }}>
+            No slots configured
+          </div>
         ) : (
           slots.map((slot, index) => {
             const offset = (index - activeIndex + slots.length) % slots.length;
@@ -67,8 +70,7 @@ export default function TripleOfferPreviewCarousel({ config, offerTitle = "Untit
                   top: "50%",
                   left: "50%",
                   transform,
-                  transition:
-                    "transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease",
+                  transition: "transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease",
                   width: "160px",
                   height: "160px",
                   padding: "16px",
@@ -108,6 +110,7 @@ export default function TripleOfferPreviewCarousel({ config, offerTitle = "Untit
     </div>
   );
 }
+
 
 
 
