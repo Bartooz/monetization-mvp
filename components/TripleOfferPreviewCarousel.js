@@ -1,40 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 
 export default function TripleOfferPreviewCarousel({ slots = [], title }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const containerRef = useRef(null);
-  const [scale, setScale] = useState(1);
-
-  const BASE_WIDTH = 360;
-
-  useEffect(() => {
-    const observer = new ResizeObserver(entries => {
-      for (let entry of entries) {
-        const width = entry.contentRect.width;
-        const newScale = Math.max(0.5, Math.min(1.5, width / BASE_WIDTH));
-        setScale(newScale);
-      }
-    });
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => {
-      if (containerRef.current) observer.unobserve(containerRef.current);
-    };
-  }, []);
 
   return (
     <div
-      ref={containerRef}
       style={{
-        resize: "both",
-        overflow: "auto",
-        minWidth: "300px",
-        maxWidth: "500px",
-        minHeight: "400px",
-        maxHeight: "800px",
+        width: "300px",
+        height: "400px",
         border: "2px solid #ccc",
         borderRadius: "12px",
         padding: "0.5rem",
@@ -43,21 +16,16 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
         boxSizing: "border-box",
       }}
     >
-      <div
-        style={{
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          width: `${BASE_WIDTH}px`,
-        }}
-      >
-        <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>
-          {title || "Untitled Offer"}
-        </h3>
+      <div style={{ width: "100%", height: "100%" }}>
+        <h3 style={{ textAlign: "center" }}>{title || "Untitled Offer"}</h3>
 
         <div
           style={{
             width: "100%",
-            height: "240px",
+            height: "calc(100% - 2.5rem)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             position: "relative",
           }}
         >
@@ -89,12 +57,13 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                 key={index}
                 style={{
                   position: "absolute",
-                  top: 0,
+                  top: "50%",
                   left: "50%",
                   transform,
                   transition:
                     "transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease",
-                  minWidth: "220px",
+                  width: "200px",
+                  height: "200px",
                   padding: "16px",
                   border: "1px solid #ccc",
                   borderRadius: "10px",
@@ -130,5 +99,6 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
     </div>
   );
 }
+
 
 
