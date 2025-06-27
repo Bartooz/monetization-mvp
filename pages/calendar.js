@@ -9,6 +9,21 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 console.log("🚀 NEW CALENDAR BUILD", new Date().toISOString());
 
+const USE_BACKEND = false;
+
+const LOCAL_EVENTS_KEY = "calendar_events";
+const LOCAL_TEMPLATES_KEY = "calendar_templates";
+const LOCAL_CONFIGS_KEY = "calendar_configs";
+
+const loadLocal = (key) => {
+  const stored = localStorage.getItem(key);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLocal = (key, data) => {
+  localStorage.setItem(key, JSON.stringify(data));
+};
+
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,41 +38,48 @@ export default function CalendarPage() {
   const calendarRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/api/events`)
-      .then((res) => res.json())
-      .then((data) => {
-        const normalized = data.map((e) => ({
-          ...e,
-          start: new Date(e.start).toISOString(),
-          end: new Date(e.end).toISOString(),
-        }));
-        console.log("📅 Events fetched:", normalized);
-        setEvents(normalized);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch events", err);
-        setEvents([]);
-      });
-
-    fetch(`${BASE_URL}/api/templates`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("📦 Templates fetched:", data);
-        setTemplates(data);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch templates", err);
-        setTemplates([]);
-      });
-
-    fetch(`${BASE_URL}/api/configurations`)
-      .then((res) => res.json())
-      .then(setConfigurations)
-      .catch((err) => {
-        console.error("Failed to fetch configurations", err);
-        setConfigurations([]);
-      });
+    if (USE_BACKEND) {
+      fetch(`${BASE_URL}/api/events`)
+        .then((res) => res.json())
+        .then((data) => {
+          const normalized = data.map((e) => ({
+            ...e,
+            start: new Date(e.start).toISOString(),
+            end: new Date(e.end).toISOString(),
+          }));
+          console.log("📅 Events fetched:", normalized);
+          setEvents(normalized);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch events", err);
+          setEvents([]);
+        });
+  
+      fetch(`${BASE_URL}/api/templates`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("📦 Templates fetched:", data);
+          setTemplates(data);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch templates", err);
+          setTemplates([]);
+        });
+  
+      fetch(`${BASE_URL}/api/configurations`)
+        .then((res) => res.json())
+        .then(setConfigurations)
+        .catch((err) => {
+          console.error("Failed to fetch configurations", err);
+          setConfigurations([]);
+        });
+    } else {
+      setEvents(loadLocal(LOCAL_EVENTS_KEY));
+      setTemplates(loadLocal(LOCAL_TEMPLATES_KEY));
+      setConfigurations(loadLocal(LOCAL_CONFIGS_KEY));
+    }
   }, []);
+  
 
   function getEffectiveStatus(event) {
     const now = new Date();
@@ -72,9 +94,9 @@ export default function CalendarPage() {
 
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.templateName) return;
-
+  
     const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || {};
-
+  
     const eventToSave = {
       ...newEvent,
       category: newEvent.category || fullTemplate.eventType || "Offer",
@@ -82,65 +104,89 @@ export default function CalendarPage() {
       configuration: newEvent.configuration || fullTemplate.configuration || "",
       template_name: newEvent.templateName,
     };
-
-    const isEdit = !!newEvent.id;
-    const method = isEdit ? "PUT" : "POST";
-    const endpoint = isEdit
-      ? `${BASE_URL}/api/events/${newEvent.id}`
-      : `${BASE_URL}/api/events`;
-
-    try {
-      await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventToSave),
-      });
-      const refreshed = await fetch(`${BASE_URL}/api/events`);
-      const data = await refreshed.json();
-      const normalized = data.map(e => ({
-        ...e,
-        start: new Date(e.start).toISOString(),
-        end: new Date(e.end).toISOString(),
-      }));
-
-      setEvents([]); // flush stale cache
-      setTimeout(() => {
-        setEvents(normalized); // inject fresh data
-        calendarRef.current?.getApi().refetchEvents(); // tell FullCalendar to re-render
-      }, 50);
-      console.log("Events received from backend:", normalized);
-    } catch (err) {
-      console.error("Error saving event", err);
+  
+    if (USE_BACKEND) {
+      const isEdit = !!newEvent.id;
+      const method = isEdit ? "PUT" : "POST";
+      const endpoint = isEdit
+        ? `${BASE_URL}/api/events/${newEvent.id}`
+        : `${BASE_URL}/api/events`;
+  
+      try {
+        await fetch(endpoint, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(eventToSave),
+        });
+        const refreshed = await fetch(`${BASE_URL}/api/events`);
+        const data = await refreshed.json();
+        const normalized = data.map(e => ({
+          ...e,
+          start: new Date(e.start).toISOString(),
+          end: new Date(e.end).toISOString(),
+        }));
+  
+        setEvents([]);
+        setTimeout(() => {
+          setEvents(normalized);
+          calendarRef.current?.getApi().refetchEvents();
+        }, 50);
+      } catch (err) {
+        console.error("Error saving event", err);
+      }
+    } else {
+      const isEdit = !!newEvent.id;
+      let current = loadLocal(LOCAL_EVENTS_KEY);
+  
+      if (isEdit) {
+        current = current.map((e) => (e.id === newEvent.id ? eventToSave : e));
+      } else {
+        eventToSave.id = Date.now();
+        current.push(eventToSave);
+      }
+  
+      saveLocal(LOCAL_EVENTS_KEY, current);
+      setEvents(current);
     }
-
+  
     setIsModalOpen(false);
     setNewEvent({ title: "", start: "", end: "", category: "", templateName: "", status: "Draft" });
   };
+  
 
   const handleEventDrop = async (info) => {
     const movedEvent = events.find(evt => evt.id == info.event.id);
     if (!movedEvent) return;
-
+  
     const updated = { ...movedEvent, start: info.event.startStr, end: info.event.endStr };
-
-    try {
-      await fetch(`${BASE_URL}/api/events/${updated.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
-      });
-      const refreshed = await fetch(`${BASE_URL}/api/events`);
-      const data = await refreshed.json();
-      const normalized = data.map(e => ({
-        ...e,
-        start: new Date(e.start).toISOString(),
-        end: new Date(e.end).toISOString(),
-      }));
-      setEvents(normalized);
-    } catch (err) {
-      console.error("Error saving dropped event", err);
+  
+    if (USE_BACKEND) {
+      try {
+        await fetch(`${BASE_URL}/api/events/${updated.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated),
+        });
+        const refreshed = await fetch(`${BASE_URL}/api/events`);
+        const data = await refreshed.json();
+        const normalized = data.map(e => ({
+          ...e,
+          start: new Date(e.start).toISOString(),
+          end: new Date(e.end).toISOString(),
+        }));
+        setEvents(normalized);
+      } catch (err) {
+        console.error("Error saving dropped event", err);
+      }
+    } else {
+      const current = loadLocal(LOCAL_EVENTS_KEY).map(e =>
+        e.id === updated.id ? updated : e
+      );
+      saveLocal(LOCAL_EVENTS_KEY, current);
+      setEvents(current);
     }
   };
+  
 
   const handleEventClick = (info) => {
     const matched = events.find(e => e.id == info.event.id);
@@ -167,27 +213,32 @@ export default function CalendarPage() {
 
   const handleDeleteFromPreview = async () => {
     if (!selectedEventForPreview) return;
-
-    try {
-      await fetch(`${BASE_URL}/api/events/${selectedEventForPreview.id}`, {
-        method: "DELETE",
-      });
-      const refreshed = await fetch(`${BASE_URL}/api/events`);
-      const data = await refreshed.json();
-      const normalized = data.map(e => ({
-        ...e,
-        start: new Date(e.start).toISOString(),
-        end: new Date(e.end).toISOString(),
-      }));
-      setEvents(normalized);
-      console.log("Events received from backend:", normalized);
-
-    } catch (err) {
-      console.error("Error deleting event", err);
+  
+    if (USE_BACKEND) {
+      try {
+        await fetch(`${BASE_URL}/api/events/${selectedEventForPreview.id}`, {
+          method: "DELETE",
+        });
+        const refreshed = await fetch(`${BASE_URL}/api/events`);
+        const data = await refreshed.json();
+        const normalized = data.map(e => ({
+          ...e,
+          start: new Date(e.start).toISOString(),
+          end: new Date(e.end).toISOString(),
+        }));
+        setEvents(normalized);
+      } catch (err) {
+        console.error("Error deleting event", err);
+      }
+    } else {
+      const current = loadLocal(LOCAL_EVENTS_KEY).filter(e => e.id !== selectedEventForPreview.id);
+      saveLocal(LOCAL_EVENTS_KEY, current);
+      setEvents(current);
     }
-
+  
     setSelectedEventForPreview(null);
   };
+  
 
 
 

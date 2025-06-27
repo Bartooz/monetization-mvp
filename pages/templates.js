@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from "react";
 import TripleOfferEditor from "../components/TripleOfferEditor";
 
+const USE_BACKEND = false; // Set to true to reactivate backend mode
+
+const LOCAL_STORAGE_KEY = 'templates';
+
+const loadLocalTemplates = () => {
+  const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLocalTemplates = (templates) => {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(templates));
+};
+
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([]);
   const [editingTemplate, setEditingTemplate] = useState(null);
@@ -11,45 +24,61 @@ export default function TemplatesPage() {
 
   // ✅ Fetch templates from backend
   useEffect(() => {
-    fetch(`${BASE_URL}/api/templates`)
-      .then((res) => res.json())
-      .then((data) => setTemplates(data))
-      .catch((err) => {
-        console.error("Failed to fetch templates:", err);
-        setTemplates([]);
-      });
+    if (USE_BACKEND) {
+      fetch(`${BASE_URL}/api/templates`)
+        .then((res) => res.json())
+        .then((data) => setTemplates(data))
+        .catch((err) => {
+          console.error("Failed to fetch templates:", err);
+          setTemplates([]);
+        });
+    } else {
+      const localTemplates = loadLocalTemplates();
+      setTemplates(localTemplates);
+    }
   }, []);
 
   // ✅ Save or update a template
   const handleSaveTemplate = async (templateData) => {
-    try {
-      const method = editingTemplate ? "PUT" : "POST";
-      const endpoint = editingTemplate
-        ? `${BASE_URL}/api/templates/${editingTemplate.template_name}`
-        : `${BASE_URL}/api/templates`;
-
-      const res = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(templateData),
-      });
-
-      if (!res.ok) throw new Error("Failed to save template");
-
-      const saved = method === "POST" ? await res.json() : templateData;
-
-      setTemplates((prev) => {
-        const exists = prev.find((tpl) => tpl.template_name === saved.template_name);
-        return exists
-          ? prev.map((tpl) =>
-            tpl.template_name === saved.template_name ? saved : tpl
-          )
-          : [...prev, saved];
-      });
-
+    if (USE_BACKEND) {
+      try {
+        const method = editingTemplate ? "PUT" : "POST";
+        const endpoint = editingTemplate
+          ? `${BASE_URL}/api/templates/${editingTemplate.template_name}`
+          : `${BASE_URL}/api/templates`;
+  
+        const res = await fetch(endpoint, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(templateData),
+        });
+  
+        if (!res.ok) throw new Error("Failed to save template");
+  
+        const saved = method === "POST" ? await res.json() : templateData;
+  
+        setTemplates((prev) => {
+          const exists = prev.find((tpl) => tpl.template_name === saved.template_name);
+          return exists
+            ? prev.map((tpl) =>
+                tpl.template_name === saved.template_name ? saved : tpl
+              )
+            : [...prev, saved];
+        });
+  
+        setEditingTemplate(null);
+      } catch (err) {
+        console.error("Save error:", err);
+      }
+    } else {
+      const existing = loadLocalTemplates();
+      const filtered = existing.filter(
+        (tpl) => tpl.template_name !== templateData.template_name
+      );
+      const updated = [...filtered, templateData];
+      saveLocalTemplates(updated);
+      setTemplates(updated);
       setEditingTemplate(null);
-    } catch (err) {
-      console.error("Save error:", err);
     }
   };
 
@@ -60,20 +89,25 @@ export default function TemplatesPage() {
 
   // ✅ Delete a template
   const handleDelete = async (name) => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/templates/${encodeURIComponent(name)}`, {
-
+    if (USE_BACKEND) {
+      try {
+        const res = await fetch(`${BASE_URL}/api/templates/${encodeURIComponent(name)}`, {
           method: "DELETE",
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to delete template");
-
-      setTemplates((prev) =>
-        prev.filter((tpl) => tpl.template_name !== name)
-      );
-    } catch (err) {
-      console.error("Delete error:", err);
+        });
+  
+        if (!res.ok) throw new Error("Failed to delete template");
+  
+        setTemplates((prev) =>
+          prev.filter((tpl) => tpl.template_name !== name)
+        );
+      } catch (err) {
+        console.error("Delete error:", err);
+      }
+    } else {
+      const current = loadLocalTemplates();
+      const updated = current.filter((tpl) => tpl.template_name !== name);
+      saveLocalTemplates(updated);
+      setTemplates(updated);
     }
   };
 

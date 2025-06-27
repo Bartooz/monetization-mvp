@@ -1,5 +1,19 @@
 import { useEffect, useState } from "react";
 
+const USE_BACKEND = false; // Toggle true to re-enable backend
+
+const LOCAL_KEY = "configurations";
+
+const loadLocalConfigurations = () => {
+  const stored = localStorage.getItem(LOCAL_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLocalConfigurations = (configs) => {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(configs));
+};
+
+
 export default function ConfigurationsPage() {
   const [configurations, setConfigurations] = useState([]);
   const [configName, setConfigName] = useState("");
@@ -33,12 +47,18 @@ export default function ConfigurationsPage() {
   }, [offerType]);
 
   const fetchConfigurations = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/configurations`);
-      const data = await res.json();
-      setConfigurations(data);
-    } catch (err) {
-      console.error("Failed to fetch configurations", err);
+    if (USE_BACKEND) {
+      try {
+        const res = await fetch(`${BASE_URL}/api/configurations`);
+        const data = await res.json();
+        setConfigurations(data);
+      } catch (err) {
+        console.error("Failed to fetch configurations", err);
+        setConfigurations([]);
+      }
+    } else {
+      const localData = loadLocalConfigurations();
+      setConfigurations(localData);
     }
   };
 
@@ -60,7 +80,7 @@ export default function ConfigurationsPage() {
       offer_type: offerType,
       slots,
     };
-
+  
     const duplicate = configurations.some(
       (cfg) =>
         cfg.config_name.toLowerCase() === configToSave.config_name.toLowerCase() &&
@@ -70,26 +90,38 @@ export default function ConfigurationsPage() {
       alert("A configuration with this name already exists.");
       return;
     }
-
-    try {
-      const method = editingName ? "PUT" : "POST";
-      const endpoint = editingName
-        ? `${BASE_URL}/api/configurations/${encodeURIComponent(editingName)}`
-        : `${BASE_URL}/api/configurations`;
-
-      const res = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(configToSave),
-      });
-
-      if (!res.ok) throw new Error("Save failed");
-      await fetchConfigurations();
+  
+    if (USE_BACKEND) {
+      try {
+        const method = editingName ? "PUT" : "POST";
+        const endpoint = editingName
+          ? `${BASE_URL}/api/configurations/${encodeURIComponent(editingName)}`
+          : `${BASE_URL}/api/configurations`;
+  
+        const res = await fetch(endpoint, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(configToSave),
+        });
+  
+        if (!res.ok) throw new Error("Save failed");
+        await fetchConfigurations();
+        resetForm();
+      } catch (err) {
+        console.error("Save error", err);
+      }
+    } else {
+      const existing = loadLocalConfigurations();
+      const filtered = existing.filter(
+        (cfg) => cfg.config_name !== configToSave.config_name
+      );
+      const updated = [...filtered, configToSave];
+      saveLocalConfigurations(updated);
+      setConfigurations(updated);
       resetForm();
-    } catch (err) {
-      console.error("Save error", err);
     }
   };
+  
 
   const handleEdit = (cfg) => {
     setConfigName(cfg.config_name);
@@ -101,20 +133,28 @@ export default function ConfigurationsPage() {
 
   const handleDelete = async (name) => {
     if (!window.confirm("Delete this configuration?")) return;
-
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/configurations/${encodeURIComponent(name)}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!res.ok) throw new Error("Delete failed");
-      await fetchConfigurations();
-    } catch (err) {
-      console.error("Delete error", err);
+  
+    if (USE_BACKEND) {
+      try {
+        const res = await fetch(
+          `${BASE_URL}/api/configurations/${encodeURIComponent(name)}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!res.ok) throw new Error("Delete failed");
+        await fetchConfigurations();
+      } catch (err) {
+        console.error("Delete error", err);
+      }
+    } else {
+      const current = loadLocalConfigurations();
+      const updated = current.filter((cfg) => cfg.config_name !== name);
+      saveLocalConfigurations(updated);
+      setConfigurations(updated);
     }
   };
+  
 
   const resetForm = () => {
     setConfigName("");
