@@ -8,6 +8,13 @@ import TripleOfferPreviewVerticalCarousel from "./TripleOfferPreviewVerticalCaro
 
 Modal.setAppElement("#__next");
 
+const USE_BACKEND = false; // Toggle this when backend is available
+
+const loadTemplatesLocal = () => {
+  const raw = localStorage.getItem("templates");
+  return raw ? JSON.parse(raw) : [];
+};
+
 const EventModal = ({
   isOpen,
   onClose,
@@ -20,10 +27,20 @@ const EventModal = ({
   setShowPreview
 }) => {
   const [selectedTemplateData, setSelectedTemplateData] = useState(null);
+  const [internalTemplates, setInternalTemplates] = useState([]);
+
+  useEffect(() => {
+    if (!USE_BACKEND) {
+      const local = loadTemplatesLocal();
+      setInternalTemplates(local);
+    } else {
+      setInternalTemplates(templates);
+    }
+  }, [templates]);
 
   useEffect(() => {
     if (!isOpen) return;
-    const selected = templates.find((t) =>
+    const selected = internalTemplates.find((t) =>
       t.templateName === newEvent.templateName ||
       t.template_name === newEvent.templateName
     );
@@ -118,7 +135,7 @@ const EventModal = ({
           }}
         >
           <option value="">Select Template</option>
-          {templates.map((template) => (
+          {internalTemplates.map((template) => (
             <option key={template.template_name} value={template.template_name}>
               {template.template_name}
             </option>
