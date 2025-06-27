@@ -5,6 +5,9 @@ import TripleOfferPreviewCarousel from "./TripleOfferPreviewCarousel";
 import TripleOfferPreviewVerticalCarousel from "./TripleOfferPreviewVerticalCarousel";
 import PhonePreviewWrapper from "./PhonePreviewWrapper";
 
+const USE_BACKEND = false; // Toggle to true to re-enable API
+
+
 const layoutComponents = {
   Horizontal: TripleOfferPreviewHorizontal,
   Vertical: TripleOfferPreviewVertical,
@@ -24,15 +27,27 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
   const [configurations, setConfigurations] = useState([]);
 
   useEffect(() => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-    fetch(`${BASE_URL}/api/configurations`)
-      .then((res) => res.json())
-      .then(setConfigurations)
-      .catch((err) => {
-        console.error("Failed to fetch configurations", err);
+    if (!USE_BACKEND) {
+      try {
+        const savedConfigs = localStorage.getItem("configurations");
+        const parsed = savedConfigs ? JSON.parse(savedConfigs) : [];
+        setConfigurations(parsed);
+      } catch (error) {
+        console.error("Failed to load configurations from localStorage", error);
         setConfigurations([]);
-      });
+      }
+    } else {
+      const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      fetch(`${BASE_URL}/api/configurations`)
+        .then((res) => res.json())
+        .then(setConfigurations)
+        .catch((err) => {
+          console.error("Failed to fetch configurations", err);
+          setConfigurations([]);
+        });
+    }
   }, []);
+  
 
   useEffect(() => {
     if (template) {
