@@ -9,7 +9,7 @@ export default function TripleOfferPreviewVerticalCarousel({ slots = [], title }
         border: "2px solid #ccc",
         borderRadius: "12px",
         padding: "1rem",
-        width: "400px",
+        width: "300px",
         margin: "0 auto",
         background: "#fdfdfd",
         display: "flex",
