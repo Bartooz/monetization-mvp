@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-export default function TripleOfferPreviewCarousel({ slots = [], title }) {
+export default function TripleOfferPreviewCarousel({ slots = [], title, design_data }) {
+
     const [activeIndex, setActiveIndex] = useState(0);
 
     return (
@@ -22,7 +23,9 @@ export default function TripleOfferPreviewCarousel({ slots = [], title }) {
                     border: "2px solid #ccc",
                     borderRadius: "12px",
                     padding: "0.5rem",
-                    background: "#fdfdfd",
+                    backgroundImage: design_data?.imageUrl ? `url(${design_data.imageUrl})` : "none",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
                     boxSizing: "border-box",
                     display: "flex",
                     flexDirection: "column",

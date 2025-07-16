@@ -25,6 +25,10 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
   const [offerType, setOfferType] = useState("Triple Offer");
   const [layout, setLayout] = useState(layouts[0]);
   const [configurations, setConfigurations] = useState([]);
+  const [editingTemplate, setEditingTemplate] = useState({
+    design_prompt: "",
+    design_data: null,
+  });
 
   useEffect(() => {
     if (!USE_BACKEND) {
@@ -47,7 +51,7 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
         });
     }
   }, []);
-  
+
 
   useEffect(() => {
     if (template) {
@@ -57,6 +61,10 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
       setLayout(template.layout || layouts[0]);
       setEventType(template.event_type || "Offer");
       setOfferType(template.offer_type || "Triple Offer");
+      setEditingTemplate({
+        design_prompt: template.design_prompt || "",
+        design_data: template.design_data || null,
+      });
     } else {
       setTemplateName("");
       setOfferTitle("");
@@ -64,6 +72,10 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
       setLayout("Vertical");
       setEventType("Offer");
       setOfferType("Triple Offer");
+      setEditingTemplate({
+        design_prompt: "",
+        design_data: null,
+      });
     }
   }, [template]);
 
@@ -85,6 +97,8 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
         { value: "", bonus: "", currency: "Cash", paid: true },
         { value: "", bonus: "", currency: "Cash", paid: true },
       ],
+      design_prompt: editingTemplate?.design_prompt || "",
+      design_data: editingTemplate?.design_data || null,
     };
     onSave(payload);
   };
@@ -177,6 +191,44 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           </label>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: "block", fontWeight: "bold", marginBottom: 6 }}>
+            Design Prompt (for AI-generated layout)
+          </label>
+          <textarea
+            value={editingTemplate?.design_prompt || ""}
+            onChange={(e) =>
+              setEditingTemplate((prev) => ({
+                ...prev,
+                design_prompt: e.target.value,
+              }))
+            }
+            placeholder="Describe the visual theme, art style, or mood of this offer (e.g. retro neon, fantasy forest, space-themed)"
+            style={{
+              width: "100%",
+              height: "100px",
+              padding: 10,
+              fontSize: 14,
+              borderRadius: 6,
+              border: "1px solid #ccc",
+              resize: "vertical",
+            }}
+          />
+          <button
+            style={{ marginTop: 8 }}
+            onClick={() => {
+              const simulatedImage = "https://picsum.photos/seed/" + Date.now() + "/300/400";
+              setEditingTemplate((prev) => ({
+                ...prev,
+                design_data: { imageUrl: simulatedImage },
+              }));
+            }}
+          >
+            🧠 Generate Design (Simulated)
+          </button>
+        </div>
+
+
         <button onClick={handleSave}>
           {template ? "Update Template" : "Save Template"}
         </button>
@@ -199,7 +251,13 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           </button>
         </div>
         <PhonePreviewWrapper>
-          <LayoutPreview title={offerTitle} slots={slots} />
+          <PhonePreviewWrapper>
+            <LayoutPreview
+              title={offerTitle}
+              slots={slots}
+              design_data={editingTemplate?.design_data}
+            />
+          </PhonePreviewWrapper>
         </PhonePreviewWrapper>
       </div>
     </div>
