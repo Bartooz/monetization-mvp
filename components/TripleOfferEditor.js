@@ -218,9 +218,16 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
             style={{ marginTop: 8 }}
             onClick={() => {
               const simulatedImage = "https://picsum.photos/seed/" + Date.now() + "/300/400";
+
               setEditingTemplate((prev) => ({
                 ...prev,
-                design_data: { imageUrl: simulatedImage },
+                design_data: {
+                  imageUrl: simulatedImage,
+                  slotBackgroundColor: "#2b2d42",  // dark background for slots
+                  ctaColor: "#00cc66",             // always green CTA
+                  titleFont: "Orbitron",           // futuristic for title
+                  slotFont: "Chakra Petch"         // consistent style for slot text
+                }
               }));
             }}
           >
@@ -251,13 +258,13 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           </button>
         </div>
         <PhonePreviewWrapper>
-          
-            <LayoutPreview
-              title={offerTitle}
-              slots={slots}
-              design_data={editingTemplate?.design_data}
-            />
-          
+
+          <LayoutPreview
+            title={offerTitle}
+            slots={slots}
+            design_data={editingTemplate?.design_data}
+          />
+
         </PhonePreviewWrapper>
       </div>
     </div>
