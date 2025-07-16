@@ -132,8 +132,7 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
 
   return (
     <div style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
+      display: "flex",
       alignItems: "flex-start",
       gap: "40px",
       width: "100%",
