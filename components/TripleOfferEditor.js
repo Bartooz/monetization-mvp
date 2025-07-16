@@ -251,13 +251,13 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           </button>
         </div>
         <PhonePreviewWrapper>
-          <PhonePreviewWrapper>
+          
             <LayoutPreview
               title={offerTitle}
               slots={slots}
               design_data={editingTemplate?.design_data}
             />
-          </PhonePreviewWrapper>
+          
         </PhonePreviewWrapper>
       </div>
     </div>
