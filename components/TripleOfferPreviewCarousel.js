@@ -33,7 +33,13 @@ export default function TripleOfferPreviewCarousel({ slots = [], title, design_d
                     alignItems: "center",
                 }}
             >
-                <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>
+                <h3
+                    style={{
+                        marginBottom: "1rem",
+                        textAlign: "center",
+                        fontFamily: design_data?.titleFont || "inherit",
+                    }}
+                >
                     {title || "Untitled Offer"}
                 </h3>
 
@@ -91,7 +97,8 @@ export default function TripleOfferPreviewCarousel({ slots = [], title, design_d
                                         padding: "16px",
                                         border: "1px solid #ccc",
                                         borderRadius: "10px",
-                                        background: "#fff",
+                                        background: design_data?.slotBackgroundColor || "#fff",
+                                        fontFamily: design_data?.slotFont || "inherit",
                                         textAlign: "center",
                                         zIndex,
                                         filter,
@@ -112,7 +119,14 @@ export default function TripleOfferPreviewCarousel({ slots = [], title, design_d
                                                 : "💎"}
                                     </div>
                                     <button
-                                        style={{ padding: "6px 16px" }}
+                                        style={{
+                                            padding: "6px 16px",
+                                            backgroundColor: design_data?.ctaColor || "#00cc66",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "4px",
+                                            cursor: "pointer",
+                                          }}
                                         onClick={() =>
                                             setActiveIndex((activeIndex + 1) % slots.length)
                                         }
