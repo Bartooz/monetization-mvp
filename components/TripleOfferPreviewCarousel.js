@@ -38,6 +38,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title, design_d
                         marginBottom: "1rem",
                         textAlign: "center",
                         fontFamily: design_data?.titleFont || "inherit",
+                        color: design_data?.titleColor || "#000"
                     }}
                 >
                     {title || "Untitled Offer"}
@@ -99,6 +100,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title, design_d
                                         borderRadius: "10px",
                                         background: design_data?.slotBackgroundColor || "#fff",
                                         fontFamily: design_data?.slotFont || "inherit",
+                                        color: design_data?.slotFontColor || "#000",
                                         textAlign: "center",
                                         zIndex,
                                         filter,

@@ -6,6 +6,15 @@ import TripleOfferPreviewVerticalCarousel from "./TripleOfferPreviewVerticalCaro
 import PhonePreviewWrapper from "./PhonePreviewWrapper";
 
 const USE_BACKEND = false; // Toggle to true to re-enable API
+const FONT_OPTIONS = [
+  "Arial",
+  "Verdana",
+  "Roboto",
+  "Orbitron",
+  "Chakra Petch",
+  "Bangers",
+  "Comic Neue",
+];
 
 
 const layoutComponents = {
@@ -266,6 +275,109 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           />
 
         </PhonePreviewWrapper>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "1rem" }}>
+          <h4 style={{ marginBottom: "0.5rem" }}>🎨 Manual Design Tweaks</h4>
+
+          <label>
+            Slot Background Color:{" "}
+            <input
+              type="color"
+              value={editingTemplate.design_data?.slotBackgroundColor || "#ffffff"}
+              onChange={(e) =>
+                setEditingTemplate((prev) => ({
+                  ...prev,
+                  design_data: { ...prev.design_data, slotBackgroundColor: e.target.value },
+                }))
+              }
+            />
+          </label>
+
+          <label>
+            CTA Button Color:{" "}
+            <input
+              type="color"
+              value={editingTemplate.design_data?.ctaColor || "#00cc66"}
+              onChange={(e) =>
+                setEditingTemplate((prev) => ({
+                  ...prev,
+                  design_data: { ...prev.design_data, ctaColor: e.target.value },
+                }))
+              }
+            />
+          </label>
+
+          <label>
+            Title Font:{" "}
+            <select
+              value={editingTemplate.design_data?.titleFont || ""}
+              onChange={(e) =>
+                setEditingTemplate((prev) => ({
+                  ...prev,
+                  design_data: { ...prev.design_data, titleFont: e.target.value },
+                }))
+              }
+            >
+              <option value="">Default</option>
+              {FONT_OPTIONS.map((font) => (
+                <option key={font} value={font}>
+                  {font}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Slot Font:{" "}
+            <select
+              value={editingTemplate.design_data?.slotFont || ""}
+              onChange={(e) =>
+                setEditingTemplate((prev) => ({
+                  ...prev,
+                  design_data: { ...prev.design_data, slotFont: e.target.value },
+                }))
+              }
+            >
+              <option value="">Default</option>
+              {FONT_OPTIONS.map((font) => (
+                <option key={font} value={font}>
+                  {font}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Title Color:{" "}
+            <input
+              type="color"
+              value={editingTemplate.design_data?.titleColor || "#000000"}
+              onChange={(e) =>
+                setEditingTemplate((prev) => ({
+                  ...prev,
+                  design_data: { ...prev.design_data, titleColor: e.target.value },
+                }))
+              }
+            />
+          </label>
+
+          <label>
+            Slot Font Color:{" "}
+            <input
+              type="color"
+              value={editingTemplate.design_data?.slotFontColor || "#000000"}
+              onChange={(e) =>
+                setEditingTemplate((prev) => ({
+                  ...prev,
+                  design_data: { ...prev.design_data, slotFontColor: e.target.value },
+                }))
+              }
+            />
+          </label>
+        </div>
+
+
+
       </div>
     </div>
   );
