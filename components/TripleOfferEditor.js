@@ -256,135 +256,135 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
       </div>
 
       <div style={{ flex: 1, display: "flex", alignItems: "flex-start", gap: "24px" }}>
-  <div style={{ flex: 1 }}>
-    <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-      <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
-        ◀
-      </button>
-      <strong>{layout} Layout</strong>
-      <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
-        ▶
-      </button>
-    </div>
-    <PhonePreviewWrapper>
-      <LayoutPreview
-        title={offerTitle}
-        slots={slots}
-        design_data={editingTemplate?.design_data}
-      />
-    </PhonePreviewWrapper>
-  </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
+              ◀
+            </button>
+            <strong>{layout} Layout</strong>
+            <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
+              ▶
+            </button>
+          </div>
+          <PhonePreviewWrapper>
+            <LayoutPreview
+              title={offerTitle}
+              slots={slots}
+              design_data={editingTemplate?.design_data}
+            />
+          </PhonePreviewWrapper>
+        </div>
 
-  <div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-    padding: "16px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    background: "#f9f9f9",
-    width: "260px",
-    fontSize: "14px",
-    marginLeft: "32px",
-  }}
->
-  <strong>🎨 Manual Design Tweaks</strong>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            padding: "16px",
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            background: "#f9f9f9",
+            width: "260px",
+            fontSize: "14px",
+            marginLeft: "32px",
+          }}
+        >
+          <strong>🎨 Manual Design Tweaks</strong>
 
-  <div>
-    <label>Slot Background Color:</label>
-    <input
-      type="color"
-      value={design.slotBackgroundColor}
-      onChange={(e) =>
-        setDesign((prev) => ({
-          ...prev,
-          slotBackgroundColor: e.target.value,
-        }))
-      }
-    />
-  </div>
+          <div>
+            <label>Slot Background Color:</label>
+            <input
+              type="color"
+              value={design_data.slotBackgroundColor}
+              onChange={(e) =>
+                setDesign((prev) => ({
+                  ...prev,
+                  slotBackgroundColor: e.target.value,
+                }))
+              }
+            />
+          </div>
 
-  <div>
-    <label>CTA Button Color:</label>
-    <input
-      type="color"
-      value={design.ctaColor}
-      onChange={(e) =>
-        setDesign((prev) => ({
-          ...prev,
-          ctaColor: e.target.value,
-        }))
-      }
-    />
-  </div>
+          <div>
+            <label>CTA Button Color:</label>
+            <input
+              type="color"
+              value={design_data.ctaColor}
+              onChange={(e) =>
+                setDesign((prev) => ({
+                  ...prev,
+                  ctaColor: e.target.value,
+                }))
+              }
+            />
+          </div>
 
-  <div>
-    <label>Title Font:</label>
-    <select
-      value={design.titleFont}
-      onChange={(e) =>
-        setDesign((prev) => ({
-          ...prev,
-          titleFont: e.target.value,
-        }))
-      }
-    >
-      <option value="Default">Default</option>
-      <option value="Orbitron">Orbitron</option>
-      <option value="Chakra Petch">Chakra Petch</option>
-      <option value="Press Start 2P">Press Start 2P</option>
-    </select>
-  </div>
+          <div>
+            <label>Title Font:</label>
+            <select
+              value={design_data.titleFont}
+              onChange={(e) =>
+                setDesign((prev) => ({
+                  ...prev,
+                  titleFont: e.target.value,
+                }))
+              }
+            >
+              <option value="Default">Default</option>
+              <option value="Orbitron">Orbitron</option>
+              <option value="Chakra Petch">Chakra Petch</option>
+              <option value="Press Start 2P">Press Start 2P</option>
+            </select>
+          </div>
 
-  <div>
-    <label>Slot Font:</label>
-    <select
-      value={design.slotFont}
-      onChange={(e) =>
-        setDesign((prev) => ({
-          ...prev,
-          slotFont: e.target.value,
-        }))
-      }
-    >
-      <option value="Default">Default</option>
-      <option value="Orbitron">Orbitron</option>
-      <option value="Chakra Petch">Chakra Petch</option>
-      <option value="Press Start 2P">Press Start 2P</option>
-    </select>
-  </div>
+          <div>
+            <label>Slot Font:</label>
+            <select
+              value={design_data.slotFont}
+              onChange={(e) =>
+                setDesign((prev) => ({
+                  ...prev,
+                  slotFont: e.target.value,
+                }))
+              }
+            >
+              <option value="Default">Default</option>
+              <option value="Orbitron">Orbitron</option>
+              <option value="Chakra Petch">Chakra Petch</option>
+              <option value="Press Start 2P">Press Start 2P</option>
+            </select>
+          </div>
 
-  <div>
-    <label>Title Color:</label>
-    <input
-      type="color"
-      value={design.titleColor || "#000000"}
-      onChange={(e) =>
-        setDesign((prev) => ({
-          ...prev,
-          titleColor: e.target.value,
-        }))
-      }
-    />
-  </div>
+          <div>
+            <label>Title Color:</label>
+            <input
+              type="color"
+              value={design_data.titleColor || "#000000"}
+              onChange={(e) =>
+                setDesign((prev) => ({
+                  ...prev,
+                  titleColor: e.target.value,
+                }))
+              }
+            />
+          </div>
 
-  <div>
-    <label>Slot Font Color:</label>
-    <input
-      type="color"
-      value={design.slotFontColor || "#000000"}
-      onChange={(e) =>
-        setDesign((prev) => ({
-          ...prev,
-          slotFontColor: e.target.value,
-        }))
-      }
-    />
-  </div>
-</div>
+          <div>
+            <label>Slot Font Color:</label>
+            <input
+              type="color"
+              value={design_data.slotFontColor || "#000000"}
+              onChange={(e) =>
+                setDesign((prev) => ({
+                  ...prev,
+                  slotFontColor: e.target.value,
+                }))
+              }
+            />
+          </div>
+        </div>
 
-</div>
+      </div>
 
     </div>
   );
