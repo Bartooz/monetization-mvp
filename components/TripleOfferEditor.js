@@ -256,132 +256,137 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
       </div>
 
       <div style={{ flex: 1, display: "flex", alignItems: "flex-start", gap: "24px" }}>
-  <div style={{ flex: 1 }}>
-    <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-      <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
-        ◀
-      </button>
-      <strong>{layout} Layout</strong>
-      <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
-        ▶
-      </button>
-    </div>
-    <PhonePreviewWrapper>
-      <LayoutPreview
-        title={offerTitle}
-        slots={slots}
-        design_data={editingTemplate?.design_data}
-      />
-    </PhonePreviewWrapper>
-  </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <button onClick={() => handleLayoutSwitch("prev")} style={{ marginRight: 12 }}>
+              ◀
+            </button>
+            <strong>{layout} Layout</strong>
+            <button onClick={() => handleLayoutSwitch("next")} style={{ marginLeft: 12 }}>
+              ▶
+            </button>
+          </div>
+          <PhonePreviewWrapper>
+            <LayoutPreview
+              title={offerTitle}
+              slots={slots}
+              design_data={editingTemplate?.design_data}
+            />
+          </PhonePreviewWrapper>
+        </div>
 
-  <div style={{
-    minWidth: "240px",
-    maxWidth: "280px",
-    padding: "1rem",
-    border: "1px solid #eee",
-    borderRadius: "8px",
-    background: "#f9f9f9",
-  }}>
-    <h4 style={{ marginBottom: "0.5rem" }}>🎨 Manual Design Tweaks</h4>
+        <div style={{
+          minWidth: "240px",
+          maxWidth: "280px",
+          padding: "1rem",
+          border: "1px solid #eee",
+          borderRadius: "8px",
+          background: "#f9f9f9",
+        }}>
+          <h4 style={{ marginBottom: "1rem" }}>🎨 Manual Design Tweaks</h4>
 
-    <label>
-      Slot Background Color:{" "}
-      <input
-        type="color"
-        value={editingTemplate.design_data?.slotBackgroundColor || "#ffffff"}
-        onChange={(e) =>
-          setEditingTemplate((prev) => ({
-            ...prev,
-            design_data: { ...prev.design_data, slotBackgroundColor: e.target.value },
-          }))
-        }
-      />
-    </label>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              Slot Background Color:
+              <input
+                type="color"
+                value={editingTemplate.design_data?.slotBackgroundColor || "#ffffff"}
+                onChange={(e) =>
+                  setEditingTemplate((prev) => ({
+                    ...prev,
+                    design_data: { ...prev.design_data, slotBackgroundColor: e.target.value },
+                  }))
+                }
+              />
+            </label>
 
-    <label>
-      CTA Button Color:{" "}
-      <input
-        type="color"
-        value={editingTemplate.design_data?.ctaColor || "#00cc66"}
-        onChange={(e) =>
-          setEditingTemplate((prev) => ({
-            ...prev,
-            design_data: { ...prev.design_data, ctaColor: e.target.value },
-          }))
-        }
-      />
-    </label>
+            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              CTA Button Color:
+              <input
+                type="color"
+                value={editingTemplate.design_data?.ctaColor || "#00cc66"}
+                onChange={(e) =>
+                  setEditingTemplate((prev) => ({
+                    ...prev,
+                    design_data: { ...prev.design_data, ctaColor: e.target.value },
+                  }))
+                }
+              />
+            </label>
 
-    <label>
-      Title Font:{" "}
-      <select
-        value={editingTemplate.design_data?.titleFont || ""}
-        onChange={(e) =>
-          setEditingTemplate((prev) => ({
-            ...prev,
-            design_data: { ...prev.design_data, titleFont: e.target.value },
-          }))
-        }
-      >
-        <option value="">Default</option>
-        {FONT_OPTIONS.map((font) => (
-          <option key={font} value={font}>
-            {font}
-          </option>
-        ))}
-      </select>
-    </label>
+            <label>
+              Title Font:
+              <select
+                value={editingTemplate.design_data?.titleFont || ""}
+                onChange={(e) =>
+                  setEditingTemplate((prev) => ({
+                    ...prev,
+                    design_data: { ...prev.design_data, titleFont: e.target.value },
+                  }))
+                }
+                style={{ width: "100%", marginTop: 4 }}
+              >
+                <option value="">Default</option>
+                {FONT_OPTIONS.map((font) => (
+                  <option key={font} value={font}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-    <label>
-      Slot Font:{" "}
-      <select
-        value={editingTemplate.design_data?.slotFont || ""}
-        onChange={(e) =>
-          setEditingTemplate((prev) => ({
-            ...prev,
-            design_data: { ...prev.design_data, slotFont: e.target.value },
-          }))
-        }
-      >
-        <option value="">Default</option>
-        {FONT_OPTIONS.map((font) => (
-          <option key={font} value={font}>
-            {font}
-          </option>
-        ))}
-      </select>
-    </label>
+            <label>
+              Slot Font:
+              <select
+                value={editingTemplate.design_data?.slotFont || ""}
+                onChange={(e) =>
+                  setEditingTemplate((prev) => ({
+                    ...prev,
+                    design_data: { ...prev.design_data, slotFont: e.target.value },
+                  }))
+                }
+                style={{ width: "100%", marginTop: 4 }}
+              >
+                <option value="">Default</option>
+                {FONT_OPTIONS.map((font) => (
+                  <option key={font} value={font}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-    <label>
-      Title Color:{" "}
-      <input
-        type="color"
-        value={editingTemplate.design_data?.titleColor || "#000000"}
-        onChange={(e) =>
-          setEditingTemplate((prev) => ({
-            ...prev,
-            design_data: { ...prev.design_data, titleColor: e.target.value },
-          }))
-        }
-      />
-    </label>
+            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              Title Color:
+              <input
+                type="color"
+                value={editingTemplate.design_data?.titleColor || "#000000"}
+                onChange={(e) =>
+                  setEditingTemplate((prev) => ({
+                    ...prev,
+                    design_data: { ...prev.design_data, titleColor: e.target.value },
+                  }))
+                }
+              />
+            </label>
 
-    <label>
-      Slot Font Color:{" "}
-      <input
-        type="color"
-        value={editingTemplate.design_data?.slotFontColor || "#000000"}
-        onChange={(e) =>
-          setEditingTemplate((prev) => ({
-            ...prev,
-            design_data: { ...prev.design_data, slotFontColor: e.target.value },
-          }))
-        }
-      />
-    </label>
-  </div>
-</div>
+            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              Slot Font Color:
+              <input
+                type="color"
+                value={editingTemplate.design_data?.slotFontColor || "#000000"}
+                onChange={(e) =>
+                  setEditingTemplate((prev) => ({
+                    ...prev,
+                    design_data: { ...prev.design_data, slotFontColor: e.target.value },
+                  }))
+                }
+              />
+            </label>
+          </div>
+
+        </div>
+      </div>
 
     </div>
   );
