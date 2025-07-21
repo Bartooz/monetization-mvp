@@ -225,21 +225,44 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           <button
             style={{ marginTop: 8 }}
             onClick={() => {
-              const gameDesignImages = [
-                "https://images.unsplash.com/photo-1612197572683-95ce6b6fdd90?fit=crop&w=300&h=400", // sci-fi
-                "https://images.unsplash.com/photo-1587306611394-cf1e1ff17d8c?fit=crop&w=300&h=400", // fantasy castle
-                "https://images.unsplash.com/photo-1503694978374-8a2fa686963a?fit=crop&w=300&h=400", // neon cyberpunk
-                "https://images.unsplash.com/photo-1612198792476-28c3d30c2e6b?fit=crop&w=300&h=400", // space
-                "https://images.unsplash.com/photo-1572460734809-0c0a59e6683b?fit=crop&w=300&h=400", // retro grid
+              const gameDesignOptions = [
+                {
+                  imageUrl: "https://cdn.pixabay.com/photo/2020/03/11/14/54/casino-4923453_1280.jpg",
+                  slotBackgroundColor: "#1a1a1a",
+                  titleFont: "Orbitron",
+                  slotFont: "Rajdhani",
+                  titleColor: "#FFD700",
+                  slotTextColor: "#ffffff",
+                  ctaColor: "#00FF00"
+                },
+                {
+                  imageUrl: "https://cdn.pixabay.com/photo/2018/01/18/20/19/game-3090992_1280.jpg",
+                  slotBackgroundColor: "#2d2f4a",
+                  titleFont: "Bangers",
+                  slotFont: "Press Start 2P",
+                  titleColor: "#00ccff",
+                  slotTextColor: "#ffffff",
+                  ctaColor: "#00FF00"
+                },
+                {
+                  imageUrl: "https://cdn.pixabay.com/photo/2020/06/16/21/14/gaming-5307490_1280.jpg",
+                  slotBackgroundColor: "#3a0ca3",
+                  titleFont: "Audiowide",
+                  slotFont: "VT323",
+                  titleColor: "#e0e0e0",
+                  slotTextColor: "#ffffff",
+                  ctaColor: "#00FF00"
+                }
               ];
               
-              const simulatedImage = gameDesignImages[Math.floor(Math.random() * gameDesignImages.length)];
+              const randomDesign = gameDesignOptions[Math.floor(Math.random() * gameDesignOptions.length)];
+
               
 
               setEditingTemplate((prev) => ({
                 ...prev,
                 design_data: {
-                  imageUrl: simulatedImage,
+                  imageUrl: randomDesign.imageUrl,
                   slotBackgroundColor: "#2b2d42",  // dark background for slots
                   ctaColor: "#00cc66",             // always green CTA
                   titleFont: "Orbitron",           // futuristic for title
