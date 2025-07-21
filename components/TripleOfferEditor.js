@@ -225,7 +225,16 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           <button
             style={{ marginTop: 8 }}
             onClick={() => {
-              const simulatedImage = "https://picsum.photos/seed/" + Date.now() + "/300/400";
+              const gameDesignImages = [
+                "https://images.unsplash.com/photo-1612197572683-95ce6b6fdd90?fit=crop&w=300&h=400", // sci-fi
+                "https://images.unsplash.com/photo-1587306611394-cf1e1ff17d8c?fit=crop&w=300&h=400", // fantasy castle
+                "https://images.unsplash.com/photo-1503694978374-8a2fa686963a?fit=crop&w=300&h=400", // neon cyberpunk
+                "https://images.unsplash.com/photo-1612198792476-28c3d30c2e6b?fit=crop&w=300&h=400", // space
+                "https://images.unsplash.com/photo-1572460734809-0c0a59e6683b?fit=crop&w=300&h=400", // retro grid
+              ];
+              
+              const simulatedImage = gameDesignImages[Math.floor(Math.random() * gameDesignImages.length)];
+              
 
               setEditingTemplate((prev) => ({
                 ...prev,
