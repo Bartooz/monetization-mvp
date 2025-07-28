@@ -65,11 +65,36 @@ const EventModal = ({
   const slots = selectedTemplateData?.slots || [];
 
   const layoutComponentMap = {
-    Horizontal: <TripleOfferPreviewHorizontal slots={slots} />,
-    Vertical: <TripleOfferPreviewVertical slots={slots} />,
-    Carousel: <TripleOfferPreviewCarousel slots={slots} />,
-    VerticalCarousel: <TripleOfferPreviewVerticalCarousel slots={slots} />,
+    Horizontal: (
+      <TripleOfferPreviewHorizontal
+        slots={slots}
+        title={selectedTemplateData?.title}
+        design_data={selectedTemplateData?.design_data}
+      />
+    ),
+    Vertical: (
+      <TripleOfferPreviewVertical
+        slots={slots}
+        title={selectedTemplateData?.title}
+        design_data={selectedTemplateData?.design_data}
+      />
+    ),
+    Carousel: (
+      <TripleOfferPreviewCarousel
+        slots={slots}
+        title={selectedTemplateData?.title}
+        design_data={selectedTemplateData?.design_data}
+      />
+    ),
+    VerticalCarousel: (
+      <TripleOfferPreviewVerticalCarousel
+        slots={slots}
+        title={selectedTemplateData?.title}
+        design_data={selectedTemplateData?.design_data}
+      />
+    ),
   };
+  
 
   const normalizeDateTime = (value) => {
     if (!value) return "";
