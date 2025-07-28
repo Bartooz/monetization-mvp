@@ -46,26 +46,26 @@ export default function TemplatesPage() {
         const endpoint = editingTemplate
           ? `${BASE_URL}/api/templates/${editingTemplate.template_name}`
           : `${BASE_URL}/api/templates`;
-  
+
         const res = await fetch(endpoint, {
           method,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(templateData),
         });
-  
+
         if (!res.ok) throw new Error("Failed to save template");
-  
+
         const saved = method === "POST" ? await res.json() : templateData;
-  
+
         setTemplates((prev) => {
           const exists = prev.find((tpl) => tpl.template_name === saved.template_name);
           return exists
             ? prev.map((tpl) =>
-                tpl.template_name === saved.template_name ? saved : tpl
-              )
+              tpl.template_name === saved.template_name ? saved : tpl
+            )
             : [...prev, saved];
         });
-  
+
         setEditingTemplate(null);
       } catch (err) {
         console.error("Save error:", err);
@@ -94,9 +94,9 @@ export default function TemplatesPage() {
         const res = await fetch(`${BASE_URL}/api/templates/${encodeURIComponent(name)}`, {
           method: "DELETE",
         });
-  
+
         if (!res.ok) throw new Error("Failed to delete template");
-  
+
         setTemplates((prev) =>
           prev.filter((tpl) => tpl.template_name !== name)
         );
@@ -164,6 +164,20 @@ export default function TemplatesPage() {
             <div>
               <strong>{tpl.template_name}</strong> — <span>{tpl.layout}</span>
             </div>
+            {tpl.design_data?.imageUrl && (
+              <img
+                src={tpl.design_data.imageUrl}
+                alt="Design"
+                style={{
+                  marginTop: 10,
+                  width: "100%",
+                  maxHeight: 150,
+                  objectFit: "cover",
+                  borderRadius: 4,
+                  border: "1px solid #ccc"
+                }}
+              />
+            )}
             <div>
               <button onClick={() => setEditingTemplate(tpl)} style={{ marginRight: 10 }}>
                 Edit
