@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function TripleOfferPreviewHorizontal({ slots = [], title, design_data = {} }) {
+export default function TripleOfferPreviewHorizontal({ slots = [], title, design_data }) {
   return (
     <div style={{ border: "1px solid #ddd", padding: 16, borderRadius: 8, maxWidth: 600 }}>
       <h4 style={{ marginBottom: 16 }}>{title || "Untitled Offer"}</h4>
@@ -14,7 +14,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
               padding: 10,
               borderRadius: 6,
               textAlign: "center",
-              backgroundImage: design_data.url ? `url(${design_data.url})` : "none",
+              backgroundImage: design_data.imageUrl ? `url(${ddesign_data.imageUrl})` : "none",
               backgroundSize: "cover",
               backgroundPosition: "center",
               fontFamily: design_data.titleFont || "inherit",
