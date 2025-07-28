@@ -174,7 +174,7 @@ export default function TemplatesPage() {
                   maxHeight: 150,
                   objectFit: "cover",
                   borderRadius: 4,
-                  border: "1px solid #ccc"
+                  border: "1px solid #ccc",
                 }}
               />
             )}
