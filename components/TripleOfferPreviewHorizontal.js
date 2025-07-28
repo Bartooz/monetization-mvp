@@ -14,7 +14,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
               padding: 10,
               borderRadius: 6,
               textAlign: "center",
-              backgroundImage: design_data.imageUrl ? `url(${design_data.imageUrl})` : "none",
+              backgroundImage: design_data.url ? `url(${design_data.url})` : "none",
               backgroundSize: "cover",
               backgroundPosition: "center",
               fontFamily: design_data.titleFont || "inherit",
