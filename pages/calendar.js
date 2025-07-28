@@ -205,6 +205,8 @@ export default function CalendarPage() {
       templateName: selectedEventForPreview.template_name || selectedEventForPreview.templateName || "",
       status: selectedEventForPreview.status || "Draft",
       id: selectedEventForPreview.id,
+      design_data: fullTemplate.design_data || {},
+      title: newEvent.title || fullTemplate.title || "Untitled Offer",
     });
 
     setIsModalOpen(true);
@@ -378,6 +380,7 @@ export default function CalendarPage() {
         configurations={configurations}
         showPreview={true}
         setShowPreview={() => setShowPreview(true)}
+        designData={selectedEventForPreview?.design_data || {}}
       />
 
       {selectedEventForPreview && (
