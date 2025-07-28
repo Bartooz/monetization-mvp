@@ -225,37 +225,17 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
           <button
             style={{ marginTop: 8 }}
             onClick={() => {
-              const gameDesignOptions = [
-                {
-                  imageUrl: "https://cdn.pixabay.com/photo/2020/03/11/14/54/casino-4923453_1280.jpg",
-                  slotBackgroundColor: "#1a1a1a",
-                  titleFont: "Orbitron",
-                  slotFont: "Rajdhani",
-                  titleColor: "#FFD700",
-                  slotTextColor: "#ffffff",
-                  ctaColor: "#00FF00"
-                },
-                {
-                  imageUrl: "https://cdn.pixabay.com/photo/2018/01/18/20/19/game-3090992_1280.jpg",
-                  slotBackgroundColor: "#2d2f4a",
-                  titleFont: "Bangers",
-                  slotFont: "Press Start 2P",
-                  titleColor: "#00ccff",
-                  slotTextColor: "#ffffff",
-                  ctaColor: "#00FF00"
-                },
-                {
-                  imageUrl: "https://cdn.pixabay.com/photo/2020/06/16/21/14/gaming-5307490_1280.jpg",
-                  slotBackgroundColor: "#3a0ca3",
-                  titleFont: "Audiowide",
-                  slotFont: "VT323",
-                  titleColor: "#e0e0e0",
-                  slotTextColor: "#ffffff",
-                  ctaColor: "#00FF00"
-                }
+              const predefinedBackgrounds = [
+                { label: "Fantasy Forest", url: "/backgrounds/fantasy_forest.png" },
+                { label: "Magic Shop", url: "/backgrounds/magic_shop.png" },
+                { label: "Cartoon Space", url: "/backgrounds/cartoon_space.png" },
+                { label: "Pirate Island", url: "/backgrounds/pirate_island.png" },
+                { label: "Halloween", url: "/backgrounds/halloween.png" },
+                { label: "Christmas", url: "/backgrounds/christmas.png" },
+                { label: "4th of July", url: "/backgrounds/4th_of_july.png" },
               ];
               
-              const randomDesign = gameDesignOptions[Math.floor(Math.random() * gameDesignOptions.length)];
+              const randomDesign = predefinedBackgrounds[Math.floor(Math.random() * predefinedBackgrounds.length)];
 
               
 
