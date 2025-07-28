@@ -94,7 +94,6 @@ const EventModal = ({
       />
     ),
   };
-  
 
   const normalizeDateTime = (value) => {
     if (!value) return "";
@@ -204,9 +203,7 @@ const EventModal = ({
           borderLeft: "1px solid #ccc",
           paddingLeft: "16px"
         }}>
-          {selectedTemplateData.title && selectedTemplateData.title !== "Untitled Offer" && (
-            <h4 style={{ marginBottom: 10 }}>{selectedTemplateData.title}</h4>
-          )}
+          
          {layoutComponentMap[layout] || <TripleOfferPreviewVertical slots={slots} />}
 
         </div>
