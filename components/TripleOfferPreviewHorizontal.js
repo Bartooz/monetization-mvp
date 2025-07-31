@@ -81,29 +81,32 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                   }),
               }}
             >
-              <div style={{ fontWeight: "bold", fontSize: 13 }}>
-                {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
-                {slot.currency === "Cash"
-                  ? "💵"
-                  : slot.currency === "Gold Bars"
-                    ? "🪙"
-                    : "💎"}
+              <div style={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <div style={{ fontWeight: "bold", fontSize: 13 }}>
+                  {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
+                  {slot.currency === "Cash"
+                    ? "💵"
+                    : slot.currency === "Gold Bars"
+                      ? "🪙"
+                      : "💎"}
+                </div>
               </div>
-              <div style={{ marginTop: "auto" }}>
-              <button
-                style={{
-                  padding: "4px 8px",
-                  fontSize: "0.75rem",
-                  backgroundColor: design_data?.ctaColor || "#00cc66",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                {slot.paid ? `${slot.value} Only!` : "Free!"}
-              </button>
+              <div>
+                <button
+                  style={{
+                    padding: "4px 8px",
+                    fontSize: "0.75rem",
+                    backgroundColor: design_data?.ctaColor || "#00cc66",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {slot.paid ? `${slot.value} Only!` : "Free!"}
+                </button>
               </div>
+
             </div>
           ))}
         </div>
