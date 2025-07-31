@@ -61,9 +61,12 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                 borderRadius: "10px",
                 border: "1px solid #ccc",
                 padding: "10px 8px",
-                backgroundColor: "rgba(255,255,255,0.05)", // translucent to reveal bg
-                backdropFilter: "blur(4px)",
-                border: "2px solid rgba(255,255,255,0.1)",
+                backgroundColor: design_data?.slotBackgroundColor || "rgba(255,255,255,0.1)",
+                backdropFilter: "blur(6px)",
+                WebkitBackdropFilter: "blur(6px)",
+                border: design_data?.slotBackgroundColor
+                  ? "1px solid #ccc"
+                  : "1px solid rgba(255,255,255,0.2)",
                 color: design_data?.slotFontColor || "#000",
                 fontFamily: design_data?.slotFont || "inherit",
                 display: "flex",
