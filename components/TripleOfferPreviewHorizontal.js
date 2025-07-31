@@ -64,7 +64,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                 fontFamily: design_data?.slotFont || "inherit",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between",
+                justifyContent: "center",
                 alignItems: "center",
                 textAlign: "center",
                 ...(design_data?.slotBackgroundColor
@@ -77,6 +77,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                     backdropFilter: "blur(6px)",
                     WebkitBackdropFilter: "blur(6px)",
                     border: "1px solid rgba(255,255,255,0.2)",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)"
                   }),
               }}
             >
@@ -88,7 +89,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                     ? "🪙"
                     : "💎"}
               </div>
-
+              <div style={{ marginTop: "auto" }}>
               <button
                 style={{
                   padding: "4px 8px",
@@ -102,6 +103,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
               >
                 {slot.paid ? `${slot.value} Only!` : "Free!"}
               </button>
+              </div>
             </div>
           ))}
         </div>

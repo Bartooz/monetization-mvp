@@ -108,6 +108,7 @@ export default function TripleOfferPreviewCarousel({ slots = [], title, design_d
                                               backdropFilter: "blur(6px)",
                                               WebkitBackdropFilter: "blur(6px)",
                                               border: "1px solid rgba(255,255,255,0.2)",
+                                              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)"
                                             }),
                                         fontFamily: design_data?.slotFont || "inherit",
                                         color: design_data?.slotFontColor || "#000",
