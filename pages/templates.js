@@ -164,7 +164,7 @@ export default function TemplatesPage() {
             <div>
               <strong>{tpl.template_name}</strong> — <span>{tpl.layout}</span>
             </div>
-            {tpl.design_data?.imageUrl && (
+            {tpl.design_data && tpl.design_data.imageUrl && (
               <img
                 src={tpl.design_data.imageUrl}
                 alt="Design"
