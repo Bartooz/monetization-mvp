@@ -164,7 +164,7 @@ export default function TemplatesPage() {
             <div>
               <strong>{tpl.template_name}</strong> — <span>{tpl.layout}</span>
             </div>
-            {tpl.design_data && tpl.design_data.imageUrl && (
+            {tpl?.design_data?.imageUrl ? (
               <img
                 src={tpl.design_data.imageUrl}
                 alt="Design"
@@ -177,7 +177,7 @@ export default function TemplatesPage() {
                   border: "1px solid #ccc",
                 }}
               />
-            )}
+            ) : null}
             <div>
               <button onClick={() => setEditingTemplate(tpl)} style={{ marginRight: 10 }}>
                 Edit
