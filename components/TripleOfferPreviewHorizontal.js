@@ -56,8 +56,8 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
             <div
               key={index}
               style={{
-                width: "80px",
-                height: "140px",
+                width: "60px",
+                height: "200px",
                 borderRadius: "10px",
                 border: "1px solid #ccc",
                 padding: "10px 8px",
