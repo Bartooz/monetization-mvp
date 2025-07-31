@@ -14,15 +14,15 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
               padding: 10,
               borderRadius: 6,
               textAlign: "center",
-              backgroundImage: design_data.imageUrl ? `url(${design_data.imageUrl})` : "none",
+              backgroundImage: design_data?.imageUrl ? `url(${design_data.imageUrl})` : "none",
               backgroundSize: "cover",
               backgroundPosition: "center",
-              fontFamily: design_data.titleFont || "inherit",
+              fontFamily: design_data?.titleFont || "inherit",
             }}
           >
             <div style={{
-              fontWeight: "bold", marginBottom: 6, background: design_data.slotBackgroundColor || "#fff",
-              fontFamily: design_data.slotFont || "inherit",
+              fontWeight: "bold", marginBottom: 6, background: design_data?.slotBackgroundColor || "#fff",
+              fontFamily: design_data?.slotFont || "inherit",
             }}>
               {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
               {slot.currency === "Cash"
@@ -32,7 +32,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                   : "💎"}
             </div>
             <button style={{
-              width: "100%", padding: "6px", backgroundColor: design_data.ctaColor || "#4CAF50",
+              width: "100%", padding: "6px", backgroundColor: design_data?.ctaColor || "#4CAF50",
               color: "#fff",
               border: "none",
               borderRadius: "4px",
