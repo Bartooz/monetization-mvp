@@ -12,7 +12,7 @@ export default function PhonePreviewWrapper({ children }) {
     >
       {/* Phone Frame PNG */}
       <img
-        src="/assets/iphone-frame.png"
+        src="/backgrounds/assets/iphone-frame.png"
         alt="Phone Frame"
         style={{
           position: "absolute",
