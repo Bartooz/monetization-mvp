@@ -10,32 +10,34 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
         justifyContent: "center",
         alignItems: "center",
         padding: "1rem",
-        backgroundImage: design_data?.imageUrl ? `url(${design_data.imageUrl})` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
         boxSizing: "border-box",
+        background: "#fff", // fallback if needed
       }}
     >
       <div
         style={{
-          width: "320px",
-          borderRadius: "12px",
+          width: "300px",
+          height: "420px",
+          backgroundImage: design_data?.imageUrl ? `url(${design_data.imageUrl})` : "none",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRadius: "16px",
           padding: "1rem",
-          backgroundColor: "rgba(255,255,255,0.05)", // translucent to reveal bg
-          backdropFilter: "blur(4px)",
-          border: "2px solid rgba(255,255,255,0.1)",
           display: "flex",
           flexDirection: "column",
+          justifyContent: "space-between",
           alignItems: "center",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
         }}
       >
         <h3
           style={{
             fontFamily: design_data?.titleFont || "inherit",
             color: design_data?.titleColor || "#fff",
-            fontSize: "1.2rem",
-            marginBottom: "1rem",
+            fontSize: "1.4rem",
             textAlign: "center",
+            marginTop: 0,
+            marginBottom: "0.75rem",
           }}
         >
           {title || "Untitled Offer"}
@@ -46,7 +48,8 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
             display: "flex",
             justifyContent: "center",
             gap: "12px",
-            width: "100%",
+            flexGrow: 1,
+            alignItems: "center",
           }}
         >
           {slots.map((slot, index) => (
@@ -73,8 +76,8 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                 {slot.currency === "Cash"
                   ? "💵"
                   : slot.currency === "Gold Bars"
-                  ? "🪙"
-                  : "💎"}
+                    ? "🪙"
+                    : "💎"}
               </div>
 
               <button
