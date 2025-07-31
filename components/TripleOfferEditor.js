@@ -243,7 +243,7 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
                 ...prev,
                 design_data: {
                   imageUrl: randomDesign.url,
-                  slotBackgroundColor: "#2b2d42",  // dark background for slots
+                  slotBackgroundColor: "",  // dark background for slots
                   ctaColor: "#00cc66",             // always green CTA
                   titleFont: "Orbitron",           // futuristic for title
                   slotFont: "Chakra Petch"         // consistent style for slot text
