@@ -166,7 +166,7 @@ export default function TemplatesPage() {
             </div>
             {tpl?.design_data?.imageUrl ? (
               <img
-                src={tpl.design_data.imageUrl}
+                src={tpl?.design_data?.imageUrl}
                 alt="Design"
                 style={{
                   marginTop: 10,
