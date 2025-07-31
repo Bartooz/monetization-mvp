@@ -2,7 +2,14 @@ import React from "react";
 
 export default function TripleOfferPreviewHorizontal({ slots = [], title, design_data }) {
   return (
-    <div style={{ border: "1px solid #ddd", padding: 16, borderRadius: 8, maxWidth: 600 }}>
+    <div style={{
+      border: "1px solid #ddd",
+      padding: 16,
+      borderRadius: 8,
+      maxWidth: 600,
+      backgroundImage: design_data?.imageUrl ? `url(${design_data.imageUrl})` : "none",
+      fontFamily: design_data?.titleFont || "inherit",
+    }}>
       <h4 style={{ marginBottom: 16 }}>{title || "Untitled Offer"}</h4>
       <div style={{ display: "flex", gap: 16 }}>
         {slots.map((slot, index) => (
@@ -14,15 +21,16 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
               padding: 10,
               borderRadius: 6,
               textAlign: "center",
-              backgroundImage: design_data?.imageUrl ? `url(${design_data.imageUrl})` : "none",
+              background: design_data?.slotBackgroundColor || "#fff",
               backgroundSize: "cover",
               backgroundPosition: "center",
-              fontFamily: design_data?.titleFont || "inherit",
+              fontFamily: design_data?.slotFont || "inherit",
+
             }}
           >
             <div style={{
-              fontWeight: "bold", marginBottom: 6, background: design_data?.slotBackgroundColor || "#fff",
-              fontFamily: design_data?.slotFont || "inherit",
+              fontWeight: "bold", marginBottom: 6, 
+              
             }}>
               {slot.value} {slot.bonus ? `+ ${slot.bonus}` : ""}{" "}
               {slot.currency === "Cash"
