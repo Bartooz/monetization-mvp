@@ -302,7 +302,7 @@ export default function TripleOfferEditor({ template, onSave, onCancel }) {
               Slot Background Color:
               <input
                 type="color"
-                value={editingTemplate.design_data?.slotBackgroundColor || "#ffffff"}
+                value={editingTemplate.design_data?.slotBackgroundColor || ""}
                 onChange={(e) =>
                   setEditingTemplate((prev) => ({
                     ...prev,

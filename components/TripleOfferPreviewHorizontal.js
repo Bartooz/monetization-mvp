@@ -59,14 +59,7 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                 width: "60px",
                 height: "200px",
                 borderRadius: "10px",
-                border: "1px solid #ccc",
                 padding: "10px 8px",
-                backgroundColor: design_data?.slotBackgroundColor || "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(6px)",
-                WebkitBackdropFilter: "blur(6px)",
-                border: design_data?.slotBackgroundColor
-                  ? "1px solid #ccc"
-                  : "1px solid rgba(255,255,255,0.2)",
                 color: design_data?.slotFontColor || "#000",
                 fontFamily: design_data?.slotFont || "inherit",
                 display: "flex",
@@ -74,6 +67,17 @@ export default function TripleOfferPreviewHorizontal({ slots = [], title, design
                 justifyContent: "space-between",
                 alignItems: "center",
                 textAlign: "center",
+                ...(design_data?.slotBackgroundColor
+                  ? {
+                    backgroundColor: design_data.slotBackgroundColor,
+                    border: "1px solid #ccc",
+                  }
+                  : {
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(6px)",
+                    WebkitBackdropFilter: "blur(6px)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                  }),
               }}
             >
               <div style={{ fontWeight: "bold", fontSize: 13 }}>
