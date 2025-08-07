@@ -1,4 +1,7 @@
 /* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Allow modal and other overlays to appear above everything */
 .ReactModal__Overlay {
