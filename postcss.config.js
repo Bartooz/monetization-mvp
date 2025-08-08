@@ -1,6 +1,8 @@
+const createPreset = require('tailwindcss/createPreset');
+
 module.exports = {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  };
+  plugins: {
+    tailwindcss: createPreset(), // 👈 this line is KEY for Tailwind v4
+    autoprefixer: {},
+  },
+};
