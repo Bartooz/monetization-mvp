@@ -1,7 +1,12 @@
 /* styles/globals.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* your custom styles can stay below */
+body { font-family: sans-serif; }
+
+/* ReactModal overrides... */
+.ReactModal__Overlay { z-index: 9999 !important; background-color: rgba(0,0,0,0.6) !important; }
+.ReactModal__Content { z-index: 10000 !important; /* ... */ }
 
 /* Allow modal and other overlays to appear above everything */
 .ReactModal__Overlay {
