@@ -1,27 +1,24 @@
 // components/Layout.js
-import Link from "next/link";
+import Navbar from "./Navbar";
+import { useRouter } from "next/router";
+import clsx from "clsx"; // if you don't have it, you can inline the ternaries instead
 
 export default function Layout({ children }) {
-  return (
-    <div>
-      <nav
-        style={{
-          background: "#111",
-          color: "white",
-          padding: "10px 20px",
-          display: "flex",
-          gap: "20px",
-          alignItems: "center",
-        }}
-      >
-        <Link href="/" style={{ color: "white", textDecoration: "none" }}>🏠 Home</Link>
-        <Link href="/calendar" style={{ color: "white", textDecoration: "none" }}>📅 Calendar</Link>
-        <Link href="/segmentation" style={{ color: "white", textDecoration: "none" }}>🧩 Segmentation</Link>
-        <Link href="/configurations" style={{ color: "white", textDecoration: "none" }}>⚙️ Configuration</Link>
-        <Link href="/templates" style={{ color: "white", textDecoration: "none" }}>🗂️ Templates</Link>
-      </nav>
+  const { pathname } = useRouter();
+  const isLanding = pathname === "/";
 
-      <main style={{ padding: 20 }}>{children}</main>
+  return (
+    <div
+      className={clsx(
+        "min-h-screen",
+        isLanding ? "bg-[#0b1120] text-gray-100" : "bg-white text-gray-900"
+      )}
+    >
+      <Navbar />
+      <main className={clsx("min-h-[calc(100vh-4rem)]", isLanding ? "" : "bg-white")}>
+        {children}
+      </main>
     </div>
   );
 }
+

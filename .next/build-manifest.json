@@ -32,10 +32,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/calendar.js"
     ],
-    "/segmentation": [
+    "/configurations": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/segmentation.js"
+      "static/chunks/pages/configurations.js"
+    ],
+    "/templates": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/templates.js"
     ]
   },
   "ampFirstPages": []

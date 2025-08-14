@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/calendar": "pages/calendar.js",
+  "/templates": "pages/templates.js",
   "/": "pages/index.js",
-  "/segmentation": "pages/segmentation.js",
-  "/calendar": "pages/calendar.js"
+  "/configurations": "pages/configurations.js"
 }

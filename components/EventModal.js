@@ -37,7 +37,6 @@ const EventModal = ({
       setInternalTemplates(templates);
     }
   }, [templates]);
-
   useEffect(() => {
     if (!isOpen) return;
     const selected = internalTemplates.find((t) =>
@@ -54,8 +53,7 @@ const EventModal = ({
         configuration: selected.configuration || "",
       }));
     }
-  }, [isOpen, newEvent.templateName, templates]);
-
+  }, [isOpen, newEvent.templateName, templates]); // << use internalTemplates here
   const handleChange = (field, value) => {
     setNewEvent({ ...newEvent, [field]: value });
   };
@@ -105,7 +103,7 @@ const EventModal = ({
     }
   };
 
-  
+
 
   return (
     <Modal
@@ -203,8 +201,8 @@ const EventModal = ({
           borderLeft: "1px solid #ccc",
           paddingLeft: "16px"
         }}>
-          
-         {layoutComponentMap[layout] || <TripleOfferPreviewVertical slots={slots} />}
+
+          {layoutComponentMap[layout] || <TripleOfferPreviewVertical slots={slots} />}
 
         </div>
       )}
