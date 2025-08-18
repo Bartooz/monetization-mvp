@@ -2,8 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/configurations": "pages/configurations.js",
   "/calendar": "pages/calendar.js",
-  "/templates": "pages/templates.js",
-  "/": "pages/index.js",
-  "/configurations": "pages/configurations.js"
+  "/": "pages/index.js"
 }

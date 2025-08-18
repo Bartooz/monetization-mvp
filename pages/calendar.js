@@ -34,6 +34,7 @@ export default function CalendarPage() {
   const [configurations, setConfigurations] = useState([]);
   const [selectedEventForPreview, setSelectedEventForPreview] = useState(null);
   const [selectedStatuses, setSelectedStatuses] = useState(["Show All"]);
+  const [showPreview, setShowPreview] = useState(true);
   const allStatuses = ["Draft", "Ready for QA", "QA", "Review", "Ready", "Live", "Done"];
   const calendarRef = useRef(null);
 
@@ -54,7 +55,7 @@ export default function CalendarPage() {
           console.error("Failed to fetch events", err);
           setEvents([]);
         });
-  
+
       fetch(`${BASE_URL}/api/templates`)
         .then((res) => res.json())
         .then((data) => {
@@ -65,7 +66,7 @@ export default function CalendarPage() {
           console.error("Failed to fetch templates", err);
           setTemplates([]);
         });
-  
+
       fetch(`${BASE_URL}/api/configurations`)
         .then((res) => res.json())
         .then(setConfigurations)
@@ -79,7 +80,7 @@ export default function CalendarPage() {
       setConfigurations(loadLocal(LOCAL_CONFIGS_KEY));
     }
   }, []);
-  
+
 
   function getEffectiveStatus(event) {
     const now = new Date();
@@ -94,9 +95,9 @@ export default function CalendarPage() {
 
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.templateName) return;
-  
+
     const fullTemplate = templates.find(t => t.templateName === newEvent.templateName) || {};
-  
+
     const eventToSave = {
       ...newEvent,
       category: newEvent.category || fullTemplate.eventType || "Offer",
@@ -104,14 +105,14 @@ export default function CalendarPage() {
       configuration: newEvent.configuration || fullTemplate.configuration || "",
       template_name: newEvent.templateName,
     };
-  
+
     if (USE_BACKEND) {
       const isEdit = !!newEvent.id;
       const method = isEdit ? "PUT" : "POST";
       const endpoint = isEdit
         ? `${BASE_URL}/api/events/${newEvent.id}`
         : `${BASE_URL}/api/events`;
-  
+
       try {
         await fetch(endpoint, {
           method,
@@ -125,7 +126,7 @@ export default function CalendarPage() {
           start: new Date(e.start).toISOString(),
           end: new Date(e.end).toISOString(),
         }));
-  
+
         setEvents([]);
         setTimeout(() => {
           setEvents(normalized);
@@ -137,29 +138,29 @@ export default function CalendarPage() {
     } else {
       const isEdit = !!newEvent.id;
       let current = loadLocal(LOCAL_EVENTS_KEY);
-  
+
       if (isEdit) {
         current = current.map((e) => (e.id === newEvent.id ? eventToSave : e));
       } else {
         eventToSave.id = Date.now();
         current.push(eventToSave);
       }
-  
+
       saveLocal(LOCAL_EVENTS_KEY, current);
       setEvents(current);
     }
-  
+
     setIsModalOpen(false);
     setNewEvent({ title: "", start: "", end: "", category: "", templateName: "", status: "Draft" });
   };
-  
+
 
   const handleEventDrop = async (info) => {
     const movedEvent = events.find(evt => evt.id == info.event.id);
     if (!movedEvent) return;
-  
+
     const updated = { ...movedEvent, start: info.event.startStr, end: info.event.endStr };
-  
+
     if (USE_BACKEND) {
       try {
         await fetch(`${BASE_URL}/api/events/${updated.id}`, {
@@ -186,7 +187,7 @@ export default function CalendarPage() {
       setEvents(current);
     }
   };
-  
+
 
   const handleEventClick = (info) => {
     const matched = events.find(e => e.id == info.event.id);
@@ -215,7 +216,7 @@ export default function CalendarPage() {
 
   const handleDeleteFromPreview = async () => {
     if (!selectedEventForPreview) return;
-  
+
     if (USE_BACKEND) {
       try {
         await fetch(`${BASE_URL}/api/events/${selectedEventForPreview.id}`, {
@@ -237,10 +238,10 @@ export default function CalendarPage() {
       saveLocal(LOCAL_EVENTS_KEY, current);
       setEvents(current);
     }
-  
+
     setSelectedEventForPreview(null);
   };
-  
+
 
 
 
@@ -268,6 +269,7 @@ export default function CalendarPage() {
             status: "Draft",
           });
           setIsModalOpen(true);
+          setShowPreview(true);
         }}
         style={{ marginBottom: 12 }}
       >
@@ -378,8 +380,8 @@ export default function CalendarPage() {
         handleAddEvent={handleAddEvent}
         templates={templates}
         configurations={configurations}
-        showPreview={true}
-        setShowPreview={() => setShowPreview(true)}
+        showPreview={showPreview}
+        setShowPreview={setShowPreview}
         designData={selectedEventForPreview?.design_data || {}}
       />
 
