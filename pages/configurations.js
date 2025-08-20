@@ -575,7 +575,7 @@ export default function ConfigurationsPage() {
   
 
   .page-title{
-  margin:6px 0 0 0;
+  margin:2rem 0 0 0;
   font-size: clamp(28px, 3.6vw, 40px);
   line-height:1.15;
   font-weight: 900;
