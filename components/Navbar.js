@@ -34,6 +34,7 @@ export default function Navbar() {
         {/* Right side links */}
         <div className="hidden md:flex items-center gap-2">
           <NavLink href="/">Home</NavLink>
+          <NavLink href="/analytics">Analytics</NavLink>
           <NavLink href="/calendar">Calendar</NavLink>
           <NavLink href="/segmentation">Segmentation</NavLink>
           <NavLink href="/configurations">Configuration</NavLink>
@@ -53,6 +54,7 @@ export default function Navbar() {
           </summary>
           <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-[#0b1220] border-t border-black/5 dark:border-white/10 p-2 space-y-1">
             <NavLink href="/">Home</NavLink>
+            <NavLink href="/analytics">Analytics</NavLink>
             <NavLink href="/calendar">Calendar</NavLink>
             <NavLink href="/segmentation">Segmentation</NavLink>
             <NavLink href="/configurations">Configuration</NavLink>

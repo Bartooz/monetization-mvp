@@ -395,74 +395,74 @@ export default function TemplatesPage() {
               </div>
             ))
           )}
-        
 
-        {/* Editor Modal */}
-        {showEditor && (
-          <>
-            <div className="modal-overlay" onClick={() => setShowEditor(false)} />
-            <div role="dialog" aria-modal="true" className="modal-container">
-              <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                  <h3 className="modal-title">{editingTemplate ? "Edit Template" : "Create New Template"}</h3>
-                  <button className="icon-btn" aria-label="Close" onClick={() => setShowEditor(false)}>×</button>
-                </div>
-                <TripleOfferEditor
-                  template={editingTemplate}
-                  onSave={handleSaveTemplate}
-                  onCancel={handleCancelEdit}
-                />
-              </div>
-            </div>
-          </>
-        )}
 
-        {/* Preview Modal */}
-        {showPreview && previewTemplate && (
-          <>
-            <div className="modal-overlay" onClick={closePreview} />
-            <div role="dialog" aria-modal="true" className="modal-container">
-              <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                  <h3 className="modal-title">Preview: {previewTemplate.template_name}</h3>
-                  <button className="icon-btn" aria-label="Close" onClick={closePreview}>×</button>
-                </div>
-
-                <div className="preview-body">
-                  <div className="preview-left">
-                    <PhonePreviewWrapper>
-                      {(() => {
-                        const LayoutPreview =
-                          layoutComponents[previewTemplate?.layout] || TripleOfferPreviewVertical;
-                        const slots = getSlotsForTemplate(previewTemplate);
-                        return (
-                          <LayoutPreview
-                            title={previewTemplate?.title || ""}
-                            slots={slots}
-                            design_data={previewTemplate?.design_data}
-                          />
-                        );
-                      })()}
-                    </PhonePreviewWrapper>
+          {/* Editor Modal */}
+          {showEditor && (
+            <>
+              <div className="modal-overlay" onClick={() => setShowEditor(false)} />
+              <div role="dialog" aria-modal="true" className="modal-container">
+                <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+                  <div className="modal-header">
+                    <h3 className="modal-title">{editingTemplate ? "Edit Template" : "Create New Template"}</h3>
+                    <button className="icon-btn" aria-label="Close" onClick={() => setShowEditor(false)}>×</button>
                   </div>
-                  <div className="preview-right">
-                    <div className="muted">Template Details</div>
-                    <div className="details">
-                      <div><strong>Event Type:</strong> {previewTemplate.event_type || "—"}</div>
-                      <div><strong>Offer Type:</strong> {previewTemplate.offer_type || "—"}</div>
-                      <div><strong>Layout:</strong> {previewTemplate.layout || "—"}</div>
-                      <div><strong>Configuration:</strong> {previewTemplate.configuration || "—"}</div>
-                      <div style={{ marginTop: 8 }}><strong>Description:</strong><div className="muted">{previewTemplate.design_prompt || "—"}</div></div>
+                  <TripleOfferEditor
+                    template={editingTemplate}
+                    onSave={handleSaveTemplate}
+                    onCancel={handleCancelEdit}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Preview Modal */}
+          {showPreview && previewTemplate && (
+            <>
+              <div className="modal-overlay" onClick={closePreview} />
+              <div role="dialog" aria-modal="true" className="modal-container">
+                <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+                  <div className="modal-header">
+                    <h3 className="modal-title">Preview: {previewTemplate.template_name}</h3>
+                    <button className="icon-btn" aria-label="Close" onClick={closePreview}>×</button>
+                  </div>
+
+                  <div className="preview-body">
+                    <div className="preview-left">
+                      <PhonePreviewWrapper>
+                        {(() => {
+                          const LayoutPreview =
+                            layoutComponents[previewTemplate?.layout] || TripleOfferPreviewVertical;
+                          const slots = getSlotsForTemplate(previewTemplate);
+                          return (
+                            <LayoutPreview
+                              title={previewTemplate?.title || ""}
+                              slots={slots}
+                              design_data={previewTemplate?.design_data}
+                            />
+                          );
+                        })()}
+                      </PhonePreviewWrapper>
+                    </div>
+                    <div className="preview-right">
+                      <div className="muted">Template Details</div>
+                      <div className="details">
+                        <div><strong>Event Type:</strong> {previewTemplate.event_type || "—"}</div>
+                        <div><strong>Offer Type:</strong> {previewTemplate.offer_type || "—"}</div>
+                        <div><strong>Layout:</strong> {previewTemplate.layout || "—"}</div>
+                        <div><strong>Configuration:</strong> {previewTemplate.configuration || "—"}</div>
+                        <div style={{ marginTop: 8 }}><strong>Description:</strong><div className="muted">{previewTemplate.design_prompt || "—"}</div></div>
+                      </div>
                     </div>
                   </div>
+
                 </div>
 
               </div>
 
-            </div>
-
-          </>
-        )}
+            </>
+          )}
         </div>
 
         {/* Page styles */}

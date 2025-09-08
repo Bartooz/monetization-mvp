@@ -2,9 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/calendar": "pages/calendar.js",
+  "/analytics": "pages/analytics.js",
   "/templates": "pages/templates.js",
+  "/": "pages/index.js",
+  "/calendar": "pages/calendar.js",
   "/segmentation": "pages/segmentation.js",
-  "/configurations": "pages/configurations.js",
-  "/": "pages/index.js"
+  "/configurations": "pages/configurations.js"
 }
